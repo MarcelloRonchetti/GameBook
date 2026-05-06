@@ -1,11 +1,15 @@
 {
-  "enabledPlugins": {
-    "github@claude-plugins-official": false
-  },
   "permissions": {
     "allow": [
       "Bash(mkdir -p /home/marci/.claude/skills/gamebook-doc-sync)",
-      "Read(//home/marci/.claude/**)"
+      "Read(//home/marci/.claude/**)",
+      "Bash(node -c components/NarratorView.js)",
+      "Bash(node -c screens/gm/RoomListScreen.js)",
+      "Bash(node -c screens/gm/DashboardScreen.js)",
+      "Bash(node -c screens/gm/PlayerDetailScreen.js)"
     ]
+  },
+  "enabledPlugins": {
+    "github@claude-plugins-official": false
   }
 }

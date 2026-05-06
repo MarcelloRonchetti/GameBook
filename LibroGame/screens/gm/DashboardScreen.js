@@ -30,12 +30,16 @@ export default function DashboardScreen({ route, navigation }) {
   // della funzione (stale closure). Con il ref invece chiama sempre quella aggiornata.
   const fetchPlayersRef = useRef(null);
 
-  // Inserisce un bottone "Stanze" nell'header che riporta alla RoomList
+  // Inserisce un bottone "Stanze" nell'header che riporta alla RoomList.
+  // Usa goBack() invece di navigate('RoomList'): RoomList è sempre sotto
+  // Dashboard nello stack (push da RoomList o replace da CreateRoom),
+  // e goBack() smonta Dashboard in modo pulito evitando race con il
+  // remount alla riapertura (causa dello "schermo bianco" su web).
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
-          onPress={() => navigation.navigate('RoomList')}
+          onPress={() => navigation.goBack()}
           style={styles.headerButton}
         >
           <Text style={styles.headerButtonText}>← Stanze</Text>
@@ -191,63 +195,59 @@ export default function DashboardScreen({ route, navigation }) {
   );
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={players}
-        keyExtractor={item => item.id}
-        renderItem={renderPlayer}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            Nessun giocatore ancora connesso
-          </Text>
-        }
-        ListHeaderComponent={
-          <>
-            {/* Codice stanza — ben visibile per condividerlo con i giocatori */}
-            <View style={styles.codeContainer}>
-              <Text style={styles.codeLabel}>Codice Stanza</Text>
-              <Text style={styles.code}>{room.code}</Text>
-              <Text style={[
-                styles.status,
-                roomStatus === 'open' ? styles.statusOpen : styles.statusClosed
-              ]}>
-                {roomStatus === 'open' ? '🟢 Aperta' : '🔴 Chiusa'}
-              </Text>
-            </View>
+    // FlatList come root: il wrapper View con flex:1+padding impediva
+    // lo scroll su web quando il contenuto eccedeva la viewport.
+    // Padding e bg vivono ora in styles.list / styles.listContent.
+    <FlatList
+      data={players}
+      keyExtractor={item => item.id}
+      renderItem={renderPlayer}
+      style={styles.list}
+      contentContainerStyle={styles.listContent}
+      ListEmptyComponent={
+        <Text style={styles.emptyText}>
+          Nessun giocatore ancora connesso
+        </Text>
+      }
+      ListHeaderComponent={
+        <>
+          {/* Codice stanza — ben visibile per condividerlo con i giocatori */}
+          <View style={styles.codeContainer}>
+            <Text style={styles.codeLabel}>Codice Stanza</Text>
+            <Text style={styles.code}>{room.code}</Text>
+            <Text style={[
+              styles.status,
+              roomStatus === 'open' ? styles.statusOpen : styles.statusClosed
+            ]}>
+              {roomStatus === 'open' ? '🟢 Aperta' : '🔴 Chiusa'}
+            </Text>
+          </View>
 
-            {/* Lista giocatori */}
-            <Text style={styles.sectionTitle}>
-              Giocatori ({players.length})
-            </Text>
-          </>
-        }
-        ListFooterComponent={
-          <TouchableOpacity
-            style={[
-              styles.closeButton,
-              roomStatus === 'closed' && styles.closeButtonDisabled
-            ]}
-            onPress={handleCloseRoom}
-            disabled={roomStatus === 'closed'}
-          >
-            <Text style={styles.closeButtonText}>
-              {roomStatus === 'open' ? 'Chiudi Stanza' : 'Stanza Chiusa'}
-            </Text>
-          </TouchableOpacity>
-        }
-        style={styles.list}
-      />
-    </View>
+          {/* Lista giocatori */}
+          <Text style={styles.sectionTitle}>
+            Giocatori ({players.length})
+          </Text>
+        </>
+      }
+      ListFooterComponent={
+        <TouchableOpacity
+          style={[
+            styles.closeButton,
+            roomStatus === 'closed' && styles.closeButtonDisabled
+          ]}
+          onPress={handleCloseRoom}
+          disabled={roomStatus === 'closed'}
+        >
+          <Text style={styles.closeButtonText}>
+            {roomStatus === 'open' ? 'Chiudi Stanza' : 'Stanza Chiusa'}
+          </Text>
+        </TouchableOpacity>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#f5f5f5',
-  },
   codeContainer: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -276,8 +276,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     color: '#333',
   },
-  list: { flex: 1 },
-  listContent: { paddingBottom: 20 },
+  list: { flex: 1, backgroundColor: '#f5f5f5' },
+  listContent: { padding: 20, paddingBottom: 20 },
   playerCard: {
     backgroundColor: '#fff',
     borderRadius: 10,

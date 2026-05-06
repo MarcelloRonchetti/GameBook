@@ -51,10 +51,10 @@ Ignore node_modules folder when scanning the project files
   - `RegisterScreen` creates player accounts only (validations: username min 3, email regex, password min 6, confirm). GM accounts are created manually in Supabase.
 
 - GM screens:
-  - `RoomListScreen` lists rooms, supports enter/close/reopen/delete (with `confirm()` for destructive actions), and exposes logout in the header.
+  - `RoomListScreen` lists rooms, supports enter/close/reopen/delete (with `confirm()` for destructive actions), and exposes logout in the header. The `FlatList` is the screen root (no wrapper `<View>`) so it scrolls correctly on web; "Entra" uses `navigation.push('Dashboard', …)` to force a fresh Dashboard instance every time (avoids the white-screen on re-enter bug).
   - `CreateRoomScreen` creates named rooms with story selection and auto-hint timing. Inline error banner.
-  - `DashboardScreen` shows room code, status, connected players in realtime, current scene, close-room action, and player removal. Header back button to `RoomList`.
-  - `PlayerDetailScreen` shows player progress (vertical timeline with colored dots: green=solved, orange=pending) and sends manual text hints; `notify()` for validation/send errors.
+  - `DashboardScreen` shows room code, status, connected players in realtime, current scene, close-room action, and player removal. Header back button uses `navigation.goBack()` (RoomList is always below in the stack) so Dashboard unmounts cleanly. The `FlatList` is the screen root (no wrapper `<View>`) so it scrolls correctly on web.
+  - `PlayerDetailScreen` shows player progress (vertical timeline with colored dots: green=solved, orange=pending) and sends manual text hints; `notify()` for validation/send errors. The `FlatList` is the direct child of `KeyboardAvoidingView` (no wrapper `<View>`) so it scrolls correctly on web.
 
 - Player screens:
   - `JoinRoomScreen` validates a 6-digit code, joins open rooms, and resumes progress. The code input is trimmed and then `.padStart(6, '0')` is applied so that codes with leading zeros (e.g. `001234`) are preserved before the Supabase lookup. Uses `maybeSingle()` to avoid errors on missing rooms. Calls `resolvePlayerResumeRoute` and `navigation.reset` to the right scene. Logout link via `confirmLogout`.
@@ -65,7 +65,7 @@ Ignore node_modules folder when scanning the project files
   - `SceneScreen` and `AnagramScreen` are legacy route fallbacks.
 
 - Components:
-  - Current flow: `NarratorView` (typewriter dialog with placeholder fallback), `AnagramOverlay` (anagram panel, GM hints, Illusionista cipher, next-scene choices), `AutoHintEffect`, `GmHint` (shows only the latest hint), `AnagramInput`.
+  - Current flow: `NarratorView` (typewriter dialog with placeholder fallback; the narration body is wrapped in a `ScrollView` and the character + dialog use a flow layout — not absolute positioning — so they remain reachable via scroll on short windows), `AnagramOverlay` (anagram panel, GM hints, Illusionista cipher, next-scene choices), `AutoHintEffect`, `GmHint` (shows only the latest hint), `AnagramInput`.
   - Reusable/legacy support: `PlayerCard`, `SceneCard`.
 
 - Libraries:
@@ -474,6 +474,15 @@ The `gm elimina stanza` policy is required by `RoomListScreen` deletion. Without
 - `RoomListScreen` deletes child rows from `progress`, `hints`, and `room_players` before deleting `rooms`; make sure RLS policies allow these deletes or use database cascades.
 - `DashboardScreen` player removal requires a GM `DELETE` policy on `room_players`.
 - `DirectriceScreen` only persists final completion, not the per-anagram solved state during the final puzzle.
+
+## Web layout rules (scroll & re-mount)
+
+The app runs on `react-native-web`; a few patterns are required to keep web behavior sane:
+
+- **Screens with a `FlatList`**: use the `FlatList` as the screen root (or as the direct child of a `KeyboardAvoidingView`) and put padding/background in `style` and `contentContainerStyle`. Wrapping the `FlatList` in a `<View style={{ flex: 1, padding: ... }}>` breaks vertical scroll on short windows. This applies to `RoomListScreen`, `DashboardScreen`, `PlayerDetailScreen`.
+- **Screens with form-like content**: wrap content in a `ScrollView` whose `contentContainerStyle` uses `flexGrow: 1` (NOT `flex: 1`). Avoid `justifyContent: 'center'` on the content container if the content can grow taller than the viewport — it pushes the top off-screen on short windows.
+- **Cinematic / full-bleed screens** (`NarratorView` inside `CircoStanzaScreen`): keep the background as an absolutely-positioned layer behind a `ScrollView`. Move the foreground (character, dialog) into a flow layout inside the `ScrollView`. This keeps the cinematic feel on tall windows and degrades to a scrollable page on short ones.
+- **Stack re-entry**: when a route is reachable from multiple paths and you may re-enter it with the same params, prefer `navigation.push(name, params)` for the forward step and `navigation.goBack()` for the backward step. `navigation.navigate(name, sameParams)` can race with the previous instance's unmount on web and present a white card. The `RoomList → Dashboard` pair uses this convention.
 
 ## Project notes
 

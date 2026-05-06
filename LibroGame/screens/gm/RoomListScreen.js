@@ -60,7 +60,10 @@ export default function RoomListScreen({ navigation }) {
   };
 
   const handleEnterRoom = (room) => {
-    navigation.navigate('Dashboard', { room });
+    // navigation.push (non navigate) per garantire una nuova istanza di
+    // Dashboard ad ogni "Entra". Su web, navigate con stesse params può
+    // riusare l'istanza precedente in fase di unmount → schermo bianco.
+    navigation.push('Dashboard', { room });
   };
 
   const handleReopenRoom = (room) => {
@@ -196,47 +199,43 @@ export default function RoomListScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={rooms}
-        keyExtractor={item => item.id}
-        renderItem={renderRoom}
-        style={styles.listFrame}
-        contentContainerStyle={styles.list}
-        ListHeaderComponent={
-          <Text style={styles.title}>Le mie stanze</Text>
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Nessuna stanza ancora creata</Text>
-            <Text style={styles.emptySubtext}>Crea la tua prima stanza per iniziare!</Text>
-          </View>
-        }
-        ListFooterComponent={
-          <TouchableOpacity
-            style={styles.createButton}
-            onPress={() => navigation.navigate('CreateRoom')}
-          >
-            <Text style={styles.createButtonText}>+ Crea nuova stanza</Text>
-          </TouchableOpacity>
-        }
-      />
-    </View>
+    // FlatList come root: il wrapper View con flex:1+padding interferiva
+    // con lo scroll della lista su web quando il contenuto eccedeva la
+    // viewport. Padding e bg vivono ora nello style/contentContainerStyle.
+    <FlatList
+      data={rooms}
+      keyExtractor={item => item.id}
+      renderItem={renderRoom}
+      style={styles.listFrame}
+      contentContainerStyle={styles.list}
+      ListHeaderComponent={
+        <Text style={styles.title}>Le mie stanze</Text>
+      }
+      ListEmptyComponent={
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Nessuna stanza ancora creata</Text>
+          <Text style={styles.emptySubtext}>Crea la tua prima stanza per iniziare!</Text>
+        </View>
+      }
+      ListFooterComponent={
+        <TouchableOpacity
+          style={styles.createButton}
+          onPress={() => navigation.navigate('CreateRoom')}
+        >
+          <Text style={styles.createButtonText}>+ Crea nuova stanza</Text>
+        </TouchableOpacity>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-    paddingBottom: 0,
-  },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
+    backgroundColor: '#f5f5f5',
   },
   loadingText: { color: '#666', fontSize: 15 },
   title: {
@@ -247,8 +246,10 @@ const styles = StyleSheet.create({
   },
   listFrame: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
   },
   list: {
+    padding: 20,
     paddingBottom: 20,
   },
   card: {

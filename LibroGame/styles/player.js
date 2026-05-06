@@ -767,20 +767,35 @@ export const circoStanzaStyles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.60)',
   },
 
-  // --- SPRITE PERSONAGGIO ---
-  // Posizionato a sinistra-centro in modalità narrazione
-  characterContainer: {
-    position: 'absolute',
-    bottom: 160,         // sopra la dialog box
-    left: '5%',
-    width: '42%',
-    height: '65%',
+  // --- SCROLL WRAPPER (modalità narrazione) ---
+  // Permette di scrollare verticalmente il contenuto della narrazione
+  // quando la finestra è troppo piccola (es. browser ridotto su web).
+  narrationScroll: {
+    flex: 1,
+  },
+  narrationScrollContent: {
+    flexGrow: 1,
     justifyContent: 'flex-end',
+    // Su finestre alte, il dialog "scivola" naturalmente in basso;
+    // su finestre piccole, il contenuto eccede e diventa scrollabile.
+  },
+  narrationInner: {
+    width: '100%',
+  },
+
+  // --- SPRITE PERSONAGGIO ---
+  // Layout flow: in alto rispetto al dialogo, centrato orizzontalmente.
+  // Niente più position: absolute, così entra nel flusso scrollabile.
+  characterContainer: {
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingTop: 60,
+    paddingHorizontal: 16,
+    minHeight: 340,
   },
   characterImage: {
-    width: '100%',
-    height: '100%',
+    width: 260,
+    height: 320,
     resizeMode: 'contain',
   },
   // Versione mini durante l'anagramma — angolo in basso a sinistra
@@ -799,10 +814,9 @@ export const circoStanzaStyles = StyleSheet.create({
   },
 
   // --- DIALOG BOX (narrazione) ---
-  // Box in basso con nome NPC + testo typewriter
+  // Layout flow: appare sotto lo sprite del personaggio, in fondo al
+  // contenitore scrollabile. Niente più position: absolute.
   dialogBox: {
-    position: 'absolute',
-    bottom: 0, left: 0, right: 0,
     backgroundColor: 'rgba(15,10,5,0.92)',
     borderTopWidth: 2,
     borderTopColor: '#c8a45a',

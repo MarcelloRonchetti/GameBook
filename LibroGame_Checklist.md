@@ -39,6 +39,10 @@
 - [x] Logout GM e Player
 - [x] Errori form critici tramite banner inline invece di `Alert.alert`
 - [x] Aggiunto `react-native-svg` a `LibroGame/package.json` per evitare il crash di `MapScreen` su installazione pulita
+- [x] Fix scroll web in `RoomListScreen`, `DashboardScreen`, `PlayerDetailScreen`: rimosso wrapper `<View flex:1+padding>` e portato padding/bg in `style`/`contentContainerStyle` della `FlatList`
+- [x] Fix scroll web in `CreateRoomScreen`: aggiunto `paddingBottom` extra al container per non lasciare il bottone "Crea Stanza" a filo del fondo
+- [x] Fix scroll web in `CircoStanzaScreen` (modalità narrazione): `NarratorView` ora avvolge il contenuto in una `ScrollView`; sprite e dialog usano flow layout invece di posizionamento assoluto
+- [x] Fix bug schermo bianco rientrando in una stanza dal `RoomList`: `RoomListScreen.handleEnterRoom` ora usa `navigation.push('Dashboard', …)` invece di `navigate`, e l'header back di `DashboardScreen` usa `navigation.goBack()` invece di `navigate('RoomList')`
 
 ---
 
@@ -61,6 +65,9 @@
 - [ ] Rendering asset: `circus_map.png`, `acrobata.png`, `acrobata_bg.png`
 - [ ] Map layout su mobile landscape/portrait e web
 - [ ] Direttrice: comportamento al refresh durante i 12 anagrammi finali
+- [ ] Verifica scroll su web a finestra ridotta in: `CreateRoom`, `RoomList`, `Dashboard`, `PlayerDetail`, `CircoStanza` modalità narrazione (start scene Acrobata)
+- [ ] Verifica che entrando in una stanza, tornando a `RoomList` e rientrando nella stessa stanza, il `Dashboard` si rimonti correttamente (niente schermo bianco) sia su web sia su mobile
+- [ ] Verifica che la `MapScreen` e la `DirectriceScreen` non abbiano lo stesso problema di scroll su web a finestra ridotta
 
 ---
 
@@ -151,3 +158,6 @@
 13. **Bug fix `JoinRoomScreen`**: root cause era `Alert.alert` silente sul web — risolto con banner inline per tutti gli errori (codice vuoto/errato, stanza non trovata/chiusa, errore DB, sessione invalida, errore upsert).
 14. **Stack Expo SDK 54**: `expo` pinnato a `~54.0.34` — non aggiornare a 55. Expo Go non è compatibile (richiede SDK 55).
 15. **Bug fix `JoinRoomScreen` — zeri iniziali**: la validazione applicava `.trim()` al codice stanza ma perdeva gli zeri iniziali (es. `001234` → `1234`), facendo fallire il match a 6 cifre. Risolto aggiungendo `.padStart(6, '0')` dopo il `trim()` in modo che il codice torni sempre a 6 caratteri prima della query Supabase.
+16. **Layout web — `FlatList` come root di schermata**: le schermate `RoomListScreen`, `DashboardScreen`, `PlayerDetailScreen` avvolgevano la `FlatList` in un `<View style={{ flex: 1, padding: 20 }}>`. Su `react-native-web` questo wrapper bloccava lo scroll interno della lista quando il contenuto eccedeva la viewport. Risolto rendendo la `FlatList` la radice della schermata (o figlio diretto del `KeyboardAvoidingView` per `PlayerDetail`) e spostando padding/bg in `style` + `contentContainerStyle`.
+17. **Layout web — `NarratorView` scrollabile**: la modalità narrazione di `CircoStanzaScreen` posizionava sprite e dialog box in `position: absolute`. Su finestre piccole il dialog usciva dalla viewport e non era raggiungibile (niente scroll). Risolto convertendo sprite e dialog in flow layout dentro una `ScrollView`; lo sfondo e l'overlay restano assoluti dietro al contenuto scrollabile per preservare il look cinematografico su finestre alte.
+18. **Bug fix — schermo bianco al rientro in `Dashboard`**: con `navigation.navigate('Dashboard', { room })` da `RoomList` e `navigation.navigate('RoomList')` da `Dashboard`, il rientro in una stanza dopo essere tornati alla lista produceva uno schermo bianco su web (race tra unmount precedente e remount). Risolto: `RoomListScreen.handleEnterRoom` usa ora `navigation.push('Dashboard', …)` per forzare una nuova istanza, e l'header back di `Dashboard` usa `navigation.goBack()` per smontarla in modo pulito (RoomList è sempre sotto nello stack — sia che si arrivi via `push` da RoomList sia via `replace` da CreateRoom).

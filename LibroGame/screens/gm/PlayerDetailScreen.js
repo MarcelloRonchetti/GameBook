@@ -135,8 +135,11 @@ export default function PlayerDetailScreen({ route }) {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.container}>
-        <FlatList
+      {/* FlatList direttamente sotto KAV: il vecchio wrapper View con
+          flex:1+padding bloccava lo scroll su web quando il contenuto
+          (timeline + sezione hint) eccedeva la viewport. Padding e bg
+          vivono ora in styles.list / styles.listContent. */}
+      <FlatList
           data={progress}
           keyExtractor={(item, index) => `${item.scene_id}-${index}`}
           renderItem={renderProgressItem}
@@ -201,7 +204,6 @@ export default function PlayerDetailScreen({ route }) {
             </>
           }
         />
-      </View>
     </KeyboardAvoidingView>
   );
 }

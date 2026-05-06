@@ -18,7 +18,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View, Text, Image, ImageBackground,
+  View, Text, Image, ImageBackground, ScrollView,
   TouchableWithoutFeedback, TouchableOpacity, Animated,
 } from 'react-native';
 
@@ -130,78 +130,85 @@ export default function NarratorView({
   };
 
   return (
-    <TouchableWithoutFeedback onPress={handleTap}>
-      <View style={styles.container}>
+    <View style={styles.container}>
 
-        {/* SFONDO */}
-        {backgroundAsset ? (
-          <Image
-            source={backgroundAsset}
-            style={[styles.background, styles.backgroundImage]}
-            resizeMode="cover"
-          />
-        ) : (
-          // Placeholder colorato se non c'è ancora lo sfondo
-          <View style={[styles.background, { backgroundColor: npc.color, opacity: 0.3 }]} />
-        )}
+      {/* SFONDO — fissato dietro lo ScrollView, non scrolla */}
+      {backgroundAsset ? (
+        <Image
+          source={backgroundAsset}
+          style={[styles.background, styles.backgroundImage]}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={[styles.background, { backgroundColor: npc.color, opacity: 0.3 }]} />
+      )}
 
-        {/* OVERLAY scuro */}
-        <View style={styles.overlay} />
+      {/* OVERLAY scuro — anch'esso fisso */}
+      <View style={styles.overlay} />
 
-        {/* SPRITE PERSONAGGIO */}
-        {characterAsset ? (
-          <View style={styles.characterContainer}>
-            <Image
-              source={characterAsset}
-              style={styles.characterImage}
-              resizeMode="contain"
-            />
-          </View>
-        ) : (
-          // Placeholder emoji se non c'è ancora lo sprite
-          <View style={[styles.characterContainer, { alignItems: 'center', justifyContent: 'center' }]}>
-            <Text style={{ fontSize: 100 }}>{npc.emoji}</Text>
-          </View>
-        )}
+      {/* CONTENUTO SCROLLABILE — su finestre piccole il box dialogo
+          e lo sprite restano accessibili tramite scroll verticale. */}
+      <ScrollView
+        style={styles.narrationScroll}
+        contentContainerStyle={styles.narrationScrollContent}
+        showsVerticalScrollIndicator
+      >
+        <TouchableWithoutFeedback onPress={handleTap}>
+          <View style={styles.narrationInner}>
 
-        {/* DIALOG BOX */}
-        <View style={styles.dialogBox}>
-          <View style={styles.dialogHeader}>
-            <Text style={styles.dialogName}>
-              {npc.label.toUpperCase()}
-            </Text>
-            {!allDone && (
-              <Text style={styles.dialogTapHint}>
-                {isTyping ? 'tocca per saltare' : 'tocca per continuare ›'}
-              </Text>
+            {/* SPRITE PERSONAGGIO (flow layout) */}
+            {characterAsset ? (
+              <View style={styles.characterContainer}>
+                <Image
+                  source={characterAsset}
+                  style={styles.characterImage}
+                  resizeMode="contain"
+                />
+              </View>
+            ) : (
+              <View style={[styles.characterContainer, { alignItems: 'center', justifyContent: 'center' }]}>
+                <Text style={{ fontSize: 100 }}>{npc.emoji}</Text>
+              </View>
             )}
-          </View>
 
-          {/* Testo con cursore lampeggiante */}
-          <Text style={styles.dialogText}>
-            {displayed}
-            {!allDone && (
-              <Animated.Text style={[styles.dialogCursor, { opacity: cursorOpacity }]}>
-                {blockDone ? '' : '▌'}
-              </Animated.Text>
-            )}
-          </Text>
+            {/* DIALOG BOX (flow layout — non più assoluto) */}
+            <View style={styles.dialogBox}>
+              <View style={styles.dialogHeader}>
+                <Text style={styles.dialogName}>
+                  {npc.label.toUpperCase()}
+                </Text>
+                {!allDone && (
+                  <Text style={styles.dialogTapHint}>
+                    {isTyping ? 'tocca per saltare' : 'tocca per continuare ›'}
+                  </Text>
+                )}
+              </View>
 
-          {/* Bottone Anagramma — visibile solo quando tutto il testo è stato mostrato */}
-          {allDone && (
-            <TouchableOpacity
-              style={styles.anagramButton}
-              onPress={onStartAnagram}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.anagramButtonText}>
-                🔤 Affronta l'anagramma
+              <Text style={styles.dialogText}>
+                {displayed}
+                {!allDone && (
+                  <Animated.Text style={[styles.dialogCursor, { opacity: cursorOpacity }]}>
+                    {blockDone ? '' : '▌'}
+                  </Animated.Text>
+                )}
               </Text>
-            </TouchableOpacity>
-          )}
-        </View>
 
-      </View>
-    </TouchableWithoutFeedback>
+              {allDone && (
+                <TouchableOpacity
+                  style={styles.anagramButton}
+                  onPress={onStartAnagram}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.anagramButtonText}>
+                    🔤 Affronta l'anagramma
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+          </View>
+        </TouchableWithoutFeedback>
+      </ScrollView>
+    </View>
   );
 }

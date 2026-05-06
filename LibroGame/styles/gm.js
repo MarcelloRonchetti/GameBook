@@ -12,6 +12,7 @@ export const createRoomStyles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: spacing.xl,
+    paddingBottom: spacing.xxxl,
     backgroundColor: colors.bgLight,
   },
   title: {
@@ -251,12 +252,7 @@ export const dashboardStyles = StyleSheet.create({
 // PlayerDetailScreen — layout Marcello con timeline verticale
 // ---------------------------------------------------------------------------
 export const playerDetailStyles = StyleSheet.create({
-  flex: { flex: 1 },
-  container: {
-    flex: 1,
-    padding: spacing.xl,
-    backgroundColor: colors.bgLight,
-  },
+  flex: { flex: 1, backgroundColor: colors.bgLight },
   // Header giocatore
   header: {
     backgroundColor: colors.surfaceLight,
@@ -284,8 +280,10 @@ export const playerDetailStyles = StyleSheet.create({
   },
   list: {
     flex: 1,
+    backgroundColor: colors.bgLight,
   },
   listContent: {
+    padding: spacing.xl,
     paddingBottom: spacing.xl,
   },
   progressItem: {
