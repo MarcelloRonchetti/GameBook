@@ -784,18 +784,19 @@ export const circoStanzaStyles = StyleSheet.create({
   },
 
   // --- SPRITE PERSONAGGIO ---
-  // Layout flow: in alto rispetto al dialogo, centrato orizzontalmente.
-  // Niente più position: absolute, così entra nel flusso scrollabile.
+  // Posizione assoluta: davanti alla finestra, zona sinistra-centro
   characterContainer: {
-    alignItems: 'center',
+    position: 'absolute',
+    left: '18%',
+    bottom: 150,
+    width: '20%',
+    height: '62%',
     justifyContent: 'flex-end',
-    paddingTop: 60,
-    paddingHorizontal: 16,
-    minHeight: 340,
+    alignItems: 'center',
   },
   characterImage: {
-    width: 260,
-    height: 320,
+    width: '100%',
+    height: '100%',
     resizeMode: 'contain',
   },
   // Versione mini durante l'anagramma — angolo in basso a sinistra

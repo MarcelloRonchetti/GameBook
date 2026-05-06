@@ -18,7 +18,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View, Text, Image, ImageBackground, ScrollView,
+  View, Text, Image, ImageBackground,
   TouchableWithoutFeedback, TouchableOpacity, Animated,
 } from 'react-native';
 
@@ -146,32 +146,24 @@ export default function NarratorView({
       {/* OVERLAY scuro — anch'esso fisso */}
       <View style={styles.overlay} />
 
-      {/* CONTENUTO SCROLLABILE — su finestre piccole il box dialogo
-          e lo sprite restano accessibili tramite scroll verticale. */}
-      <ScrollView
-        style={styles.narrationScroll}
-        contentContainerStyle={styles.narrationScrollContent}
-        showsVerticalScrollIndicator
-      >
-        <TouchableWithoutFeedback onPress={handleTap}>
-          <View style={styles.narrationInner}>
+      {/* SPRITE PERSONAGGIO — assoluto, fuori dal flusso scroll */}
+      {characterAsset ? (
+        <View style={styles.characterContainer} pointerEvents="none">
+          <Image
+            source={characterAsset}
+            style={styles.characterImage}
+            resizeMode="contain"
+          />
+        </View>
+      ) : (
+        <View style={[styles.characterContainer, { alignItems: 'center', justifyContent: 'center' }]} pointerEvents="none">
+          <Text style={{ fontSize: 100 }}>{npc.emoji}</Text>
+        </View>
+      )}
 
-            {/* SPRITE PERSONAGGIO (flow layout) */}
-            {characterAsset ? (
-              <View style={styles.characterContainer}>
-                <Image
-                  source={characterAsset}
-                  style={styles.characterImage}
-                  resizeMode="contain"
-                />
-              </View>
-            ) : (
-              <View style={[styles.characterContainer, { alignItems: 'center', justifyContent: 'center' }]}>
-                <Text style={{ fontSize: 100 }}>{npc.emoji}</Text>
-              </View>
-            )}
-
-            {/* DIALOG BOX (flow layout — non più assoluto) */}
+      {/* DIALOG BOX — assoluto in fondo */}
+      <TouchableWithoutFeedback onPress={handleTap}>
+        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
             <View style={styles.dialogBox}>
               <View style={styles.dialogHeader}>
                 <Text style={styles.dialogName}>
@@ -208,7 +200,6 @@ export default function NarratorView({
 
           </View>
         </TouchableWithoutFeedback>
-      </ScrollView>
     </View>
   );
 }
