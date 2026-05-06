@@ -6,7 +6,23 @@
       "Bash(node -c components/NarratorView.js)",
       "Bash(node -c screens/gm/RoomListScreen.js)",
       "Bash(node -c screens/gm/DashboardScreen.js)",
-      "Bash(node -c screens/gm/PlayerDetailScreen.js)"
+      "Bash(node -c screens/gm/PlayerDetailScreen.js)",
+      "Bash(lsof -ti:8081)",
+      "Bash(xargs kill -9)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:8081)",
+      "Bash(tail -100 /tmp/expo.log 2>/dev/null | grep -i \"error\\\\|warn\\\\|librogame\\\\|scroll\\\\|app.js\" || echo \"No relevant logs; showing last 50 lines:\" && tail -50 /tmp/expo.log)",
+      "Read(//tmp/**)",
+      "Bash(pkill -f \"expo start\")",
+      "Bash(pkill -f \"node.*metro\")",
+      "Read(//home/marci/**)",
+      "Bash(npx playwright *)",
+      "Bash(npx -y @playwright/mcp@latest --help)",
+      "Bash(npm config *)",
+      "Bash(mkdir -p /home/marci/.var/app/com.visualstudio.code/data/node_modules && echo \"created\" && npx -y @playwright/mcp@latest --help 2>&1 | head -30)"
+    ],
+    "additionalDirectories": [
+      "/home/marci/.var/app/com.visualstudio.code/data"
     ]
   },
   "enabledPlugins": {

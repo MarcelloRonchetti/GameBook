@@ -45,7 +45,7 @@ export default function AppNavigator() {
           headerStyle: { backgroundColor: '#1a1a1a' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
-          cardStyle: { backgroundColor: '#000000' },
+          cardStyle: { backgroundColor: '#000000', flex: 1 },
           animationEnabled: true,
         }}
       >
