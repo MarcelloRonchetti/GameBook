@@ -44,6 +44,18 @@
 - [x] Fix scroll web in `CreateRoomScreen`: aggiunto `paddingBottom` extra al container per non lasciare il bottone "Crea Stanza" a filo del fondo
 - [x] Fix scroll web in `CircoStanzaScreen` (modalità narrazione): `NarratorView` ora avvolge il contenuto in una `ScrollView`; sprite e dialog usano flow layout invece di posizionamento assoluto
 - [x] Fix bug schermo bianco rientrando in una stanza dal `RoomList`: `RoomListScreen.handleEnterRoom` ora usa `navigation.push('Dashboard', …)` invece di `navigate`, e l'header back di `DashboardScreen` usa `navigation.goBack()` invece di `navigate('RoomList')`
+- [x] `AutoHintEffect` refactored: supporta PNG trasparenti con `tintColor` oro + animazione pulsante (gold silhouette). Modalità immagine (`hintImage` + `hintImageStyle`) e fallback bordo oro schermo intero
+- [x] `getHintAsset` + `HINT_POSITIONS` aggiunti a `theme.js` per hint image e posizionamento per-scena. Asset hint Acrobata registrato (`assets/hints/acrobata_hint.png`)
+- [x] `NarratorView` — refactor completo: sfondo reso con `renderBackground()` (funzione inline, non componente) per evitare unmount/remount e flash nero; placeholder colore NPC prima del backgroundAsset per evitare schermo nero al caricamento
+- [x] `NarratorView` — modalità "quick view" al ritorno dall'anagramma: typewriter saltato, mostrati direttamente due pulsanti ("Rileggi il testo" / "Affronta l'anagramma"). Prop `skipNarration` da `CircoStanzaScreen`
+- [x] `NarratorView` — `AutoHintEffect` spostato dentro (era in `CircoStanzaScreen`): hint visibile solo in modalità narrazione e posizionato sotto al dialog (zIndex 1, dialog zIndex 2)
+- [x] `CircoStanzaScreen` — modalità anagramma mostra sfondo reale + overlay scuro + personaggio (zIndex: 0 per stare dietro al pannello `AnagramOverlay`)
+- [x] `CircoStanzaScreen` — guard `if (!progressLoaded || !scene)` semplificato a `if (!scene)` per render immediato senza attendere Supabase
+- [x] `CircoStanzaScreen` — `returnedFromAnagram` inizializzato a `false` (non da `initialMode`) per evitare quick view alla prima entrata
+- [x] `CircoStanzaScreen` — `handleGoToMap` aggiunto: porta alla mappa con tutti i next choices come `nextAvailable`
+- [x] `AnagramOverlay` — sezione "risolto" (non-Illusionista): rimossi pulsanti di scelta NPC, aggiunto tasto unico "🗺️ Vai alla mappa →" che chiama `onGoToMap`; mantenuta la domanda `scene.question` + sottotitolo "Sia fatta la vostra volontà."
+- [x] `ImagePreloader` persistente in `App.js`: renderizza `<Image>` nascosti (1×1 px) per mappa, backgrounds e characters dopo 100 ms dal boot — previene ri-decodifica su web ad ogni navigazione
+- [x] `MapScreen` — `Asset.loadAsync` per precaricamento backgrounds e characters su native mentre il player vede la mappa
 
 ---
 
@@ -101,7 +113,7 @@
 ### Gameplay
 
 - [ ] Persistenza parziale degli anagrammi risolti in `DirectriceScreen`
-- [ ] Verificare che `CircoStanzaScreen` in modalità anagramma mostri correttamente background/sprite quando gli asset esistono
+- [x] Verificare che `CircoStanzaScreen` in modalità anagramma mostri correttamente background/sprite quando gli asset esistono — risolto
 - [ ] Decidere se rimuovere definitivamente `SceneScreen` e `AnagramScreen` quando il nuovo flusso è stabile
 
 ### Tooling
@@ -115,7 +127,8 @@
 - [ ] Aggiungere immagini reali per tutti gli NPC mancanti
 - [ ] Aggiungere background stanza per tutti gli NPC mancanti
 - [ ] Raffinare mappa e coordinate dei nodi dopo test su dispositivi reali
-- [ ] Varianti di `AutoHintEffect` per scena
+- [x] Sistema `AutoHintEffect` per-scena implementato (componente, `getHintAsset`, `HINT_POSITIONS`) — asset Acrobata (`acrobata_hint.png`) da posizionare in `assets/hints/`; coordinate calibrate: `top: 8.9%, left: 38.1%, width: 30%, height: 49.2%`
+- [ ] Aggiungere asset hint per gli altri NPC (Funambolo, Giocoliere, ecc.)
 - [ ] Splash/icona app personalizzata
 - [ ] Rifinitura visuale di Dashboard GM e PlayerDetail
 
@@ -166,3 +179,15 @@
 
 
 ## Bugs
+
+### Risolti
+- **Flash nero durante re-read narrazione**: `Background` era un componente React definito dentro il render → unmount/remount ad ogni stato. Risolto con `renderBackground()` come funzione inline in `NarratorView`.
+- **Quick view alla prima entrata scena**: `returnedFromAnagram` inizializzato con `initialMode === 'anagram'`. Risolto inizializzando sempre a `false`.
+- **Hint visibile in modalità anagramma**: `AutoHintEffect` era fuori dal controllo di modalità in `CircoStanzaScreen`. Risolto spostandolo dentro `NarratorView`.
+- **Hint sopra il dialog**: zIndex 1000. Risolto portandolo a zIndex 1 (dialog a zIndex 2).
+- **Personaggio sopra il pannello anagramma**: `characterContainer` con zIndex 1 era sopra `AnagramOverlay` (senza zIndex). Risolto con `zIndex: 0` in modalità anagramma.
+- **Sfondo nero in modalità anagramma**: nessuna immagine di sfondo renderizzata. Risolto aggiungendo `backgroundAsset` + `overlayAnagram` + `characterContainer` nella branch anagramma di `CircoStanzaScreen`.
+- **Animazione hint lagga su web**: `Animated.createAnimatedComponent(Image)` meno ottimizzato su web. Risolto con `Animated.View` che wrappa `Image` normale.
+
+### Aperti
+- **Lentezza caricamento sfondo su web (~1 sec)**: `ImagePreloader` con delay 100 ms non è sufficiente per scene con immagini pesanti. Possibili strade: ridurre dimensione PNG, `new window.Image()` per pre-fetch puro su web, o aumentare delay preloader.
