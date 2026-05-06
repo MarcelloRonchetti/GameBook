@@ -4,8 +4,9 @@
 // tutta la navigazione tra le schermate.
 
 import React, { useEffect } from 'react';
-import { Platform } from 'react-native';
+import { Platform, View, Image } from 'react-native';
 import AppNavigator from './navigation/AppNavigator';
+import { ASSETS } from './styles/theme';
 
 // --- Fix scroll su web ---------------------------------------------------
 // Su react-native-web, gli ScrollView/FlatList con `flex: 1` riescono ad
@@ -51,9 +52,43 @@ function useWebScrollFix() {
   }, []);
 }
 
+// Precarica tutte le immagini pesanti mantenendole decodificate in memoria.
+// Su web, renderizzare un <Image> nascosto è l'unico modo sicuro per
+// evitare che il browser ri-decodifichi il file ad ogni navigazione.
+// Precarica le immagini pesanti DOPO che la mappa è già visibile,
+// così non blocca il primo render.
+function ImagePreloader() {
+  const [ready, setReady] = React.useState(false);
+
+  useEffect(() => {
+    const id = setTimeout(() => setReady(true), 100);
+    return () => clearTimeout(id);
+  }, []);
+
+  if (!ready) return null;
+
+  const allAssets = [
+    ASSETS.map.background,
+    ...Object.values(ASSETS.backgrounds),
+    ...Object.values(ASSETS.characters),
+  ];
+  return (
+    <View style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>
+      {allAssets.map((source, i) => (
+        <Image key={i} source={source} style={{ width: 1, height: 1 }} />
+      ))}
+    </View>
+  );
+}
+
 function AppWithScrollFix() {
   useWebScrollFix();
-  return <AppNavigator />;
+  return (
+    <>
+      <ImagePreloader />
+      <AppNavigator />
+    </>
+  );
 }
 
 export default AppWithScrollFix;

@@ -27,6 +27,8 @@ import {
 } from 'react-native';
 import Svg, { Line, Circle } from 'react-native-svg';
 
+import { Asset } from 'expo-asset';
+
 import { supabase } from '../../lib/supabase';
 import { useDisableAndroidBack } from '../../lib/useRoomClosedListener';
 
@@ -192,6 +194,13 @@ export default function MapScreen({ route, navigation }) {
   useEffect(() => {
     loadProgress();
     startPulse();
+    // Precarica backgrounds e sprites mentre il player vede la mappa,
+    // così le immagini sono già decodificate quando entra in una stanza.
+    const toPreload = [
+      ...Object.values(ASSETS.backgrounds),
+      ...Object.values(ASSETS.characters),
+    ];
+    Asset.loadAsync(toPreload).catch(() => {});
   }, []);
 
   const startPulse = () => {

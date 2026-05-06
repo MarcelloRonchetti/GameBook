@@ -10,24 +10,25 @@
 //   - Ultimo blocco completato → mostra il bottone "Anagramma".
 //
 // Props:
-//   scene         — oggetto scena da scenes.json (ha .title, .narratorBlocks, .theme)
-//   sceneId       — id della scena (es. 'acrobata')
-//   onStartAnagram — callback chiamata quando il player preme "Anagramma"
-//   characterAsset — require() dello sprite personaggio (o null → emoji placeholder)
+//   scene           — oggetto scena da scenes.json (ha .title, .narratorBlocks, .theme)
+//   sceneId         — id della scena (es. 'acrobata')
+//   onStartAnagram  — callback chiamata quando il player preme "Anagramma"
+//   characterAsset  — require() dello sprite personaggio (o null → emoji placeholder)
 //   backgroundAsset — require() dello sfondo (o null → colore placeholder)
+//   skipNarration   — se true (ritorno dall'anagramma) mostra subito sfondo + bottoni
+//                     senza ripetere il typewriter automaticamente
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View, Text, Image, ImageBackground,
+  View, Text, Image,
   TouchableWithoutFeedback, TouchableOpacity, Animated,
 } from 'react-native';
 
+import AutoHintEffect from './AutoHintEffect';
 import { circoStanzaStyles as styles } from '../styles/player';
-import { getNpcTheme, colors } from '../styles/theme';
+import { getNpcTheme } from '../styles/theme';
 
-// Velocità typewriter: ms per carattere
 const TYPEWRITER_SPEED = 28;
-// Pausa iniziale prima di iniziare a scrivere (ms)
 const INITIAL_DELAY = 200;
 
 export default function NarratorView({
@@ -36,27 +37,27 @@ export default function NarratorView({
   onStartAnagram,
   characterAsset,
   backgroundAsset,
+  skipNarration = false,
+  hintActive = false,
+  hintAsset = null,
+  hintPosition = null,
 }) {
   const npc = getNpcTheme(sceneId);
-
-  // I blocchi di testo narrativi — array di stringhe
-  // Se scenes.json ha .narratorBlocks usa quelli, altrimenti wrappa .text come unico blocco
   const blocks = scene.narratorBlocks || [scene.text || ''];
 
-  const [blockIndex, setBlockIndex] = useState(0);   // blocco corrente
-  const [displayed, setDisplayed] = useState('');     // testo mostrato finora
-  const [isTyping, setIsTyping] = useState(false);    // il typewriter sta scrivendo?
-  const [blockDone, setBlockDone] = useState(false);  // blocco corrente completato?
-  const [allDone, setAllDone] = useState(false);      // tutti i blocchi completati?
+  const [quickView, setQuickView] = useState(skipNarration);
+
+  const [blockIndex, setBlockIndex] = useState(0);
+  const [displayed, setDisplayed] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [blockDone, setBlockDone] = useState(false);
+  const [allDone, setAllDone] = useState(false);
 
   const timerRef = useRef(null);
   const charIndexRef = useRef(0);
-
-  // Cursore lampeggiante
   const cursorOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // Avvia il cursor blink
     const blink = Animated.loop(
       Animated.sequence([
         Animated.timing(cursorOpacity, { toValue: 0, duration: 500, useNativeDriver: true }),
@@ -64,17 +65,15 @@ export default function NarratorView({
       ])
     );
     blink.start();
-
     return () => {
       blink.stop();
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
 
-  // Avvia il typewriter quando cambia il blocco corrente
   useEffect(() => {
-    startTyping();
-  }, [blockIndex]);
+    if (!quickView) startTyping();
+  }, [blockIndex, quickView]);
 
   const startTyping = useCallback(() => {
     setDisplayed('');
@@ -83,14 +82,10 @@ export default function NarratorView({
     setIsTyping(true);
 
     const currentBlock = blocks[blockIndex] || '';
-
-    // Delay iniziale prima di iniziare a scrivere
     const startTimer = setTimeout(() => {
       timerRef.current = setInterval(() => {
         charIndexRef.current += 1;
-        const slice = currentBlock.slice(0, charIndexRef.current);
-        setDisplayed(slice);
-
+        setDisplayed(currentBlock.slice(0, charIndexRef.current));
         if (charIndexRef.current >= currentBlock.length) {
           clearInterval(timerRef.current);
           setIsTyping(false);
@@ -105,10 +100,8 @@ export default function NarratorView({
     };
   }, [blockIndex, blocks]);
 
-  // Gestione tap
   const handleTap = () => {
     if (isTyping) {
-      // TAP durante scrittura → completa istantaneamente
       clearInterval(timerRef.current);
       setDisplayed(blocks[blockIndex] || '');
       charIndexRef.current = (blocks[blockIndex] || '').length;
@@ -116,90 +109,117 @@ export default function NarratorView({
       setBlockDone(true);
       return;
     }
-
     if (blockDone) {
-      // TAP a blocco completato → blocco successivo o fine
       const nextIndex = blockIndex + 1;
       if (nextIndex < blocks.length) {
         setBlockIndex(nextIndex);
       } else {
-        // Tutti i blocchi mostrati
         setAllDone(true);
       }
     }
   };
 
-  return (
-    <View style={styles.container}>
+  const handleReread = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setAllDone(false);
+    setBlockDone(false);
+    setDisplayed('');
+    charIndexRef.current = 0;
+    setBlockIndex(0);
+    setQuickView(false);
+  };
 
-      {/* SFONDO — fissato dietro lo ScrollView, non scrolla */}
-      {backgroundAsset ? (
+  // Sfondo e personaggio sono inlineati in entrambi i rami del render
+  // per evitare che React li smonta/rimonta (causerebbe flash nero).
+  const renderBackground = () => (
+    <>
+      {/* Colore placeholder immediato — visibile mentre il PNG decodifica */}
+      <View style={[styles.background, { backgroundColor: npc.color, opacity: 0.4 }]} />
+      {backgroundAsset && (
         <Image
           source={backgroundAsset}
           style={[styles.background, styles.backgroundImage]}
           resizeMode="cover"
         />
-      ) : (
-        <View style={[styles.background, { backgroundColor: npc.color, opacity: 0.3 }]} />
       )}
-
-      {/* OVERLAY scuro — anch'esso fisso */}
       <View style={styles.overlay} />
-
-      {/* SPRITE PERSONAGGIO — assoluto, fuori dal flusso scroll */}
       {characterAsset ? (
         <View style={styles.characterContainer} pointerEvents="none">
-          <Image
-            source={characterAsset}
-            style={styles.characterImage}
-            resizeMode="contain"
-          />
+          <Image source={characterAsset} style={styles.characterImage} resizeMode="contain" />
         </View>
       ) : (
         <View style={[styles.characterContainer, { alignItems: 'center', justifyContent: 'center' }]} pointerEvents="none">
           <Text style={{ fontSize: 100 }}>{npc.emoji}</Text>
         </View>
       )}
+    </>
+  );
 
-      {/* DIALOG BOX — assoluto in fondo */}
+  // --- QUICK VIEW: ritorno dall'anagramma ---
+  if (quickView) {
+    return (
+      <View style={styles.container}>
+        {renderBackground()}
+        <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={hintPosition} />
+        <View style={styles.quickViewPanel}>
+          <Text style={styles.dialogName}>{npc.label.toUpperCase()}</Text>
+          <View style={styles.quickViewButtons}>
+            <TouchableOpacity
+              style={styles.rereadButton}
+              onPress={handleReread}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.rereadButtonText}>📖 Rileggi il testo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.anagramButton}
+              onPress={onStartAnagram}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.anagramButtonText}>🔤 Affronta l'anagramma</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // --- NARRAZIONE NORMALE con typewriter ---
+  return (
+    <View style={styles.container}>
+      {renderBackground()}
+      <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={hintPosition} />
       <TouchableWithoutFeedback onPress={handleTap}>
         <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2 }}>
-            <View style={styles.dialogBox}>
-              <View style={styles.dialogHeader}>
-                <Text style={styles.dialogName}>
-                  {npc.label.toUpperCase()}
+          <View style={styles.dialogBox}>
+            <View style={styles.dialogHeader}>
+              <Text style={styles.dialogName}>{npc.label.toUpperCase()}</Text>
+              {!allDone && (
+                <Text style={styles.dialogTapHint}>
+                  {isTyping ? 'tocca per saltare' : 'tocca per continuare ›'}
                 </Text>
-                {!allDone && (
-                  <Text style={styles.dialogTapHint}>
-                    {isTyping ? 'tocca per saltare' : 'tocca per continuare ›'}
-                  </Text>
-                )}
-              </View>
-
-              <Text style={styles.dialogText}>
-                {displayed}
-                {!allDone && (
-                  <Animated.Text style={[styles.dialogCursor, { opacity: cursorOpacity }]}>
-                    {blockDone ? '' : '▌'}
-                  </Animated.Text>
-                )}
-              </Text>
-
-              {allDone && (
-                <TouchableOpacity
-                  style={styles.anagramButton}
-                  onPress={onStartAnagram}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.anagramButtonText}>
-                    🔤 Affronta l'anagramma
-                  </Text>
-                </TouchableOpacity>
               )}
             </View>
-
+            <Text style={styles.dialogText}>
+              {displayed}
+              {!allDone && (
+                <Animated.Text style={[styles.dialogCursor, { opacity: cursorOpacity }]}>
+                  {blockDone ? '' : '▌'}
+                </Animated.Text>
+              )}
+            </Text>
+            {allDone && (
+              <TouchableOpacity
+                style={styles.anagramButton}
+                onPress={onStartAnagram}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.anagramButtonText}>🔤 Affronta l'anagramma</Text>
+              </TouchableOpacity>
+            )}
           </View>
-        </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
     </View>
   );
 }

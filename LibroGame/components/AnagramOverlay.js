@@ -44,6 +44,7 @@ export default function AnagramOverlay({
   room,
   onBackToText,
   onChoiceSelect,
+  onGoToMap,
   onGoToDirettrice,
   characterAsset,
   hints,
@@ -221,15 +222,13 @@ export default function AnagramOverlay({
                 <Text style={styles.solutionText}>{anagramData.solution}</Text>
               </View>
 
-              {/* Scelte dopo risoluzione */}
+              {/* Bottone prosegui dopo risoluzione */}
               {isIllusionista ? (
                 <TouchableOpacity
                   style={styles.proceedButton}
                   onPress={onGoToDirettrice}
                 >
-                  <Text style={styles.buttonText}>
-                    🎩 Vai dalla Direttrice →
-                  </Text>
+                  <Text style={styles.buttonText}>🎩 Vai dalla Direttrice →</Text>
                 </TouchableOpacity>
               ) : (
                 <>
@@ -239,22 +238,12 @@ export default function AnagramOverlay({
                   <Text style={[styles.choiceTitle, { fontSize: 12, opacity: 0.6 }]}>
                     Sia fatta la vostra volontà.
                   </Text>
-                  <View style={styles.choicesContainer}>
-                    {(scene.choices || []).map((choice, index) => {
-                      const { emoji } = getNpcTheme(choice.next) || {};
-                      return (
-                        <TouchableOpacity
-                          key={index}
-                          style={styles.choiceButton}
-                          onPress={() => onChoiceSelect(choice.next)}
-                          activeOpacity={0.75}
-                        >
-                          <Text style={styles.choiceEmoji}>{emoji || '🎪'}</Text>
-                          <Text style={styles.choiceText}>{choice.label}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
+                  <TouchableOpacity
+                    style={styles.proceedButton}
+                    onPress={onGoToMap}
+                  >
+                    <Text style={styles.buttonText}>🗺️ Vai alla mappa →</Text>
+                  </TouchableOpacity>
                 </>
               )}
             </>

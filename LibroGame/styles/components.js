@@ -42,10 +42,10 @@ export const autoHintEffectStyles = StyleSheet.create({
     pointerEvents: 'none',
     zIndex: 1000,
   },
-  // Contenitore immagine hint posizionato sulla zona specifica della scena
+  // Contenitore immagine hint — zIndex 1 per stare sotto il dialog box (zIndex 2)
   hintImage: {
     position: 'absolute',
-    zIndex: 1000,
+    zIndex: 1,
   },
   // Bordo lampeggiante oro sulla zona specifica della scena (es. finestra sfondo)
   hintBorder: {

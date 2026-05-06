@@ -870,6 +870,39 @@ export const circoStanzaStyles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+  // Pannello quick view (ritorno dall'anagramma)
+  quickViewPanel: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2,
+    backgroundColor: 'rgba(15,10,5,0.92)',
+    borderTopWidth: 2,
+    borderTopColor: '#c8a45a',
+    padding: 16,
+    paddingBottom: 28,
+  },
+  quickViewButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    marginTop: 14,
+  },
+  rereadButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#c8a45a',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  rereadButtonText: {
+    color: '#c8a45a',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+
   // --- ANAGRAM PANEL ---
   // Pannello centrale che appare in modalità anagramma
   anagramPanel: {

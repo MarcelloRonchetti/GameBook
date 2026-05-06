@@ -16,14 +16,13 @@
 //                  aveva già visto il testo ma non risolto l'anagramma
 
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StatusBar, Animated } from 'react-native';
+import { View, Image, StatusBar } from 'react-native';
 
 import { supabase } from '../../lib/supabase';
 import { useRoomClosedListener, useDisableAndroidBack } from '../../lib/useRoomClosedListener';
 
 import NarratorView from '../../components/NarratorView';
 import AnagramOverlay from '../../components/AnagramOverlay';
-import AutoHintEffect from '../../components/AutoHintEffect';
 
 import { circoStanzaStyles as styles } from '../../styles/player';
 import {
@@ -42,30 +41,26 @@ export default function CircoStanzaScreen({ route, navigation }) {
   const scene = scenes[sceneId];
   const anagramData = anagrams[sceneId];
 
-  // Asset grafici (null se non ancora disponibili → placeholder)
   const characterAsset = getCharacterAsset(sceneId);
   const backgroundAsset = getBackgroundAsset(sceneId);
   const hintAsset = getHintAsset(sceneId);
   const hintPosition = HINT_POSITIONS[sceneId] || null;
 
-  // Modalità corrente della schermata
   const [mode, setMode] = useState(initialMode);
 
-  // Stato anagramma (letto dal DB all'avvio)
   const [initialSolved, setInitialSolved] = useState(false);
   const [progressLoaded, setProgressLoaded] = useState(false);
 
-  // Aiuto automatico
   const [hintActive, setHintActive] = useState(false);
   const timerRef = useRef(null);
   const hintTimerRef = useRef(null);
   const solvedRef = useRef(false);
 
-  // Hints del GM
   const [hints, setHints] = useState([]);
   const hintsChannelRef = useRef(null);
 
-  // --- Hook utilities ---
+  const [returnedFromAnagram, setReturnedFromAnagram] = useState(false);
+
   useRoomClosedListener(room, navigation);
   useDisableAndroidBack();
 
@@ -83,7 +78,6 @@ export default function CircoStanzaScreen({ route, navigation }) {
   const initialize = async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
-    // 1. Salva/aggiorna il progress (entered_at per il timer)
     const { data: existing } = await supabase
       .from('progress')
       .select('id, solved')
@@ -101,7 +95,6 @@ export default function CircoStanzaScreen({ route, navigation }) {
         entered_at: new Date().toISOString(),
       });
     } else {
-      // Aggiorna entered_at per ri-avviare il timer al rientro
       await supabase
         .from('progress')
         .update({ entered_at: new Date().toISOString() })
@@ -115,12 +108,10 @@ export default function CircoStanzaScreen({ route, navigation }) {
 
     setProgressLoaded(true);
 
-    // 2. Avvia timer aiuto automatico solo se non risolto
     if (!solvedRef.current) {
       startAutoHintTimer();
     }
 
-    // 3. Carica e sottoscrivi hints GM
     fetchHints(user.id);
     subscribeToHints(user.id);
   };
@@ -158,23 +149,27 @@ export default function CircoStanzaScreen({ route, navigation }) {
       .subscribe();
   };
 
-  // --- Handlers ---
-
-  const handleStartAnagram = () => {
-    setMode('anagram');
-  };
+  const handleStartAnagram = () => setMode('anagram');
 
   const handleBackToText = () => {
+    setReturnedFromAnagram(true);
     setMode('narration');
   };
 
   const handleChoiceSelect = (nextSceneId) => {
-    // Vai alla mappa per scegliere il percorso
     navigation.replace('Map', {
       room,
       justSolvedScene: sceneId,
       nextAvailable: [nextSceneId],
-      // Passiamo entrambe le scelte disponibili per sbloccarne 2 sulla mappa
+      allChoices: scene.choices?.map(c => c.next) || [],
+    });
+  };
+
+  const handleGoToMap = () => {
+    navigation.replace('Map', {
+      room,
+      justSolvedScene: sceneId,
+      nextAvailable: scene.choices?.map(c => c.next) || [],
       allChoices: scene.choices?.map(c => c.next) || [],
     });
   };
@@ -183,16 +178,11 @@ export default function CircoStanzaScreen({ route, navigation }) {
     navigation.replace('Direttrice', { room });
   };
 
-  if (!progressLoaded || !scene) return null;
+  if (!scene) return null;
 
   return (
     <View style={styles.container}>
       <StatusBar hidden />
-      <AutoHintEffect
-        active={hintActive}
-        hintImage={hintAsset}
-        hintImageStyle={hintPosition}
-      />
 
       {mode === 'narration' ? (
         <NarratorView
@@ -201,22 +191,32 @@ export default function CircoStanzaScreen({ route, navigation }) {
           onStartAnagram={handleStartAnagram}
           characterAsset={characterAsset}
           backgroundAsset={backgroundAsset}
+          skipNarration={returnedFromAnagram}
+          hintActive={hintActive}
+          hintAsset={hintAsset}
+          hintPosition={hintPosition}
         />
       ) : (
         <>
-          {/* Lo sfondo resta visibile anche in modalità anagramma */}
+          {/* Colore placeholder immediato, poi immagine sopra */}
+          <View style={[styles.background, { backgroundColor: '#2a1a0a' }]} />
           {backgroundAsset && (
-            <View style={styles.background} pointerEvents="none">
-              <View style={[styles.backgroundImage, styles.overlayAnagram]}>
-                {/* Solo overlay scuro — l'immagine è nell'AnagramOverlay */}
-              </View>
-            </View>
+            <Image
+              source={backgroundAsset}
+              style={[styles.background, styles.backgroundImage]}
+              resizeMode="cover"
+            />
           )}
-
-          {/* Mini sprite in basso a sinistra */}
+          {/* Overlay scuro più intenso per far risaltare il pannello */}
+          <View style={[styles.overlay, styles.overlayAnagram]} />
+          {/* Personaggio visibile in basso a sinistra */}
           {characterAsset && (
-            <View style={styles.characterMini} pointerEvents="none">
-              <View style={styles.characterMiniImage} />
+            <View style={[styles.characterContainer, { zIndex: 0 }]} pointerEvents="none">
+              <Image
+                source={characterAsset}
+                style={styles.characterImage}
+                resizeMode="contain"
+              />
             </View>
           )}
 
@@ -227,6 +227,7 @@ export default function CircoStanzaScreen({ route, navigation }) {
             room={room}
             onBackToText={handleBackToText}
             onChoiceSelect={handleChoiceSelect}
+            onGoToMap={handleGoToMap}
             onGoToDirettrice={handleGoToDirettrice}
             characterAsset={characterAsset}
             hints={hints}
