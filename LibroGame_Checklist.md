@@ -11,6 +11,7 @@
 - [x] Colonna `name` su `rooms` per il nome personalizzato della stanza
 - [x] Account GM creato manualmente su Supabase
 - [x] Conferma email disabilitata su Supabase
+- [x] RLS configurato su tutte le tabelle (vedi `CLAUDE.md` → Database → RLS)
 - [x] `AuthLoadingScreen` — verifica sessione + redirect automatico per ruolo
 - [x] `LoginScreen` — autenticazione + redirect GM/player + banner errore inline
 - [x] `RegisterScreen` — registrazione player con validazione completa + banner errore inline
@@ -19,6 +20,7 @@
 - [x] `DashboardScreen` — codice stanza, stato stanza, player in realtime, rimozione player, chiusura stanza
 - [x] `PlayerDetailScreen` — timeline player + invio hints testuali
 - [x] `JoinRoomScreen` — validazione codice, join stanza aperta, resume automatico, logout player
+- [x] Fix `JoinRoomScreen`: codici stanza con zeri iniziali preservati tramite `.padStart(6, '0')` dopo il `trim()`
 - [x] `IntroScreen` — messaggio cifrato iniziale + chiave 1-14 + sblocco Acrobata sulla mappa
 - [x] `MapScreen` — mappa interattiva con nodi, percorsi, fog of war e stati scena
 - [x] `CircoStanzaScreen` — schermata attiva unificata con narrazione + anagramma
@@ -36,6 +38,7 @@
 - [x] `lib/useRoomClosedListener.js` — listener realtime chiusura stanza + disable back Android
 - [x] Logout GM e Player
 - [x] Errori form critici tramite banner inline invece di `Alert.alert`
+- [x] Aggiunto `react-native-svg` a `LibroGame/package.json` per evitare il crash di `MapScreen` su installazione pulita
 
 ---
 
@@ -44,7 +47,6 @@
 - [ ] Installazione pulita da zero con `npm install`
 - [ ] Avvio web con `npm run web`
 - [ ] Avvio Android con `npm run android`
-- [ ] Verificare/aggiungere `react-native-svg`: `MapScreen` lo importa ma non è dichiarato in `package.json`
 - [ ] Persistenza sessione dopo refresh pagina e riapertura app
 - [ ] Resume player: nessun progress, intro solved, scena solved, scena non solved, Illusionista solved, Direttrice
 - [ ] Flusso end-to-end attivo: `Intro` -> `Map` -> `CircoStanza` -> `Map` -> `Illusionista` -> `Direttrice`
@@ -66,7 +68,6 @@
 
 ### Dipendenze
 
-- [ ] Aggiungere `react-native-svg` a `package.json` oppure rimuovere l'uso di `Svg`/`Line` da `MapScreen`
 - [ ] Verificare compatibilità Expo SDK 54 prima di aggiornare dipendenze principali
 
 ### Cross-platform
@@ -128,6 +129,8 @@
 - [ ] Export cronologia stanza per il GM
 - [ ] Traduzioni multilingue
 - [ ] Pannello admin per gestire storie e asset senza modificare JSON
+- [ ] Gestione errori di rete più robusta
+- [ ] SMTP personalizzato (SendGrid / Mailgun / Resend) per reset password
 
 ---
 
@@ -135,12 +138,16 @@
 
 1. **Initial route**: `AuthLoading` è la fonte di verità all'avvio.
 2. **GM account**: creato manualmente, registrazione app solo per player.
-3. **Resume scena**: ultima riga `progress` per `entered_at`, con casi speciali in `resolvePlayerResumeRoute`.
+3. **Resume scena**: `resolvePlayerResumeRoute` calcola la scena corretta leggendo `progress` (vedi `CLAUDE.md` → Resume logic).
 4. **Flusso player attivo**: `Intro` sblocca `Map`; la scena viene giocata in `CircoStanza`; le scelte passano dalla mappa.
 5. **Scene legacy**: `SceneScreen` e `AnagramScreen` restano per compatibilità ma non sono la strada principale.
-6. **Chiusura stanza**: listener realtime su `rooms`; il player deve essere riportato a `JoinRoom`.
-7. **Back Android**: disabilitato nelle schermate critiche.
-8. **Cross-platform UI**: banner inline per errori form, `notify()` per messaggi, `confirm()` per conferme.
-9. **Nome stanza**: campo `name` opzionale per gestire più sessioni GM.
-10. **Grafica NPC**: asset reali se presenti; fallback con tema colore + emoji da `npcThemes`.
-11. **Storia**: testi e anagrammi vivono in JSON locale; il grafo navigazione è in `styles/theme.js`.
+6. **Chiusura stanza**: listener realtime su `rooms`; il player deve essere riportato a `JoinRoom` (resta loggato).
+7. **Back Android**: disabilitato nelle schermate critiche tramite `useDisableAndroidBack`.
+8. **Cross-platform UI**: banner inline per errori form, `notify()` per messaggi, `confirm()` per conferme distruttive — niente `Alert.alert` diretto.
+9. **Nome stanza**: campo `name` opzionale su `rooms` per gestire più sessioni GM in parallelo.
+10. **Grafica NPC**: asset reali se presenti; fallback con tema colore + emoji da `npcThemes`. La struttura UI è già pronta per sostituire `<Text emoji>` con `<Image>`.
+11. **Storia**: testi e anagrammi vivono in JSON locale (`story/storia_1/`); il grafo navigazione è in `styles/theme.js` (`STORY_GRAPH`).
+12. **Anti-duplicati progress**: tutte le scene usano `maybeSingle()` prima dell'insert. `SceneScreen` aggiorna `entered_at` al rientro per ri-avviare il timer aiuto.
+13. **Bug fix `JoinRoomScreen`**: root cause era `Alert.alert` silente sul web — risolto con banner inline per tutti gli errori (codice vuoto/errato, stanza non trovata/chiusa, errore DB, sessione invalida, errore upsert).
+14. **Stack Expo SDK 54**: `expo` pinnato a `~54.0.34` — non aggiornare a 55. Expo Go non è compatibile (richiede SDK 55).
+15. **Bug fix `JoinRoomScreen` — zeri iniziali**: la validazione applicava `.trim()` al codice stanza ma perdeva gli zeri iniziali (es. `001234` → `1234`), facendo fallire il match a 6 cifre. Risolto aggiungendo `.padStart(6, '0')` dopo il `trim()` in modo che il codice torni sempre a 6 caratteri prima della query Supabase.
