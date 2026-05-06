@@ -1,0 +1,185 @@
+{
+  "intro": {
+    "id": "intro",
+    "title": "Circo-stanza di Partenza",
+    "text": "Benvenuti e benvenute nelle quinte del tendone, la struttura dalle convenzionali strisce rosse e bianche, che tutti e tutte associamo ad un luogo di spettacolo tanto antico quanto ricco di talenti.\n\nAttorno a voi potete notare i caravan di artisti e artiste circensi che fungono da camerini, e che diventano, solo per voi — e solo per oggi — delle precise circo-stanze, poiché rivelano costumi che potreste indossare anche voi.\n\nEbbene sì, anche voi, perché l'etica riguarda tutte le persone di ogni età. Ogni persona può cogliere i risvolti etici presenti nelle diverse situazioni.\n\nNelle diverse circo-stanze in cui vi troverete, sarà la vostra volontà a fare la differenza, perché di volta in volta dovrete compiere una scelta che condizionerà la successione degli eventi.\n\nCome per qualsiasi percorso, per iniziare, vi occorre sapere l'obiettivo. Intanto sappiate che la chiave è sempre: la volontà delle circostanze.",
+    "cipher": "7-4-3-8-6-8 6-11-4-3-2-11-8 1-2 7-10-11-8-6-6-11-10-9-8 7-8-1-1-8 9-10-11-9-4-12-6-2-5-13-8 10-5-10-13-10-2-5-7-4 7-2-1-1' 2-9-11-4-14-2-6-2",
+    "cipherSolution": "Dovete trovare la direttrice delle circostanze iniziando dall'acrobata",
+    "next": ["acrobata"]
+  },
+  "acrobata": {
+    "id": "acrobata",
+    "title": "Circo-stanza dell'Acrobata",
+    "theme": "Inquinamento",
+    "text": "Il nome della sua mansione deriva dal greco e significa \"che cammina sulla punta dei piedi\". Si tratta dell'acrobata, capace di eseguire esercizi spettacolari e difficili che richiedono allenamenti estremamente faticosi.\n\nEntrando nella circo-stanza dell'acrobata notate, alle pareti, numerose foto dei suoi successi ed un ambiente molto ordinato e pulito.\n\nMentre commenta le foto posizionate con cura, vi fa accomodare e vi offre un vassoio di biscotti appena sfornati, e qualche bibita in lattina opportunamente versata in bicchieri di vetro.\n\n\"Non mi piace usare stoviglie usa e getta\" dice orgoglioso mentre vi porge i bicchieri. \"Nel mio piccolo cerco di fare scelte ecologiche ma spesso mi sembra che in fondo siano inutili. Nei pressi del nostro tendone non ci sono nemmeno contenitori per la raccolta differenziata!\"\n\nL'acrobata, lieto del vostro aiuto, vi indica due persone a cui potreste rivolgervi.",
+    "question": "Da chi volete andare?",
+    "choices": [
+      { "label": "Funambolo", "next": "funambolo" },
+      { "label": "Giocoliere", "next": "giocoliere" }
+    ],
+    "anagram": "MENA QUINTINO",
+    "anagramWords": 1
+  },
+  "funambolo": {
+    "id": "funambolo",
+    "title": "Circo-stanza del Funambolo",
+    "theme": "Stupefacenti",
+    "text": "Avete scelto di recarvi dal funambolo per provare a parlare con lui di questioni ecologiche piuttosto semplici, come la raccolta differenziata nei caravan.\n\nEntrati nella circo-stanza del funambolo vi colpisce il disordine diffuso, soprattutto in contrapposizione all'ambiente appena visitato.\n\nL'artista sposta qualche indumento per creare giusto lo spazio sufficiente a farvi sedere sul suo divanetto.\n\nNel momento in cui provate ad accennare all'argomento \"raccolta differenziata\", l'artista tira fuori da una tasca una piccola busta contenente della polvere bianca. Ammette candidamente che si tratta di cocaina, che ne fa uso da diverso tempo e che su questa sostanza ci sono fin troppi luoghi comuni.\n\nGli chiedete se secondo lui ci sono altri artisti che consumano droghe. Egli risponde che sospetta di due suoi colleghi in particolare.",
+    "question": "Chi volete incontrare?",
+    "choices": [
+      { "label": "Giocoliere", "next": "giocoliere" },
+      { "label": "Pagliaccio", "next": "pagliaccio" }
+    ],
+    "anagram": "SPUNTATE FECI",
+    "anagramWords": 1
+  },
+  "giocoliere": {
+    "id": "giocoliere",
+    "title": "Circo-stanza del Giocoliere",
+    "theme": "Stereotipi di genere",
+    "text": "Avete scelto di incontrare il giocoliere, forse per via della descrizione del suo carattere; è possibile immaginarlo come interlocutore con il quale la conversazione assume il sapore della sfida.\n\nEntrati nella circo-stanza del giocoliere, balza subito all'occhio la quantità e la qualità di immagini riportate alle pareti. Le foto riportano esclusivamente immagini femminili, poco o per nulla vestite, quasi a formare muri di corpi esposti.\n\nIl giocoliere non bada molto ai convenevoli e piuttosto seccato si lamenta della vostra presenza, ritenendola invadente. Fa commenti sessisti sulle colleghe, riferendosi alla trapezista e alla cavallerizza.\n\nVi allontanate con perplessità. Forse andrebbero informate, ma a chi rivolgersi per non inasprire queste tensioni?",
+    "question": "Alla trapezista o alla cavallerizza?",
+    "choices": [
+      { "label": "Trapezista", "next": "trapezista" },
+      { "label": "Cavallerizza", "next": "cavallerizza" }
+    ],
+    "anagram": "ISPETTORI IDEE GREEN",
+    "anagramWords": 3
+  },
+  "pagliaccio": {
+    "id": "pagliaccio",
+    "title": "Circo-stanza del Pagliaccio",
+    "theme": "Abuso di alcol",
+    "text": "Avete scelto di incontrare il pagliaccio. Sebbene la sua professione abbia lo scopo di suscitare allegria e risate, si intuisce subito dallo sguardo di quest'uomo che, tolti trucco e parrucca, ciò che resta è una grande malinconia.\n\nVarcato l'ingresso della circo-stanza del pagliaccio, inciampate su una decina di bottiglie lasciate a terra. Guardando attorno notate altri mucchi di bottiglie e lattine sparsi nei vari angoli.\n\nNell'intimità del suo caravan il pagliaccio beve senza controllo, è evidente, sebbene riesca a camuffare la sua dipendenza fuori dal suo nido.\n\nConfida un pensiero tremendo: \"Nessuno si accorgerebbe di me se sparissi, sono certo che verrei sostituito facilmente da qualcuno più giovane.\"\n\nPercepite nelle sue parole un grido disperato d'aiuto. Vi chiede di trovare qualcuno che lo accompagni a un gruppo di supporto.",
+    "question": "Chi scegliete?",
+    "choices": [
+      { "label": "Cavallerizza", "next": "cavallerizza" },
+      { "label": "Contorsionista", "next": "contorsionista" }
+    ],
+    "anagram": "SUB ODIA COLLA",
+    "anagramWords": 3
+  },
+  "trapezista": {
+    "id": "trapezista",
+    "title": "Circo-stanza della Trapezista",
+    "theme": "Immigrazione",
+    "text": "Avete scelto di incontrare la trapezista. Le parole crude e irritanti del giocoliere risuonano ancora in voi.\n\nNella circo-stanza della trapezista vi immergete in un mondo di colori e profumi. L'ambiente che ha costruito intorno a sé è accogliente e suscita curiosità.\n\n\"Accomodatevi dove preferite\" vi dice. Poi prosegue: \"L'integrazione credo sia questo, sentirsi in armonia con l'ambiente e le sue dinamiche, senza fusione né scontro.\"\n\n\"Quando parlo di integrazione, soprattutto tra le diverse culture, non sempre vengo capita. Lo sanno bene sia la contorsionista, sia la controfigura, e ve lo potranno raccontare in prima persona, proprio in virtù di questa diversità, che io preferisco chiamare unicità.\"",
+    "question": "Quale diversa unicità volete ascoltare?",
+    "choices": [
+      { "label": "Contorsionista", "next": "contorsionista" },
+      { "label": "Controfigura", "next": "controfigura" }
+    ],
+    "anagram": "IMMAGINI ZERO",
+    "anagramWords": 1
+  },
+  "cavallerizza": {
+    "id": "cavallerizza",
+    "title": "Circo-stanza della Cavallerizza",
+    "theme": "Prostituzione",
+    "text": "Avete scelto di incontrare la cavallerizza.\n\nEntrate nella circo-stanza della cavallerizza e lei è lì, intenta a sistemare alcuni abiti di scena. Sono luccicanti e appariscenti.\n\n\"Essere una donna non è facile\" esordisce lapidaria. \"Vengono date per scontate tante cose, buona parte delle quali riconducibili a stereotipi diffusi.\"\n\n\"Vengo da un passato in cui vendere il mio corpo era stata una scelta dettata da necessità, ma anche un libero esercizio di autodeterminazione; ho vissuto sulla mia pelle tanti pregiudizi. Il confronto e l'ascolto sono stati fondamentali per non sentirmi sola.\"\n\n\"La mia collega contorsionista ha un rapporto col suo corpo molto diverso dal mio, mentre il domatore fatica a mettere in discussione le sue convinzioni.\"",
+    "question": "Con chi volete conversare?",
+    "choices": [
+      { "label": "Contorsionista", "next": "contorsionista" },
+      { "label": "Domatore", "next": "domatore" }
+    ],
+    "anagram": "UNITE ZERO POSTI",
+    "anagramWords": 1
+  },
+  "contorsionista": {
+    "id": "contorsionista",
+    "title": "Circo-stanza della Contorsionista",
+    "theme": "Disabilità",
+    "text": "Avete scelto di incontrare la contorsionista, stimata artista del tendone.\n\nEntrando nella circo-stanza della contorsionista il vostro sguardo si poggia immediatamente su alcune protesi appoggiate sul tavolo.\n\n\"Sono inquietanti tutte queste mani vero?\" Ironizza l'artista. \"Alcune ormai non le uso più da tempo, ma ancora non me ne libero, potrebbero tornare utili anche per qualche scherzo ad Halloween!\"\n\n\"So che forse vi sto spiazzando con le mie parole. Cosa significa avere un handicap? Le prime barriere su cui riflettere sono le parole che usiamo. Il linguaggio che adottiamo è precario, perché si evolve sempre, ed è potenzialmente ingannevole.\"\n\nPotete proseguire con l'equilibrista oppure con l'illusionista.",
+    "question": "Con chi volete parlare?",
+    "choices": [
+      { "label": "Equilibrista", "next": "equilibrista" },
+      { "label": "Illusionista", "next": "illusionista" }
+    ],
+    "anagram": "ABITI SALDI",
+    "anagramWords": 1
+  },
+  "controfigura": {
+    "id": "controfigura",
+    "title": "Circo-stanza della Controfigura",
+    "theme": "Povertà estrema",
+    "text": "Avete scelto di incontrare la controfigura, colui che per lavoro si spaccia per qualcun altro.\n\n\"Ho origini molto umili\" esordisce l'uomo. \"Sono dovuto scappare dal mio paese e non ho trovato subito l'accoglienza che avrei voluto.\"\n\n\"Avevo bisogno di lavorare. Ci ho provato ma ogni volta veniva preferita un'altra persona, oppure lavoravo per giorni senza essere pagato. In breve tempo sono finito per strada.\"\n\n\"Una mattina d'inverno un volontario distribuiva bevande calde. Nel porgere la tazza di tè mi ha guardato e mi ha sorriso. Io esistevo per lui.\"\n\n\"Sono stato dapprima ospitato, poi mi hanno aiutato nella ricerca di un lavoro. Così sono finito in questa compagnia.\"",
+    "question": "Volete incontrare?",
+    "choices": [
+      { "label": "Contorsionista", "next": "contorsionista" },
+      { "label": "Illusionista", "next": "illusionista" }
+    ],
+    "anagram": "MAESTRE PROVATE",
+    "anagramWords": 2
+  },
+  "domatore": {
+    "id": "domatore",
+    "title": "Circo-stanza del Domatore",
+    "theme": "Superstizione",
+    "text": "Avete scelto di incontrare il domatore.\n\nNella stanza del domatore non potete evitare di notare numerosi amuleti e talismani, attaccati alle pareti, appesi alle maniglie della porta e della finestra.\n\n\"Questo lo indosso in ogni nuova esibizione\" dice l'uomo afferrando un talismano raffigurante uno scarabeo. \"La fortuna non è questione di casualità ma di potere, la si può controllare e dominare.\"\n\nSono parole forti e gli fate notare che chi esercita un potere agisce su qualcuno che spesso ne ha meno. Vi risponde: \"Queste sono tutte facili credenze.\"\n\nConclude perentorio: \"Non sono l'unico a pensare una realtà diversa, chiedete allo sputafuoco oppure alla illusionista.\"",
+    "question": "Con chi volete parlare?",
+    "choices": [
+      { "label": "Sputafuoco", "next": "sputafuoco" },
+      { "label": "Illusionista", "next": "illusionista" }
+    ],
+    "anagram": "INTERPOSI ZEUS",
+    "anagramWords": 1
+  },
+  "equilibrista": {
+    "id": "equilibrista",
+    "title": "Circo-stanza dell'Equilibrista",
+    "theme": "Etica e Pubblicità",
+    "text": "Avete scelto di parlare con l'equilibrista, l'artista che sa trovare il baricentro perfetto degli oggetti per disporli in modo incredibile e prodigioso.\n\nEntrando nella circo-stanza dell'equilibrista vi stupisce la grande quantità di libri presenti nel suo caravan. Manuali scientifici di vario tipo, atlanti e dizionari.\n\n\"L'artista circense non è dedito solo all'allenamento fisico. Per le mie esibizioni devo documentarmi sugli oggetti che manovro.\"\n\n\"Una comunicazione efficace, che vada oltre il semplice slogan accattivante, dovrebbe portare a riflettere, a mettere in discussione le proprie convinzioni.\"\n\n\"Il domatore non si presta così facilmente a mettere in discussione le sue convinzioni, mentre la illusionista è brava a rendere più criptica una realtà già difficile da decifrare.\"",
+    "question": "Volete incontrare?",
+    "choices": [
+      { "label": "Domatore", "next": "domatore" },
+      { "label": "Illusionista", "next": "illusionista" }
+    ],
+    "anagram": "ACETI E PUBBLICATI",
+    "anagramWords": 3
+  },
+  "sputafuoco": {
+    "id": "sputafuoco",
+    "title": "Circo-stanza dello Sputafuoco",
+    "theme": "Guerra e disarmo",
+    "text": "Avete scelto di parlare con lo sputafuoco.\n\nEntrate nella circo-stanza dello sputafuoco ed emerge subito una sua singolare passione. L'ambiente è pieno di armi da fuoco, di poster commemorativi di conflitti neanche troppo lontani.\n\n\"Vi intimorisce ciò che vedete? Le armi sono spesso giudicate come strumenti di morte ma dipende da come vengono usate. Sono tutte detenute legalmente, ho un regolare porto d'armi.\"\n\n\"Possederle e saperle usare mi dà sicurezza. Il fatto che posso agire armato allontana chi pensa di poter imporre il suo potere su di me.\"\n\n\"Se pensate che i pericoli vadano affrontati, vi consiglio di parlare con la controfigura, mentre se pensate che la realtà sia diversa da come siete abituati a vederla, rivolgetevi alla illusionista.\"",
+    "question": "Volete incontrare?",
+    "choices": [
+      { "label": "Controfigura", "next": "controfigura" },
+      { "label": "Illusionista", "next": "illusionista" }
+    ],
+    "anagram": "ARREDI SEGA MURO",
+    "anagramWords": 3
+  },
+  "illusionista": {
+    "id": "illusionista",
+    "title": "Circo-stanza dell'Illusionista",
+    "theme": "Tecnologia",
+    "text": "Eccovi giunti alla circo-stanza dell'illusionista, colei che grazie al suo talento può indurre a pensare e vedere una realtà diversa da quella a cui si è abituati.\n\nDiversa può significare più vera o meno vera, più giusta o anche meno giusta. Il progresso non si può fermare, ma siamo ancora noi esseri umani i soggetti che ne dispongono o siamo diventati oggetti e pedine di qualcosa che ormai è oltre il nostro controllo?\n\nLa sua abilità ha prodotto lenti in grado di decifrare, riconoscere e spiegare, ma anche di confondere, nascondere e negare.\n\nCon quali lenti state guardando? Voi cosa vedete? E cosa ricordate?",
+    "cipher": "1-2 3-4-1-4-5-6-2 3-10 9-4-5-7-15-9-8 2-1-1-2 7-10-11-8-6-6-11-10-9-8. 9-16-10-8-7-8-6-8 7-10 1-8-10 12-8-5-13-2 17-2-11-3-10 12-8-5-6-10-11-8",
+    "cipherSolution": "La volontà vi conduce alla direttrice. Chiedete di lei senza farvi sentire",
+    "question": null,
+    "choices": [],
+    "anagram": "ALCE IGNOTO",
+    "anagramWords": 1,
+    "next": "direttrice"
+  },
+  "direttrice": {
+    "id": "direttrice",
+    "title": "Circo-stanza della Direttrice",
+    "text": "Benvenuti e benvenute nella circo-stanza della Direttrice, colei che mette in ordine i costumi delle varie circostanze.\n\nProvate a fare altrettanto:",
+    "finalAnagrams": [
+      { "anagram": "ACCOGLI API", "solution": "PAGLIACCIO" },
+      { "anagram": "ALBUM FONO", "solution": "FUNAMBOLO" },
+      { "anagram": "ALZARVI CALZE", "solution": "CAVALLERIZZA" },
+      { "anagram": "CARTA BOA", "solution": "ACROBATA" },
+      { "anagram": "FAUSTO CUPO", "solution": "SPUTAFUOCO" },
+      { "anagram": "FRUGO CARTONI", "solution": "CONTROFIGURA" },
+      { "anagram": "LEGO EROICI", "solution": "GIOCOLIERE" },
+      { "anagram": "MORDE TAO", "solution": "DOMATORE" },
+      { "anagram": "NASCONO RISOTTI", "solution": "CONTORSIONISTA" },
+      { "anagram": "QUESTI BARILI", "solution": "EQUILIBRISTA" },
+      { "anagram": "SUINI SATOLLI", "solution": "ILLUSIONISTA" },
+      { "anagram": "TASTARE ZIP", "solution": "TRAPEZISTA" }
+    ]
+  }
+}

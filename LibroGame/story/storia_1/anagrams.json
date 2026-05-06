@@ -1,0 +1,14 @@
+{
+  "acrobata":       { "anagram": "MENA QUINTINO",      "solution": "INQUINAMENTO",         "words": 1 },
+  "funambolo":      { "anagram": "SPUNTATE FECI",      "solution": "STUPEFACENTI",         "words": 1 },
+  "giocoliere":     { "anagram": "ISPETTORI IDEE GREEN","solution": "STEREOTIPI DI GENERE", "words": 3 },
+  "pagliaccio":     { "anagram": "SUB ODIA COLLA",     "solution": "ABUSO DI ALCOL",       "words": 3 },
+  "trapezista":     { "anagram": "IMMAGINI ZERO",      "solution": "IMMIGRAZIONE",         "words": 1 },
+  "cavallerizza":   { "anagram": "UNITE ZERO POSTI",   "solution": "PROSTITUZIONE",        "words": 1 },
+  "contorsionista": { "anagram": "ABITI SALDI",        "solution": "DISABILITA",           "words": 1 },
+  "controfigura":   { "anagram": "MAESTRE PROVATE",    "solution": "POVERTA ESTREMA",      "words": 2 },
+  "domatore":       { "anagram": "INTERPOSI ZEUS",     "solution": "SUPERSTIZIONE",        "words": 1 },
+  "equilibrista":   { "anagram": "ACETI E PUBBLICATI", "solution": "ETICA E PUBBLICITA",   "words": 3 },
+  "sputafuoco":     { "anagram": "ARREDI SEGA MURO",   "solution": "GUERRA DI DISARMO",    "words": 3 },
+  "illusionista":   { "anagram": "ALCE IGNOTO",        "solution": "TECNOLOGIA",           "words": 1 }
+}
