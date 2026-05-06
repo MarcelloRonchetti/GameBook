@@ -1,106 +1,146 @@
 # LibroGame — Checklist
 
 ## ✅ Completato
+
 - [x] Setup progetto Expo SDK 54
-- [x] Configurazione Supabase + chiavi API
-- [x] Persistenza sessione con AsyncStorage
-- [x] Struttura cartelle progetto
-- [x] Tabelle Supabase (stories, rooms, users, room_players, progress, hints)
-- [x] Colonna `name` aggiunta a `rooms` (per nome personalizzato stanza)
-- [x] RLS configurato su tutte le tabelle (incluse policy DELETE su rooms)
+- [x] Dipendenze principali installate: Supabase, React Navigation, AsyncStorage, Picker, React Native Web
+- [x] Configurazione Supabase + anon key in `lib/supabase.js`
+- [x] Persistenza sessione Supabase con AsyncStorage
+- [x] Struttura cartelle progetto in `LibroGame/`
+- [x] Tabelle Supabase documentate: `stories`, `rooms`, `users`, `room_players`, `progress`, `hints`
+- [x] Colonna `name` su `rooms` per il nome personalizzato della stanza
 - [x] Account GM creato manualmente su Supabase
 - [x] Conferma email disabilitata su Supabase
-- [x] `LoginScreen` — autenticazione + redirect per ruolo con `navigation.reset` + banner errore inline
-- [x] `RegisterScreen` — registrazione giocatori con validazione completa + banner errore inline
-- [x] `CreateRoomScreen` — crea stanza con nome personalizzato + picker storia + aiuto automatico
-- [x] `DashboardScreen` — lista giocatori in realtime + chiudi stanza + bottone torna a RoomList
-- [x] `JoinRoomScreen` — **BUG FIX**: banner errore inline (no più `Alert.alert` su web) + logout + resume scena
-- [x] `RoomListScreen` — elenco stanze GM (con nome) + riapri + **elimina** + logout in header
-- [x] `PlayerDetailScreen` — timeline + invio hints testuali + usa `notify()` per errori
-- [x] `IntroScreen` — messaggio cifrato + chiave 1–14 + check progress esistente
-- [x] `SceneScreen` — testo NPC + **placeholder NPC** (riquadro colorato + emoji) + gestione duplicati progress
-- [x] `AnagramScreen` — anagramma + cifrario Illusionista + timer aiuto + init solved da DB
-- [x] `DirectriceScreen` — 12 anagrammi finali + check completamento esistente
-- [x] Tutti i componenti (`AnagramInput`, `AutoHintEffect`, `GmHint`, `PlayerCard`, `SceneCard`) — refactored con stili da `styles/components.js`
-- [x] `story/storia_1/scenes.json` (13 scene)
-- [x] `story/storia_1/anagrams.json` (12 anagrammi)
-- [x] `lib/helpers.js` — normalizeText, checkAnagram, generateRoomCode, formatTime + **`notify()` cross-platform**
-- [x] `lib/session.js` — logout, confirmLogout, **confirm cross-platform**, resolvePlayerResumeRoute
-- [x] `lib/useRoomClosedListener.js` — hook realtime chiusura stanza + hook disable back Android
-- [x] `AuthLoadingScreen` — splash con verifica sessione + redirect automatico per ruolo
-- [x] `AppNavigator` — `AuthLoading` come initialRoute, `gestureEnabled:false` su schermate critiche
-- [x] Redirect automatico se sessione già attiva (GM → RoomList, Player → JoinRoom)
-- [x] Ripresa dalla scena corretta dopo chiusura app
-- [x] Listener realtime per chiusura stanza (Alert + redirect a JoinRoom)
-- [x] Disabilitazione back button hardware Android nelle schermate critiche
-- [x] Logout GM (header RoomList) + Logout Player (JoinRoom)
-- [x] **Fix `Alert.alert` su web** — `notify()` in `lib/helpers.js` + banner inline nelle schermate critiche
-- [x] **Refactoring CSS** — sistema di stili centralizzato in `styles/`:
-  - [x] `styles/theme.js` — palette colori, spacing, radius, fontSize, fonts, shadows, **temi NPC** (`npcThemes` + `getNpcTheme()`)
-  - [x] `styles/components.js` — stili AnagramInput, AutoHintEffect, GmHint, PlayerCard, SceneCard
-  - [x] `styles/auth.js` — stili AuthLoadingScreen, LoginScreen, RegisterScreen
-  - [x] `styles/gm.js` — stili CreateRoomScreen, RoomListScreen, DashboardScreen, PlayerDetailScreen
-  - [x] `styles/player.js` — stili JoinRoomScreen, IntroScreen, SceneScreen (+ NPC placeholder), AnagramScreen, DirectriceScreen
-- [x] **Placeholder NPC** — riquadro colorato con emoji e nome per ogni circo-stanza (`SceneScreen` + `AnagramScreen` con mini-placeholder)
+- [x] `AuthLoadingScreen` — verifica sessione + redirect automatico per ruolo
+- [x] `LoginScreen` — autenticazione + redirect GM/player + banner errore inline
+- [x] `RegisterScreen` — registrazione player con validazione completa + banner errore inline
+- [x] `CreateRoomScreen` — crea stanza con nome, storia e timer aiuto automatico
+- [x] `RoomListScreen` — elenco stanze GM con entra/chiudi/riapri/elimina + logout header
+- [x] `DashboardScreen` — codice stanza, stato stanza, player in realtime, rimozione player, chiusura stanza
+- [x] `PlayerDetailScreen` — timeline player + invio hints testuali
+- [x] `JoinRoomScreen` — validazione codice, join stanza aperta, resume automatico, logout player
+- [x] `IntroScreen` — messaggio cifrato iniziale + chiave 1-14 + sblocco Acrobata sulla mappa
+- [x] `MapScreen` — mappa interattiva con nodi, percorsi, fog of war e stati scena
+- [x] `CircoStanzaScreen` — schermata attiva unificata con narrazione + anagramma
+- [x] `NarratorView` — testo tipo dialogo con typewriter e fallback placeholder
+- [x] `AnagramOverlay` — pannello anagramma, hints GM, cifrario Illusionista, scelte successive
+- [x] `DirectriceScreen` — 12 anagrammi finali + completamento salvato in `progress`
+- [x] Route legacy `SceneScreen` e `AnagramScreen` mantenute in navigation per compatibilità
+- [x] `story/storia_1/scenes.json` con intro, scene NPC, Illusionista e Direttrice
+- [x] `story/storia_1/anagrams.json` con 12 anagrammi di scena
+- [x] `styles/theme.js` — token grafici, `npcThemes`, `STORY_GRAPH`, `MAP_NODES`, registro `ASSETS`
+- [x] Asset reali iniziali: mappa, sprite Acrobata, background Acrobata
+- [x] Fallback grafico con colori/emoji per NPC senza asset
+- [x] `lib/helpers.js` — normalizeText, checkAnagram, generateRoomCode, formatTime, `notify()`
+- [x] `lib/session.js` — logout, confirmLogout, confirm cross-platform, resolvePlayerResumeRoute
+- [x] `lib/useRoomClosedListener.js` — listener realtime chiusura stanza + disable back Android
+- [x] Logout GM e Player
+- [x] Errori form critici tramite banner inline invece di `Alert.alert`
 
 ---
 
-## 🔄 Da Testare / Verificare (in esecuzione reale)
-- [ ] Persistenza sessione dopo refresh pagina (web) e riapertura app (mobile)
-- [ ] Resume automatico: player che chiude l'app e rientra con il codice stanza
-- [ ] Listener chiusura stanza: player in gioco deve ricevere l'Alert
-- [ ] Timer Aiuto Automatico: rispetto dei tempi impostati e loop corretto
-- [ ] Hints GM in realtime: compaiono nell'AnagramScreen senza refresh manuale
-- [ ] Back button Android: non deve permettere di uscire dalle schermate critiche
-- [ ] Logout: reset completo dello stack e ritorno al Login
-- [ ] Eliminazione stanza: deve davvero rimuovere la riga (verificare policy DELETE)
-- [ ] Flusso end-to-end: dall'Intro fino al completamento della Direttrice
-- [ ] **JoinRoomScreen fix**: verificare che il banner errore sia visibile su web e mobile per tutti i casi (codice errato, stanza chiusa, stanza non trovata)
-- [ ] **Placeholder NPC**: verificare che i colori e le emoji siano corretti per ogni circo-stanza
+## 🔄 Da Testare / Verificare
+
+- [ ] Installazione pulita da zero con `npm install`
+- [ ] Avvio web con `npm run web`
+- [ ] Avvio Android con `npm run android`
+- [ ] Verificare/aggiungere `react-native-svg`: `MapScreen` lo importa ma non è dichiarato in `package.json`
+- [ ] Persistenza sessione dopo refresh pagina e riapertura app
+- [ ] Resume player: nessun progress, intro solved, scena solved, scena non solved, Illusionista solved, Direttrice
+- [ ] Flusso end-to-end attivo: `Intro` -> `Map` -> `CircoStanza` -> `Map` -> `Illusionista` -> `Direttrice`
+- [ ] Timer Aiuto Automatico: rispetto dei minuti impostati, effetto 10 secondi, loop e stop dopo soluzione
+- [ ] Hints GM in realtime dentro `AnagramOverlay`
+- [ ] Listener chiusura stanza mentre il player è in `Intro`, `Map`, `CircoStanza` e `Direttrice`
+- [ ] Back button Android nelle schermate critiche
+- [ ] Logout: reset completo stack e ritorno al Login
+- [ ] RoomList: chiudi/riapri/elimina stanza con feedback visibile
+- [ ] Dashboard: rimozione player dalla stanza
+- [ ] RLS delete: eliminazione stanza e rimozione player non devono fallire per policy mancanti
+- [ ] Rendering asset: `circus_map.png`, `acrobata.png`, `acrobata_bg.png`
+- [ ] Map layout su mobile landscape/portrait e web
+- [ ] Direttrice: comportamento al refresh durante i 12 anagrammi finali
 
 ---
 
-## ⬜ Da Implementare
+## ⬜ Da Correggere / Allineare
 
-### Design e Grafica
-- [ ] Sostituzione placeholder NPC con immagini reali (struttura già pronta: basta sostituire `<Text emoji>` con `<Image source={...} />`)
-- [ ] Identità visiva raffinata per ogni schermata NPC (animazioni, oggetti interattivi)
-- [ ] Varianti di `AutoHintEffect` per scena (non solo bordo oro)
+### Dipendenze
+
+- [ ] Aggiungere `react-native-svg` a `package.json` oppure rimuovere l'uso di `Svg`/`Line` da `MapScreen`
+- [ ] Verificare compatibilità Expo SDK 54 prima di aggiornare dipendenze principali
+
+### Cross-platform
+
+- [ ] Convertire `useRoomClosedListener` da `Alert.alert` diretto a pattern cross-platform (`notify()` o gestione web dedicata)
+- [ ] Sostituire gli `Alert.alert` residui in `RoomListScreen` con `notify()`
+
+### Stili
+
+- [ ] Centralizzare gli stili ancora locali in `DashboardScreen`
+- [ ] Centralizzare gli stili ancora locali in `RoomListScreen`
+- [ ] Centralizzare o rimuovere gli stili locali della route legacy `AnagramScreen`
+- [ ] Collegare `DirectriceScreen` a `directriceStyles` in `styles/player.js`
+- [ ] Rivedere `styles/player.js`: `directriceStyles` e `anagramScreenStyles` esistono ma non sono pienamente usati
+
+### Supabase / RLS
+
+- [ ] Aggiungere/verificare policy `DELETE` GM su `room_players` per rimozione player da Dashboard
+- [ ] Aggiungere/verificare policy `DELETE` GM su `progress`, `hints`, `room_players` o configurare cascade delete per eliminazione stanza
+- [ ] Gestire gli errori delle delete intermedie in `RoomListScreen` invece di ignorarli
+- [ ] Valutare edge case: player in stanza chiusa e poi riaperta con stesso codice
+
+### Gameplay
+
+- [ ] Persistenza parziale degli anagrammi risolti in `DirectriceScreen`
+- [ ] Verificare che `CircoStanzaScreen` in modalità anagramma mostri correttamente background/sprite quando gli asset esistono
+- [ ] Decidere se rimuovere definitivamente `SceneScreen` e `AnagramScreen` quando il nuovo flusso è stabile
+
+### Tooling
+
+- [ ] Verificare intenzionalità di `.claude/settings.local.json`: disabilita `github@claude-plugins-official` anche se `.claude/settings.json` lo abilita
+
+---
+
+## 🎨 Design e Grafica
+
+- [ ] Aggiungere immagini reali per tutti gli NPC mancanti
+- [ ] Aggiungere background stanza per tutti gli NPC mancanti
+- [ ] Raffinare mappa e coordinate dei nodi dopo test su dispositivi reali
+- [ ] Varianti di `AutoHintEffect` per scena
 - [ ] Splash/icona app personalizzata
-- [ ] Design rifinito Dashboard GM e PlayerDetail
+- [ ] Rifinitura visuale di Dashboard GM e PlayerDetail
 
-### Distribuzione
+---
+
+## 🚀 Distribuzione
+
 - [ ] Emulatore Android per test più accurati
 - [ ] Build APK tramite EAS Build
-- [ ] Build iOS tramite EAS Build (opzionale)
-
-### Robustezza
-- [ ] Gestione errori di rete (timeout Supabase, retry automatici)
-- [ ] Messaggi di errore più user-friendly
-- [ ] Indicatori di caricamento in più punti (es. fetch iniziali delle scene)
-- [ ] Gestire il caso edge in cui il player si collega a una stanza in cui era già entrato ma è stata chiusa e poi riaperta con lo stesso codice
+- [ ] Build iOS tramite EAS Build, opzionale
 
 ---
 
 ## 🔧 Miglioramenti Futuri
-- [ ] Aggiungere altre storie (struttura già scalabile con `story_id`)
-- [ ] Multi-GM (permettere più GM per stanza)
-- [ ] Statistiche partita (tempo totale, numero errori, hints ricevuti)
+
+- [ ] Aggiungere altre storie tramite struttura `story_id`
+- [ ] Multi-GM per stanza
+- [ ] Statistiche partita: tempo totale, errori, hints ricevuti
 - [ ] Export cronologia stanza per il GM
 - [ ] Traduzioni multilingue
+- [ ] Pannello admin per gestire storie e asset senza modificare JSON
 
 ---
 
-## 📝 Decisioni di design prese
+## 📝 Decisioni di Design Prese
 
-1. **Resume scena**: ultima scena con `entered_at` più recente; casi speciali per `intro`, `illusionista`, `direttrice`.
-2. **Chiusura stanza durante gioco**: Alert + reset a `JoinRoom`, la sessione login resta attiva.
-3. **Back Android**: disabilitato in tutte le schermate critiche via `BackHandler`.
-4. **Logout**: bottone in header (RoomList GM) e link discreto (JoinRoom Player).
-5. **Initial route**: `AuthLoading` — unica fonte di verità per dove va l'utente all'avvio.
-6. **Cross-platform Alert**: `notify()` in `lib/helpers.js` usa `window.alert` su web e `Alert.alert` su mobile. Da preferire ad `Alert.alert` diretto per messaggi informativi. `confirm()` in `lib/session.js` resta per le conferme distruttive (logout, elimina stanza).
-7. **Nome stanza**: campo `name` opzionale su `rooms` per permettere al GM di distinguere più sessioni in parallelo.
-8. **Eliminazione stanza**: il GM può eliminare definitivamente le sue stanze (richiede policy `gm elimina stanza` su Supabase).
-9. **Banner errore inline**: le schermate con form (Login, Register, JoinRoom, CreateRoom, PlayerDetail) mostrano gli errori tramite un banner `<View>` inline invece di `Alert.alert` — funziona sia su web che su mobile.
-10. **Stili centralizzati**: tutti gli stili sono in `styles/`. Nessun `StyleSheet.create` diretto nelle schermate. I token (colori, spacing, radius, fontSize) sono definiti una sola volta in `theme.js`.
-11. **Placeholder NPC**: ogni circo-stanza ha un colore tematico + emoji definiti in `npcThemes` (`theme.js`). La funzione `getNpcTheme(sceneId)` ritorna il tema con fallback. Quando arriveranno le grafiche reali, basterà sostituire l'emoji con un `<Image>`.
+1. **Initial route**: `AuthLoading` è la fonte di verità all'avvio.
+2. **GM account**: creato manualmente, registrazione app solo per player.
+3. **Resume scena**: ultima riga `progress` per `entered_at`, con casi speciali in `resolvePlayerResumeRoute`.
+4. **Flusso player attivo**: `Intro` sblocca `Map`; la scena viene giocata in `CircoStanza`; le scelte passano dalla mappa.
+5. **Scene legacy**: `SceneScreen` e `AnagramScreen` restano per compatibilità ma non sono la strada principale.
+6. **Chiusura stanza**: listener realtime su `rooms`; il player deve essere riportato a `JoinRoom`.
+7. **Back Android**: disabilitato nelle schermate critiche.
+8. **Cross-platform UI**: banner inline per errori form, `notify()` per messaggi, `confirm()` per conferme.
+9. **Nome stanza**: campo `name` opzionale per gestire più sessioni GM.
+10. **Grafica NPC**: asset reali se presenti; fallback con tema colore + emoji da `npcThemes`.
+11. **Storia**: testi e anagrammi vivono in JSON locale; il grafo navigazione è in `styles/theme.js`.
