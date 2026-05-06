@@ -29,8 +29,8 @@ export const anagramInputStyles = StyleSheet.create({
 // ---------------------------------------------------------------------------
 // AutoHintEffect
 // ---------------------------------------------------------------------------
-// Bordo lampeggiante oro su tutta la viewport quando l'aiuto è attivo
 export const autoHintEffectStyles = StyleSheet.create({
+  // Fallback: bordo oro su tutta la viewport (usato se non c'è hintImage)
   overlay: {
     position: 'absolute',
     top: 0,
@@ -39,8 +39,21 @@ export const autoHintEffectStyles = StyleSheet.create({
     right: 0,
     borderWidth: 4,
     borderColor: colors.primary,
-    pointerEvents: 'none',  // non blocca i tocchi
+    pointerEvents: 'none',
     zIndex: 1000,
+  },
+  // Contenitore immagine hint posizionato sulla zona specifica della scena
+  hintImage: {
+    position: 'absolute',
+    zIndex: 1000,
+  },
+  // Bordo lampeggiante oro sulla zona specifica della scena (es. finestra sfondo)
+  hintBorder: {
+    position: 'absolute',
+    zIndex: 1000,
+    borderWidth: 4,
+    borderColor: colors.primary,
+    borderRadius: 16,
   },
 });
 

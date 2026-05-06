@@ -29,6 +29,8 @@ import { circoStanzaStyles as styles } from '../../styles/player';
 import {
   getCharacterAsset,
   getBackgroundAsset,
+  getHintAsset,
+  HINT_POSITIONS,
 } from '../../styles/theme';
 
 import scenes from '../../story/storia_1/scenes.json';
@@ -43,6 +45,8 @@ export default function CircoStanzaScreen({ route, navigation }) {
   // Asset grafici (null se non ancora disponibili → placeholder)
   const characterAsset = getCharacterAsset(sceneId);
   const backgroundAsset = getBackgroundAsset(sceneId);
+  const hintAsset = getHintAsset(sceneId);
+  const hintPosition = HINT_POSITIONS[sceneId] || null;
 
   // Modalità corrente della schermata
   const [mode, setMode] = useState(initialMode);
@@ -184,7 +188,11 @@ export default function CircoStanzaScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <StatusBar hidden />
-      <AutoHintEffect active={hintActive} />
+      <AutoHintEffect
+        active={hintActive}
+        hintImage={hintAsset}
+        hintImageStyle={hintPosition}
+      />
 
       {mode === 'narration' ? (
         <NarratorView

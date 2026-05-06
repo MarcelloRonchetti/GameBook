@@ -144,21 +144,32 @@ export const ASSETS = {
   },
   characters: {
     acrobata: require('../assets/characters/acrobata.png'),
-    // Aggiungi qui man mano:
     // funambolo: require('../assets/characters/funambolo.png'),
   },
   backgrounds: {
     acrobata: require('../assets/backgrounds/acrobata_bg.png'),
     // funambolo: require('../assets/backgrounds/funambolo_bg.png'),
   },
+  hints: {
+    acrobata: require('../assets/hints/acrobata_hint.png'),
+  },
 };
 
-// Helper — sprite personaggio o null se non ancora disponibile
+// Posizione dell'overlay hint sullo schermo (percentuali).
+// Valori calibrati per web desktop ~1280×800 con cover sul bg landscape.
+// Regola top/left/width/height se l'allineamento non combacia sul tuo schermo.
+export const HINT_POSITIONS = {
+  acrobata: { top: '8.9%', left: '38.1%', width: '30%', height: '49.2%' },
+};
+
 export function getCharacterAsset(sceneId) {
   return ASSETS.characters[sceneId] || null;
 }
 
-// Helper — sfondo stanza o null se non ancora disponibile
 export function getBackgroundAsset(sceneId) {
   return ASSETS.backgrounds[sceneId] || null;
+}
+
+export function getHintAsset(sceneId) {
+  return ASSETS.hints[sceneId] || null;
 }
