@@ -9,7 +9,10 @@
 //    casi in cui serve un popup (es. registrazione completata).
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import {
+  View, Text, TextInput, TouchableOpacity,
+  ScrollView, KeyboardAvoidingView, Platform
+} from 'react-native';
 
 import { supabase } from '../../lib/supabase';
 import { resolvePlayerResumeRoute, confirmLogout } from '../../lib/session';
@@ -128,50 +131,59 @@ export default function JoinRoomScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Entra nella Stanza</Text>
-      <Text style={styles.subtitle}>
-        Inserisci il codice a 6 cifre fornito dal GM
-      </Text>
-
-      {/* Banner errore inline — funziona ovunque, niente Alert silenti */}
-      {errorMsg ? (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorBannerText}>⚠️ {errorMsg}</Text>
-        </View>
-      ) : null}
-
-      <TextInput
-        style={styles.input}
-        placeholder="000000"
-        placeholderTextColor="#555"
-        value={code}
-        onChangeText={(text) => {
-          setCode(text);
-          if (errorMsg) setErrorMsg('');
-        }}
-        keyboardType="numeric"
-        maxLength={6}
-        textAlign="center"
-      />
-
-      <TouchableOpacity
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={handleJoinRoom}
-        disabled={loading}
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.buttonText}>
-          {loading ? 'Connessione...' : 'Entra'}
+        <Text style={styles.title}>Entra nella Stanza</Text>
+        <Text style={styles.subtitle}>
+          Inserisci il codice a 6 cifre fornito dal GM
         </Text>
-      </TouchableOpacity>
 
-      {/* Bottone logout discreto in basso */}
-      <TouchableOpacity
-        style={styles.logoutButton}
-        onPress={() => confirmLogout(navigation)}
-      >
-        <Text style={styles.logoutText}>Esci dall'account</Text>
-      </TouchableOpacity>
-    </View>
+        {/* Banner errore inline — funziona ovunque, niente Alert silenti */}
+        {errorMsg ? (
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorBannerText}>⚠️ {errorMsg}</Text>
+          </View>
+        ) : null}
+
+        <TextInput
+          style={styles.input}
+          placeholder="000000"
+          placeholderTextColor="#555"
+          value={code}
+          onChangeText={(text) => {
+            setCode(text);
+            if (errorMsg) setErrorMsg('');
+          }}
+          keyboardType="numeric"
+          maxLength={6}
+          textAlign="center"
+        />
+
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleJoinRoom}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? 'Connessione...' : 'Entra'}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Bottone logout discreto in basso */}
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => confirmLogout(navigation)}
+        >
+          <Text style={styles.logoutText}>Esci dall'account</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

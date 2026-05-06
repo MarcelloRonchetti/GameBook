@@ -5,7 +5,10 @@
 // reindirizzato alla schermata corretta.
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import {
+  View, Text, TextInput, TouchableOpacity,
+  ScrollView, KeyboardAvoidingView, Platform
+} from 'react-native';
 
 import { supabase } from '../../lib/supabase';
 import { notify } from '../../lib/helpers';
@@ -76,48 +79,57 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>LibroGame</Text>
-
-      {/* Banner errore inline — visibile sia su web che su mobile */}
-      {errorMsg ? (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorBannerText}>⚠️ {errorMsg}</Text>
-        </View>
-      ) : null}
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#666"
-        value={email}
-        onChangeText={(t) => { setEmail(t); setErrorMsg(''); }}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#666"
-        value={password}
-        onChangeText={(t) => { setPassword(t); setErrorMsg(''); }}
-        secureTextEntry
-      />
-
-      <TouchableOpacity
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={handleLogin}
-        disabled={loading}
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.buttonText}>
-          {loading ? 'Accesso in corso...' : 'Accedi'}
-        </Text>
-      </TouchableOpacity>
+        <Text style={styles.title}>LibroGame</Text>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.link}>Non hai un account? Registrati</Text>
-      </TouchableOpacity>
-    </View>
+        {/* Banner errore inline — visibile sia su web che su mobile */}
+        {errorMsg ? (
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorBannerText}>⚠️ {errorMsg}</Text>
+          </View>
+        ) : null}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#666"
+          value={email}
+          onChangeText={(t) => { setEmail(t); setErrorMsg(''); }}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#666"
+          value={password}
+          onChangeText={(t) => { setPassword(t); setErrorMsg(''); }}
+          secureTextEntry
+        />
+
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? 'Accesso in corso...' : 'Accedi'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+          <Text style={styles.link}>Non hai un account? Registrati</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

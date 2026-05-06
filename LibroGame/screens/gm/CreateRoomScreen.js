@@ -94,7 +94,10 @@ export default function CreateRoomScreen({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text style={styles.title}>Crea Stanza</Text>
 
       <Text style={styles.label}>Nome stanza</Text>

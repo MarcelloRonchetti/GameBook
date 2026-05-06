@@ -284,7 +284,9 @@ export const playerDetailStyles = StyleSheet.create({
   },
   list: {
     flex: 1,
-    marginBottom: spacing.md,
+  },
+  listContent: {
+    paddingBottom: spacing.xl,
   },
   progressItem: {
     flexDirection: 'row',
@@ -346,7 +348,6 @@ export const playerDetailStyles = StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.md,
-    maxHeight: 100,
   },
   sentHintsTitle: {
     fontSize: fontSize.sm,

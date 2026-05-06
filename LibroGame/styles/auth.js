@@ -42,8 +42,9 @@ export const authLoadingStyles = StyleSheet.create({
 // LoginScreen
 // ---------------------------------------------------------------------------
 export const loginStyles = StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.bgDark },
   container: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,

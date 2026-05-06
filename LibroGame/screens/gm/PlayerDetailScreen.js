@@ -136,63 +136,71 @@ export default function PlayerDetailScreen({ route }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.playerName}>{player.username}</Text>
-          <Text style={styles.playerScene}>
-            📍 Scena attuale: {player.currentScene}
-          </Text>
-        </View>
-
-        <Text style={styles.sectionTitle}>
-          📋 Cronologia ({progress.length} scene)
-        </Text>
-
         <FlatList
           data={progress}
           keyExtractor={(item, index) => `${item.scene_id}-${index}`}
           renderItem={renderProgressItem}
           style={styles.list}
+          contentContainerStyle={styles.listContent}
+          keyboardShouldPersistTaps="handled"
+          ListHeaderComponent={
+            <>
+              <View style={styles.header}>
+                <Text style={styles.playerName}>{player.username}</Text>
+                <Text style={styles.playerScene}>
+                  📍 Scena attuale: {player.currentScene}
+                </Text>
+              </View>
+
+              <Text style={styles.sectionTitle}>
+                📋 Cronologia ({progress.length} scene)
+              </Text>
+            </>
+          }
           ListEmptyComponent={
             <Text style={styles.emptyText}>
               Il giocatore non ha ancora iniziato
             </Text>
           }
+          ListFooterComponent={
+            <>
+              {sentHints.length > 0 && (
+                <View style={styles.sentHintsContainer}>
+                  <Text style={styles.sentHintsTitle}>
+                    💡 Suggerimenti inviati ({sentHints.length})
+                  </Text>
+                  {sentHints.map((hint, i) => (
+                    <Text key={i} style={styles.sentHintText}>
+                      {formatTimestamp(hint.created_at)}: {hint.message}
+                    </Text>
+                  ))}
+                </View>
+              )}
+
+              <View style={styles.hintSection}>
+                <Text style={styles.hintLabel}>✏️ Invia suggerimento</Text>
+                <TextInput
+                  style={styles.hintInput}
+                  value={hintText}
+                  onChangeText={setHintText}
+                  placeholder="Scrivi un suggerimento per il giocatore..."
+                  placeholderTextColor="#666"
+                  multiline
+                  numberOfLines={2}
+                />
+                <TouchableOpacity
+                  style={[styles.sendButton, (!hintText.trim() || sending) && styles.buttonDisabled]}
+                  onPress={handleSendHint}
+                  disabled={!hintText.trim() || sending}
+                >
+                  <Text style={styles.sendButtonText}>
+                    {sending ? 'Invio...' : 'Invia suggerimento'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          }
         />
-
-        {sentHints.length > 0 && (
-          <View style={styles.sentHintsContainer}>
-            <Text style={styles.sentHintsTitle}>
-              💡 Suggerimenti inviati ({sentHints.length})
-            </Text>
-            {sentHints.map((hint, i) => (
-              <Text key={i} style={styles.sentHintText}>
-                {formatTimestamp(hint.created_at)}: {hint.message}
-              </Text>
-            ))}
-          </View>
-        )}
-
-        <View style={styles.hintSection}>
-          <Text style={styles.hintLabel}>✏️ Invia suggerimento</Text>
-          <TextInput
-            style={styles.hintInput}
-            value={hintText}
-            onChangeText={setHintText}
-            placeholder="Scrivi un suggerimento per il giocatore..."
-            placeholderTextColor="#666"
-            multiline
-            numberOfLines={2}
-          />
-          <TouchableOpacity
-            style={[styles.sendButton, (!hintText.trim() || sending) && styles.buttonDisabled]}
-            onPress={handleSendHint}
-            disabled={!hintText.trim() || sending}
-          >
-            <Text style={styles.sendButtonText}>
-              {sending ? 'Invio...' : 'Invia suggerimento'}
-            </Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </KeyboardAvoidingView>
   );

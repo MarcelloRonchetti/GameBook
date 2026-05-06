@@ -113,6 +113,7 @@ export default function IntroScreen({ route, navigation }) {
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>{intro.title}</Text>
         <Text style={styles.storyText}>{intro.text}</Text>

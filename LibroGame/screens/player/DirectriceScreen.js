@@ -170,6 +170,7 @@ export default function DirectriceScreen({ route, navigation }) {
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>{direttrice.title}</Text>
         <Text style={styles.storyText}>{direttrice.text}</Text>

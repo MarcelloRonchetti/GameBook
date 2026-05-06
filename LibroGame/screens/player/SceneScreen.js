@@ -81,6 +81,7 @@ export default function SceneScreen({ route, navigation }) {
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
     >
 
       {/* PLACEHOLDER GRAFICO NPC

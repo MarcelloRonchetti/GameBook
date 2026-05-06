@@ -1,7 +1,7 @@
 # CLAUDE
 
 # ALWAYS REMEMBER IMPORTANT!!!!!
-Ignore Node_Modules folder when scanning the project files
+Ignore node_modules folder when scanning the project files
 
 ## Overview
 

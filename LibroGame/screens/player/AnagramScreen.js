@@ -227,6 +227,7 @@ export default function AnagramScreen({ route, navigation }) {
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
       >
         <GmHint hints={hints} />
 

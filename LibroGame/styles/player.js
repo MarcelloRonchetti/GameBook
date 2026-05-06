@@ -10,8 +10,9 @@ import { colors, spacing, radius, fontSize, fonts } from './theme';
 // JoinRoomScreen
 // ---------------------------------------------------------------------------
 export const joinRoomStyles = StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.bgDark },
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: spacing.xl,
     alignItems: 'center',
     justifyContent: 'center',

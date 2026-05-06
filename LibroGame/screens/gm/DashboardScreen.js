@@ -192,50 +192,52 @@ export default function DashboardScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-
-      {/* Codice stanza — ben visibile per condividerlo con i giocatori */}
-      <View style={styles.codeContainer}>
-        <Text style={styles.codeLabel}>Codice Stanza</Text>
-        <Text style={styles.code}>{room.code}</Text>
-        <Text style={[
-          styles.status,
-          roomStatus === 'open' ? styles.statusOpen : styles.statusClosed
-        ]}>
-          {roomStatus === 'open' ? '🟢 Aperta' : '🔴 Chiusa'}
-        </Text>
-      </View>
-
-      {/* Lista giocatori */}
-      <Text style={styles.sectionTitle}>
-        Giocatori ({players.length})
-      </Text>
-
       <FlatList
         data={players}
         keyExtractor={item => item.id}
         renderItem={renderPlayer}
+        contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
             Nessun giocatore ancora connesso
           </Text>
         }
+        ListHeaderComponent={
+          <>
+            {/* Codice stanza — ben visibile per condividerlo con i giocatori */}
+            <View style={styles.codeContainer}>
+              <Text style={styles.codeLabel}>Codice Stanza</Text>
+              <Text style={styles.code}>{room.code}</Text>
+              <Text style={[
+                styles.status,
+                roomStatus === 'open' ? styles.statusOpen : styles.statusClosed
+              ]}>
+                {roomStatus === 'open' ? '🟢 Aperta' : '🔴 Chiusa'}
+              </Text>
+            </View>
+
+            {/* Lista giocatori */}
+            <Text style={styles.sectionTitle}>
+              Giocatori ({players.length})
+            </Text>
+          </>
+        }
+        ListFooterComponent={
+          <TouchableOpacity
+            style={[
+              styles.closeButton,
+              roomStatus === 'closed' && styles.closeButtonDisabled
+            ]}
+            onPress={handleCloseRoom}
+            disabled={roomStatus === 'closed'}
+          >
+            <Text style={styles.closeButtonText}>
+              {roomStatus === 'open' ? 'Chiudi Stanza' : 'Stanza Chiusa'}
+            </Text>
+          </TouchableOpacity>
+        }
         style={styles.list}
       />
-
-      {/* Bottone chiudi stanza — disabilitato se già chiusa */}
-      <TouchableOpacity
-        style={[
-          styles.closeButton,
-          roomStatus === 'closed' && styles.closeButtonDisabled
-        ]}
-        onPress={handleCloseRoom}
-        disabled={roomStatus === 'closed'}
-      >
-        <Text style={styles.closeButtonText}>
-          {roomStatus === 'open' ? 'Chiudi Stanza' : 'Stanza Chiusa'}
-        </Text>
-      </TouchableOpacity>
-
     </View>
   );
 }
@@ -275,6 +277,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   list: { flex: 1 },
+  listContent: { paddingBottom: 20 },
   playerCard: {
     backgroundColor: '#fff',
     borderRadius: 10,

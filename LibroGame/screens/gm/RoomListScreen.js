@@ -197,29 +197,30 @@ export default function RoomListScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Le mie stanze</Text>
-
       <FlatList
         data={rooms}
         keyExtractor={item => item.id}
         renderItem={renderRoom}
+        style={styles.listFrame}
         contentContainerStyle={styles.list}
+        ListHeaderComponent={
+          <Text style={styles.title}>Le mie stanze</Text>
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>Nessuna stanza ancora creata</Text>
             <Text style={styles.emptySubtext}>Crea la tua prima stanza per iniziare!</Text>
           </View>
         }
+        ListFooterComponent={
+          <TouchableOpacity
+            style={styles.createButton}
+            onPress={() => navigation.navigate('CreateRoom')}
+          >
+            <Text style={styles.createButtonText}>+ Crea nuova stanza</Text>
+          </TouchableOpacity>
+        }
       />
-
-      {/* Bottone crea nuova stanza — ben visibile */}
-      <TouchableOpacity
-        style={styles.createButton}
-        onPress={() => navigation.navigate('CreateRoom')}
-      >
-        <Text style={styles.createButtonText}>+ Crea nuova stanza</Text>
-      </TouchableOpacity>
-
     </View>
   );
 }
@@ -244,8 +245,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#111',
   },
+  listFrame: {
+    flex: 1,
+  },
   list: {
-    paddingBottom: 100,
+    paddingBottom: 20,
   },
   card: {
     backgroundColor: '#fff',
@@ -316,14 +320,12 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 16, fontWeight: '600', color: '#555' },
   emptySubtext: { fontSize: 14, color: '#999' },
   createButton: {
-    position: 'absolute',
-    bottom: 24,
-    left: 20,
-    right: 20,
     backgroundColor: '#111',
     padding: 18,
     borderRadius: 12,
     alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
