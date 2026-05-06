@@ -163,7 +163,7 @@ export default function NarratorView({
 
       {/* DIALOG BOX — assoluto in fondo */}
       <TouchableWithoutFeedback onPress={handleTap}>
-        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2 }}>
             <View style={styles.dialogBox}>
               <View style={styles.dialogHeader}>
                 <Text style={styles.dialogName}>

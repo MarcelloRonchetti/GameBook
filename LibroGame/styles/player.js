@@ -784,15 +784,17 @@ export const circoStanzaStyles = StyleSheet.create({
   },
 
   // --- SPRITE PERSONAGGIO ---
-  // Posizione assoluta: davanti alla finestra, zona sinistra-centro
+  // Grande, a sinistra, ancorato in basso: il busto sporge sopra il dialog box,
+  // le gambe restano dietro (il dialog box ha zIndex superiore).
   characterContainer: {
     position: 'absolute',
-    left: '18%',
-    bottom: 150,
-    width: '20%',
-    height: '62%',
+    left: '-5%',
+    bottom: '-55%',
+    width: '70%',
+    height: '145%',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    zIndex: 1,
   },
   characterImage: {
     width: '100%',
@@ -815,8 +817,7 @@ export const circoStanzaStyles = StyleSheet.create({
   },
 
   // --- DIALOG BOX (narrazione) ---
-  // Layout flow: appare sotto lo sprite del personaggio, in fondo al
-  // contenitore scrollabile. Niente più position: absolute.
+  // zIndex: 2 → copre le gambe del personaggio (che ha zIndex: 1)
   dialogBox: {
     backgroundColor: 'rgba(15,10,5,0.92)',
     borderTopWidth: 2,
@@ -824,6 +825,7 @@ export const circoStanzaStyles = StyleSheet.create({
     padding: 16,
     paddingBottom: 28,
     minHeight: 150,
+    zIndex: 2,
   },
   dialogHeader: {
     flexDirection: 'row',
