@@ -61,7 +61,7 @@ Ignore node_modules folder when scanning the project files
 - Player screens:
   - `JoinRoomScreen` validates a 6-digit code, joins open rooms, and resumes progress. The code input is trimmed and then `.padStart(6, '0')` is applied so that codes with leading zeros (e.g. `001234`) are preserved before the Supabase lookup. Uses `maybeSingle()` to avoid errors on missing rooms. Calls `resolvePlayerResumeRoute` and `navigation.reset` to the right scene. Logout link via `confirmLogout`.
   - `IntroScreen` handles the initial cipher and unlocks `acrobata` on the map.
-  - `MapScreen` renders the circus map, node state, fog of war, and available next scenes.
+  - `MapScreen` renders the circus map with illustrated arch-frame nodes. Two node types: `TentNode` (intro/direttrice, PNG tents + banner scroll) and `ArchNode` (12 NPCs, arch frame PNG + sprite inside). Fog state: arch shows `?` without dark circle; tent darkens via `tintColor`. Available arch nodes scale up on hover/press (`Animated.spring`). SVG bezier paths connect nodes; `pathAnchorX/Y` in `MAP_NODES` offset path endpoints for intro/direttrice. All visual tuning constants at top of file (`ARCH_SCALE`, `TENT_SCALE`, `INTERIOR_*`, `SPRITE_SCALE`, `BANNER_BOTTOM`, `LABEL_FONT_SCALE`). Banner config for tents in `BANNER_CONFIG` in `theme.js`.
   - `CircoStanzaScreen` combines narration and anagram play for the current active flow.
   - `DirectriceScreen` handles the final twelve anagrams (with skip and free navigation) and stores final completion in `progress`.
   - `SceneScreen` and `AnagramScreen` are legacy route fallbacks.
@@ -122,7 +122,9 @@ LibroGame/
 - `shadows` (sm/md/lg + Android elevation)
 - `npcThemes` and `getNpcTheme(sceneId)` (fallback `{ color: primary, emoji: '🎪', label: 'Circo-stanza' }`)
 - `STORY_GRAPH` and `MAP_NODES`
-- `ASSETS`, `getCharacterAsset`, `getBackgroundAsset`
+- `ASSETS` (map: `background`, `nodeFrame`, `nodeTentEntry`, `nodeTentFinal`, `nodeBanner`), `getCharacterAsset`, `getBackgroundAsset`
+- `BANNER_CONFIG` — parametri banner tende (intro/direttrice): `bannerScale`, `bannerTop`, `bannerOffsetX`, `fontScale`, `textOffsetX`, `textOffsetY`
+- `MAP_NODES` supporta `pathAnchorX/Y` per offset endpoint percorsi SVG
 
 `styles/components.js`: `anagramInputStyles`, `autoHintEffectStyles` (gold border 4px overlay, zIndex 1000), `gmHintStyles` (yellow banner with left border), `playerCardStyles`, `sceneCardStyles`.
 

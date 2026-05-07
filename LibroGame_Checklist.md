@@ -143,6 +143,14 @@
 - [ ] Aggiungere asset hint per gli altri NPC (Funambolo, Giocoliere, ecc.)
 - [ ] Splash/icona app personalizzata
 - [ ] Rifinitura visuale di Dashboard GM e PlayerDetail
+- [x] **MapScreen — redesign visuale completo**: nodi arco sostituiti con frame PNG (`node_frame.png`); nodi tenda (intro/direttrice) con PNG dedicati (`node_tent_entry.png`, `node_tent_final.png`); banner nome (`node_banner.png`) sovrapposto alla base delle tende
+- [x] **MapScreen — sistema tuning costanti**: `FRAME_RATIO`, `INTERIOR_TOP`, `INTERIOR_SIZE`, `INTERIOR_OFFSET_X/Y`, `SPRITE_SCALE`, `BANNER_BOTTOM`, `LABEL_FONT_SCALE`, `ARCH_SCALE`, `TENT_SCALE` in cima a `MapScreen.js` per allineamento visivo senza toccare la logica
+- [x] **MapScreen — BANNER_CONFIG in theme.js**: sezione dedicata con `bannerScale`, `bannerTop`, `bannerOffsetX`, `fontScale`, `textOffsetX`, `textOffsetY` per intro e direttrice — separata da MAP_NODES
+- [x] **MapScreen — fog state**: archi in fog mostrano `?` senza cerchio scuro; tende in fog usano `tintColor: '#222'` sull'immagine (forma preservata, nessun rettangolo); badge verde rimosso dai nodi risolti
+- [x] **MapScreen — hover/scale animation**: nodi `available` si ingrandiscono (`scale 1→1.18`) al hover (web) e al press (mobile) tramite `Animated.spring`; nessun lampeggio
+- [x] **MapScreen — pathAnchorX/Y in MAP_NODES**: offset percentuali per spostare l'endpoint dei percorsi SVG su intro e direttrice, indipendentemente dal centro del nodo
+- [x] **MapScreen — label archi scalabile**: `fontSize: frameW * LABEL_FONT_SCALE` — dimensione testo proporzionale all'arco
+- [x] **Asset mappa**: `node_frame.png`, `node_tent_entry.png`, `node_tent_final.png`, `node_banner.png` registrati in `ASSETS.map` di `theme.js`
 
 ---
 
