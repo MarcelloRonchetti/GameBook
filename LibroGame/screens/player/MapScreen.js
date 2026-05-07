@@ -25,11 +25,9 @@ const TENT_SCALE    = 3.8;  // moltiplicatore dimensione tende speciali
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View, Text, Image, TouchableOpacity, useWindowDimensions, Animated,
+  View, Text, Image, TouchableOpacity, useWindowDimensions, Animated, Easing,
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
-
-import { Asset } from 'expo-asset';
 
 import { supabase } from '../../lib/supabase';
 import { useDisableAndroidBack } from '../../lib/useRoomClosedListener';
@@ -180,8 +178,8 @@ function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
   const isSolved = state === 'visited';
 
   const scale = useRef(new Animated.Value(1)).current;
-  const animIn  = () => { if (isAvail) Animated.spring(scale, { toValue: 1.18, useNativeDriver: true, speed: 20, bounciness: 6 }).start(); };
-  const animOut = () => { if (isAvail) Animated.spring(scale, { toValue: 1,    useNativeDriver: true, speed: 20, bounciness: 6 }).start(); };
+  const animIn  = () => { if (isAvail) Animated.timing(scale, { toValue: 1.18, duration: 140, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(); };
+  const animOut = () => { if (isAvail) Animated.timing(scale, { toValue: 1,    duration: 140, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(); };
 
   return (
     <Animated.View style={[
@@ -263,10 +261,6 @@ export default function MapScreen({ route, navigation }) {
 
   useEffect(() => {
     loadProgress();
-    Asset.loadAsync([
-      ...Object.values(ASSETS.backgrounds),
-      ...Object.values(ASSETS.characters),
-    ]).catch(() => {});
   }, []);
 
   const loadProgress = async () => {
