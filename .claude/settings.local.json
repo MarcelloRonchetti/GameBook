@@ -19,7 +19,9 @@
       "Bash(npx playwright *)",
       "Bash(npx -y @playwright/mcp@latest --help)",
       "Bash(npm config *)",
-      "Bash(mkdir -p /home/marci/.var/app/com.visualstudio.code/data/node_modules && echo \"created\" && npx -y @playwright/mcp@latest --help 2>&1 | head -30)"
+      "Bash(mkdir -p /home/marci/.var/app/com.visualstudio.code/data/node_modules && echo \"created\" && npx -y @playwright/mcp@latest --help 2>&1 | head -30)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ],
     "additionalDirectories": [
       "/home/marci/.var/app/com.visualstudio.code/data"
