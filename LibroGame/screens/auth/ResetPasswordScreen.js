@@ -28,14 +28,41 @@ export default function ResetPasswordScreen({ navigation }) {
   const [hasRecoverySession, setHasRecoverySession] = useState(null);
 
   useEffect(() => {
-    // Controlla la sessione corrente: il client Supabase ha già processato
-    // l'hash della URL al boot, quindi se siamo qui dopo un click sul link
-    // di recupero la getSession() restituisce una sessione valida.
+    // Il client Supabase parserà l'hash della URL (#access_token=...&type=recovery)
+    // in modo asincrono al boot. Per evitare la race tra il mount di questa
+    // schermata e il completamento del parsing, ci iscriviamo a onAuthStateChange:
+    // - se al mount c'è già una sessione (caso navigato da AuthLoading), getSession() la trova
+    // - altrimenti l'evento PASSWORD_RECOVERY/SIGNED_IN aggiornerà lo stato quando arriva
+    // Dopo un timeout di sicurezza, se ancora nessuna sessione, mostriamo il guard.
+    let resolved = false;
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        if (session) {
+          resolved = true;
+          setHasRecoverySession(true);
+        }
+      }
+    });
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setHasRecoverySession(!!session);
+      if (session) {
+        resolved = true;
+        setHasRecoverySession(true);
+      }
     };
     checkSession();
+
+    // Timeout di sicurezza: se dopo 2s non c'è ancora una sessione, mostra il guard.
+    const timeout = setTimeout(() => {
+      if (!resolved) setHasRecoverySession(false);
+    }, 2000);
+
+    return () => {
+      clearTimeout(timeout);
+      subscription?.subscription?.unsubscribe?.();
+    };
   }, []);
 
   const handleSubmit = async () => {

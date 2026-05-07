@@ -5,6 +5,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 // AsyncStorage — salva la sessione localmente sul dispositivo
 
 const supabaseUrl = 'https://rrleoynnbjesnpquqlmx.supabase.co';
@@ -18,7 +19,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     // Mantieni la sessione attiva tra i refresh
     persistSession: true,
-    // Non rileva la sessione dall'URL (non necessario per mobile)
-    detectSessionInUrl: false,
+    // Su web abilita il parsing del fragment dell'URL (#access_token=...)
+    // necessario per il flusso di recupero password: il link nell'email
+    // atterra su /reset-password#access_token=...&type=recovery e il client
+    // deve creare la sessione PASSWORD_RECOVERY per permettere updateUser().
+    // Su mobile il flusso usa deep link, gestito separatamente.
+    detectSessionInUrl: Platform.OS === 'web',
   },
 });
