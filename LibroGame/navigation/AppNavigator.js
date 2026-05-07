@@ -16,6 +16,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AuthLoadingScreen from '../screens/auth/AuthLoadingScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
+import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
+import ResetPasswordScreen from '../screens/auth/ResetPasswordScreen';
 
 // GM
 import RoomListScreen from '../screens/gm/RoomListScreen';
@@ -36,9 +38,25 @@ import AnagramScreen from '../screens/player/AnagramScreen';
 
 const Stack = createStackNavigator();
 
+// linking — mappa le URL del browser alle route di React Navigation.
+// Senza questa configurazione il click sul link di recupero password atterra
+// su /reset-password ma React Navigation rimane su AuthLoading.
+// I prefissi includono sia l'origin web sia il deep link mobile (placeholder).
+const linking = {
+  prefixes: [
+    typeof window !== 'undefined' ? window.location.origin : '',
+    'librogame://',
+  ],
+  config: {
+    screens: {
+      ResetPassword: 'reset-password',
+    },
+  },
+};
+
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
         initialRouteName="AuthLoading"
         screenOptions={{
@@ -63,6 +81,16 @@ export default function AppNavigator() {
         <Stack.Screen
           name="Register"
           component={RegisterScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ForgotPassword"
+          component={ForgotPasswordScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ResetPassword"
+          component={ResetPasswordScreen}
           options={{ headerShown: false }}
         />
 

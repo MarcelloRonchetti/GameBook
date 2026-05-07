@@ -117,3 +117,5 @@ build/
 
 # Local Netlify folder
 .netlify
+
+.secret

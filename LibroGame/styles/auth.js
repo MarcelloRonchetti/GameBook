@@ -165,3 +165,158 @@ export const registerStyles = StyleSheet.create({
     fontSize: fontSize.md,
   },
 });
+
+// ---------------------------------------------------------------------------
+// ForgotPasswordScreen
+// ---------------------------------------------------------------------------
+export const forgotPasswordStyles = StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.bgDark },
+  container: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+    backgroundColor: colors.bgDark,
+  },
+  title: {
+    fontSize: fontSize.huge,
+    fontWeight: 'bold',
+    marginBottom: spacing.lg,
+    color: colors.primary,
+    letterSpacing: 1,
+  },
+  subtitle: {
+    fontSize: fontSize.md,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginBottom: spacing.huge,
+  },
+  input: {
+    width: '100%',
+    backgroundColor: colors.surfaceDark,
+    borderWidth: 1,
+    borderColor: colors.borderDark,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    fontSize: fontSize.lg,
+    color: colors.textPrimary,
+  },
+  button: {
+    width: '100%',
+    backgroundColor: colors.primary,
+    padding: spacing.lg,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  buttonDisabled: {
+    backgroundColor: colors.textFaint,
+  },
+  buttonText: {
+    color: colors.bgDark,
+    fontSize: fontSize.lg,
+    fontWeight: 'bold',
+  },
+  link: {
+    color: colors.textMuted,
+    fontSize: fontSize.md,
+  },
+  errorBanner: {
+    width: '100%',
+    backgroundColor: colors.errorBg,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.error,
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    marginBottom: spacing.lg,
+  },
+  errorBannerText: {
+    color: colors.error,
+    fontSize: fontSize.md,
+  },
+  successBanner: {
+    width: '100%',
+    backgroundColor: colors.successBg,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.success,
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    marginBottom: spacing.lg,
+  },
+  successBannerText: {
+    color: colors.success,
+    fontSize: fontSize.md,
+  },
+});
+
+// ---------------------------------------------------------------------------
+// ResetPasswordScreen
+// ---------------------------------------------------------------------------
+export const resetPasswordStyles = StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.bgDark },
+  container: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+    backgroundColor: colors.bgDark,
+  },
+  title: {
+    fontSize: fontSize.huge,
+    fontWeight: 'bold',
+    marginBottom: spacing.lg,
+    color: colors.primary,
+    letterSpacing: 1,
+  },
+  subtitle: {
+    fontSize: fontSize.md,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginBottom: spacing.huge,
+  },
+  input: {
+    width: '100%',
+    backgroundColor: colors.surfaceDark,
+    borderWidth: 1,
+    borderColor: colors.borderDark,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    fontSize: fontSize.lg,
+    color: colors.textPrimary,
+  },
+  button: {
+    width: '100%',
+    backgroundColor: colors.primary,
+    padding: spacing.lg,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  buttonDisabled: {
+    backgroundColor: colors.textFaint,
+  },
+  buttonText: {
+    color: colors.bgDark,
+    fontSize: fontSize.lg,
+    fontWeight: 'bold',
+  },
+  link: {
+    color: colors.textMuted,
+    fontSize: fontSize.md,
+  },
+  errorBanner: {
+    width: '100%',
+    backgroundColor: colors.errorBg,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.error,
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    marginBottom: spacing.lg,
+  },
+  errorBannerText: {
+    color: colors.error,
+    fontSize: fontSize.md,
+  },
+});
