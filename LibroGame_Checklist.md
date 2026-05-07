@@ -56,6 +56,14 @@
 - [x] `AnagramOverlay` — sezione "risolto" (non-Illusionista): rimossi pulsanti di scelta NPC, aggiunto tasto unico "🗺️ Vai alla mappa →" che chiama `onGoToMap`; mantenuta la domanda `scene.question` + sottotitolo "Sia fatta la vostra volontà."
 - [x] `ImagePreloader` persistente in `App.js`: renderizza `<Image>` nascosti (1×1 px) per mappa, backgrounds e characters dopo 100 ms dal boot — previene ri-decodifica su web ad ogni navigazione
 - [x] `MapScreen` — `Asset.loadAsync` per precaricamento backgrounds e characters su native mentre il player vede la mappa
+- [x] `ForgotPasswordScreen` — input email + invio link recupero via Supabase + Brevo SMTP, banner errore inline, pannello successo "Controlla la tua email"
+- [x] `ResetPasswordScreen` — due input password (nuova + conferma), validazione (min 6, match), `supabase.auth.updateUser({ password })`, signOut + reset a Login al successo, direct-visit guard "Link non valido o scaduto" + listener `onAuthStateChange` con timeout di sicurezza 2s
+- [x] `lib/resetRedirect.js` — helper `getResetRedirect()` cross-platform per la URL del link di recupero
+- [x] `LoginScreen` — link "Password dimenticata?" tra "Accedi" e "Registrati"
+- [x] `AuthLoadingScreen` — handler evento `PASSWORD_RECOVERY` di Supabase: redirige a `ResetPassword` invece che alla home in base al ruolo (con `recoveryFired` guard contro la race con `getSession()`)
+- [x] `AppNavigator` — route `ForgotPassword` e `ResetPassword` registrate + `linking` config sul `NavigationContainer` per mappare `/reset-password` su web (deep link `librogame://` registrato come placeholder per il futuro build EAS)
+- [x] `lib/supabase.js` — `detectSessionInUrl: Platform.OS === 'web'` per permettere al client di processare il fragment `#access_token=...&type=recovery` dell'URL al boot (richiesto per il flusso di recupero password)
+- [x] Supabase SMTP via Brevo (free tier 300 email/giorno) configurato; template "Reset Password" tradotto in italiano; redirect URL allowlist aggiornata con `http://localhost:8081/reset-password`
 
 ---
 
@@ -81,6 +89,10 @@
 - [ ] Verifica scroll su web a finestra ridotta in: `CreateRoom`, `RoomList`, `Dashboard`, `PlayerDetail`, `CircoStanza` modalità narrazione (start scene Acrobata)
 - [ ] Verifica che entrando in una stanza, tornando a `RoomList` e rientrando nella stessa stanza, il `Dashboard` si rimonti correttamente (niente schermo bianco) sia su web sia su mobile
 - [ ] Verifica che la `MapScreen` e la `DirectriceScreen` non abbiano lo stesso problema di scroll su web a finestra ridotta
+- [ ] Recupero password end-to-end con vari client email (Gmail, Outlook): link cliccato apre `ResetPasswordScreen` correttamente e la nuova password funziona al login successivo
+- [ ] Recupero password con email non registrata: comportamento atteso = pannello di successo (Supabase non rivela se l'utente esiste)
+- [ ] Apertura diretta di `/reset-password` senza link → banner "Link non valido o scaduto"
+- [ ] Recupero password mentre un altro utente è loggato: dopo update + signOut lo stack riparte da Login pulito
 
 ---
 
@@ -151,7 +163,6 @@
 - [ ] Traduzioni multilingue
 - [ ] Pannello admin per gestire storie e asset senza modificare JSON
 - [ ] Gestione errori di rete più robusta
-- [ ] SMTP personalizzato (SendGrid / Mailgun / Resend) per reset password
 
 ---
 
@@ -176,6 +187,10 @@
 17. **Layout web — `NarratorView` scrollabile**: la modalità narrazione di `CircoStanzaScreen` posizionava sprite e dialog box in `position: absolute`. Su finestre piccole il dialog usciva dalla viewport e non era raggiungibile (niente scroll). Risolto convertendo sprite e dialog in flow layout dentro una `ScrollView`; lo sfondo e l'overlay restano assoluti dietro al contenuto scrollabile per preservare il look cinematografico su finestre alte.
 18. **Bug fix — schermo bianco al rientro in `Dashboard`**: con `navigation.navigate('Dashboard', { room })` da `RoomList` e `navigation.navigate('RoomList')` da `Dashboard`, il rientro in una stanza dopo essere tornati alla lista produceva uno schermo bianco su web (race tra unmount precedente e remount). Risolto: `RoomListScreen.handleEnterRoom` usa ora `navigation.push('Dashboard', …)` per forzare una nuova istanza, e l'header back di `Dashboard` usa `navigation.goBack()` per smontarla in modo pulito (RoomList è sempre sotto nello stack — sia che si arrivi via `push` da RoomList sia via `replace` da CreateRoom).
 19. **Root cause scroll su web — catena di altezze**: tutti gli `ScrollView`/`FlatList` con `flex: 1` su web fallivano nello stabilire un'area scrollabile perché `html`, `body` e `#root` non avevano un'altezza ancorata: il default Expo lascia la pagina a "natural height", per cui ogni `flex: 1` si limita a fittare il proprio contenuto. Risultato: contenuto tagliato senza barra di scroll. Risolto in `App.js` iniettando un blocco `<style>` al boot (solo su `Platform.OS === 'web'`) che imposta `html, body, #root { height: 100% }` e dà al primo `<div>` figlio di `#root` `display: flex; height: 100%`. Da quel momento la catena di flex ha un'altezza concreta a cui ancorarsi e ogni `ScrollView`/`FlatList` con `flex: 1` scrolla correttamente. Senza questa iniezione, le rifiniture per-schermata (rimozione wrapper, `flexGrow: 1` su contentContainer, ecc.) non bastano.
+20. **Password reset — Brevo SMTP, niente Edge Function**: scelto Brevo (free tier 300 email/giorno permanente) come provider SMTP custom in Supabase. Nessun Edge Function necessario: il flusso usa direttamente `supabase.auth.resetPasswordForEmail` + `supabase.auth.updateUser`, supportato out-of-the-box dal client JS. Considerato come alternativa un GM admin reset via Edge Function (`auth.admin.updateUserById`) ma scartato dallo scope iniziale: il flusso email è sufficiente per l'uso classroom (~120 studenti/giorno → realistici 5–15 reset/giorno, ben sotto i 300/giorno). L'Edge Function resta opzione futura come fallback.
+21. **Password reset — Web-first con hook deep link**: implementato solo per web (`window.location.origin + '/reset-password'`). Il prefisso `librogame://` è già registrato nel `linking` config del navigator e in `lib/resetRedirect.js` come placeholder, ma il deep link mobile non è ancora attivo: dipende dal primo build EAS che registrerà lo scheme nell'AndroidManifest / Info.plist. Decisione presa perché il use case classroom è browser-based (Chromebook/laptop scolastici) e Expo Go non è compatibile con SDK 54.
+22. **Password reset — `AuthLoadingScreen` come gateway PASSWORD_RECOVERY**: il listener `onAuthStateChange` è registrato in `AuthLoadingScreen` (entry point dell'app) invece che nel root `App.js` perché in questo modo gestisce sia il caso "app aperta su /reset-password da link" sia il caso "app navigated da Login → ForgotPassword → email" senza duplicare logica. Un `recoveryFired` guard impedisce che `checkSession()` (asincrono) ridiriga alla home dopo che PASSWORD_RECOVERY è già stato gestito.
+23. **Bug fix — link recupero password "Link non valido"**: cliccando il link nell'email atterravamo su `/reset-password#access_token=…&type=recovery` ma `getSession()` restituiva sempre `null`, facendo scattare il direct-visit guard. Root cause: `lib/supabase.js` aveva `detectSessionInUrl: false` (opzione pensata per evitare parsing su mobile), che impediva al client di processare il fragment dell'URL su web. Risolto impostando `detectSessionInUrl: Platform.OS === 'web'`. Aggiunta anche robustezza in `ResetPasswordScreen`: oltre a `getSession()` al mount, sottoscrive `onAuthStateChange` per gli eventi `PASSWORD_RECOVERY` / `SIGNED_IN` / `INITIAL_SESSION`, con timeout di sicurezza 2s per attivare il guard se davvero non c'è sessione. Senza questo doppio meccanismo c'era una race tra il mount della schermata (via `linking` config) e il parsing asincrono dell'URL fragment da parte del client Supabase.
 
 
 ## Bugs

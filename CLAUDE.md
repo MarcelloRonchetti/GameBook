@@ -43,12 +43,14 @@ Ignore node_modules folder when scanning the project files
 - Root:
   - `LibroGame/App.js` renders `AppNavigator`.
   - `LibroGame/index.js` registers the Expo root component.
-  - `LibroGame/navigation/AppNavigator.js` defines auth, GM, current player, and legacy player stack routes. Initial route is `AuthLoading`. Critical screens use `headerLeft: () => null` and `gestureEnabled: false`.
+  - `LibroGame/navigation/AppNavigator.js` defines auth, GM, current player, and legacy player stack routes. Initial route is `AuthLoading`. Critical screens use `headerLeft: () => null` and `gestureEnabled: false`. The `NavigationContainer` has a `linking` config so the URL `/reset-password` resolves to `ResetPasswordScreen` on web; deep-link prefix `librogame://` is registered as placeholder for future mobile builds.
 
 - Auth screens:
-  - `AuthLoadingScreen` restores Supabase sessions and redirects by role.
-  - `LoginScreen` authenticates GM/player accounts and uses inline error banners.
+  - `AuthLoadingScreen` restores Supabase sessions and redirects by role. Also subscribes to `onAuthStateChange` and handles the `PASSWORD_RECOVERY` event by routing to `ResetPassword` instead of the role home (a `recoveryFired` guard prevents the async `getSession()` branch from racing back to the home).
+  - `LoginScreen` authenticates GM/player accounts and uses inline error banners. Includes a "Password dimenticata?" link to `ForgotPassword`.
   - `RegisterScreen` creates player accounts only (validations: username min 3, email regex, password min 6, confirm). GM accounts are created manually in Supabase.
+  - `ForgotPasswordScreen` requests a Supabase password-recovery email via Brevo SMTP. Inline error banner; success state replaces the form with "Controlla la tua email." + "Torna al login".
+  - `ResetPasswordScreen` is reached by clicking the recovery link. Direct-visit guard ("Link non valido o scaduto") fires when no recovery session is present (also subscribes to `onAuthStateChange` so it handles the async URL-fragment parse robustly with a 2 s safety timeout). On success, calls `supabase.auth.updateUser({ password })`, signs out, and resets to `Login`.
 
 - GM screens:
   - `RoomListScreen` lists rooms, supports enter/close/reopen/delete (with `confirm()` for destructive actions), and exposes logout in the header. The `FlatList` is the screen root (no wrapper `<View>`) so it scrolls correctly on web; "Entra" uses `navigation.push('Dashboard', …)` to force a fresh Dashboard instance every time (avoids the white-screen on re-enter bug).
@@ -69,7 +71,8 @@ Ignore node_modules folder when scanning the project files
   - Reusable/legacy support: `PlayerCard`, `SceneCard`.
 
 - Libraries:
-  - `lib/supabase.js`: Supabase client + session persistence via `AsyncStorage`.
+  - `lib/supabase.js`: Supabase client + session persistence via `AsyncStorage`. `detectSessionInUrl` is set to `Platform.OS === 'web'` so the client parses the `#access_token=…&type=recovery` fragment on web (required for password reset); mobile leaves it off.
+  - `lib/resetRedirect.js`: `getResetRedirect()` — returns the URL Brevo embeds in recovery emails (`window.location.origin + '/reset-password'` on web; `librogame://reset-password` placeholder on native).
   - `lib/helpers.js`: `normalizeText` (strips accents/punctuation/case), `checkAnagram`, `generateRoomCode` (6 digits), `formatTime` (mm:ss), `notify(title, message)` (cross-platform: `window.alert` on web, `Alert.alert` on mobile).
   - `lib/session.js`: `logout`, `confirmLogout`, `confirm(title, message, onConfirm, destructive)` (cross-platform), `resolvePlayerResumeRoute(room, playerId)`.
   - `lib/useRoomClosedListener.js`: `useRoomClosedListener` (subscribes to `UPDATE` on `rooms`; on `status='closed'` shows alert + redirects to `JoinRoom`) and `useDisableAndroidBack` (disables hardware back while a screen is mounted).
@@ -98,7 +101,7 @@ LibroGame/
 │   ├── NarratorView.js
 │   └── AnagramOverlay.js
 ├── screens/
-│   ├── auth/                 (AuthLoading, Login, Register)
+│   ├── auth/                 (AuthLoading, Login, Register, ForgotPassword, ResetPassword)
 │   ├── gm/                   (CreateRoom, RoomList, Dashboard, PlayerDetail)
 │   └── player/               (JoinRoom, Intro, Map, CircoStanza, Directrice, SceneScreen [legacy], AnagramScreen [legacy])
 ├── navigation/AppNavigator.js
@@ -290,7 +293,7 @@ Key (la volontà delle circostanze):
 ### Auth configuration
 
 - Confirm email: **DISABLED** (Authentication → Providers → Email → Confirm email → OFF). Reason: the app is GM-controlled; without disabling, the session is not active right after registration and the insert into `users` fails under RLS.
-- Default Supabase SMTP has a 3–4 emails/hour limit. For password reset flows, configure custom SMTP (SendGrid / Mailgun / Resend).
+- Custom SMTP via **Brevo** (free tier, 300 emails/day). Configure in Supabase → Authentication → Emails → SMTP Settings: host `smtp-relay.brevo.com`, port `587`, login = Brevo account email, password = generated SMTP key. Sender email must be a verified Brevo sender. Reset password template is translated to Italian (subject "Reimposta la tua password — LibroGame", `{{ .ConfirmationURL }}` placeholder kept). Redirect URLs allowlist must include `http://localhost:8081/reset-password` (dev) and the production URL once deployed.
 - Supabase Auth users with linked rows in `users` cannot be deleted; for tests reuse the same email or generate new ones.
 
 ### Tables
@@ -466,6 +469,12 @@ The `gm elimina stanza` policy is required by `RoomListScreen` deletion. Without
 - No `StyleSheet.create` inside screens — keep styles in `styles/`, tokens in `theme.js`.
 - No direct `Alert.alert` — use `notify()` for messages, `confirm()` for destructive prompts, inline banners for form errors.
 - Ask before proceeding when something is unclear.
+
+## Deployment (suggested, not yet executed)
+
+- **Web hosting:** Vercel or Netlify free tier. `npx expo export -p web` outputs static files; both providers give a free `*.vercel.app` / `*.netlify.app` subdomain with HTTPS, suitable as the production redirect URL for Brevo password-reset emails. Add the deployed URL to Supabase → Authentication → URL Configuration → Redirect URLs allowlist.
+- **Mobile:** EAS Build for APK/IPA. Free tier = 30 builds/month. Required to test the `librogame://` deep link on a real device. Distribute the APK directly to teachers, or publish to Play Store.
+- **Custom domain (later):** when a domain is acquired, verify it as a Brevo sender (DKIM/SPF setup) and switch the Supabase sender from a personal email to `noreply@<domain>`.
 
 ## Known gaps
 
