@@ -1114,63 +1114,64 @@ export const mapStyles = StyleSheet.create({
   nodeContainer: {
     position: 'absolute',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
-  // Cerchio del nodo
-  nodeCircle: {
-    borderRadius: 999,
+  // Frame immagine arco + banner (occupa l'intera area del nodo)
+  nodeFrameImage: {
+    position: 'absolute',
+    top: 0, left: 0,
+    width: '100%',
+    height: '100%',
+  },
+  // Area interna all'arco dove va lo sprite o l'emoji
+  nodeInterior: {
+    position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#c8a45a',
     overflow: 'hidden',
-    backgroundColor: 'rgba(15,10,5,0.85)',
+    borderRadius: 999,
   },
-  nodeCircleSolved: {
-    borderColor: '#4caf50',
-    backgroundColor: 'rgba(20,40,20,0.9)',
-  },
-  nodeCircleAvailable: {
-    borderColor: '#c8a45a',
-    // Pulsazione gestita via Animated
-  },
-  nodeCircleFog: {
-    borderColor: 'rgba(80,80,80,0.4)',
-    backgroundColor: 'rgba(0,0,0,0.8)',
-  },
-  // Sprite mini del personaggio dentro il nodo
+  // Sprite mini del personaggio dentro l'arco
   nodeSprite: {
-    width: '85%',
-    height: '85%',
+    width: '100%',
+    height: '100%',
     resizeMode: 'contain',
   },
   // Emoji fallback se non c'è lo sprite
   nodeEmoji: {
-    fontSize: 22,
+    fontSize: 20,
   },
-  // Label sotto il nodo
+  // Label sovrapposta al banner in basso nel frame
   nodeLabel: {
-    marginTop: 3,
-    fontSize: 9,
+    position: 'absolute',
+    fontSize: 7,
     fontWeight: 'bold',
-    color: '#f0ead6',
+    color: '#3a2000',
     textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.9)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
-  nodeLabelFog: { color: 'rgba(255,255,255,0.25)' },
+  nodeLabelFog: { color: 'rgba(80,60,20,0.4)' },
 
-  // Overlay nebbia sopra il cerchio del nodo
+  // Overlay nebbia sopra l'arco (nodo bloccato)
   nodeFogOverlay: {
-    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-    borderRadius: 999,
-    backgroundColor: 'rgba(0,0,0,0.78)',
+    position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  nodeFogIcon: { fontSize: 18, opacity: 0.5 },
+  nodeFogIcon: { color: 'rgba(255,255,255,0.75)', fontWeight: 'bold' },
+
+  // Badge verde "risolto" nell'angolo
+  nodeSolvedBadge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: 'rgba(76,175,80,0.95)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
   // Header mappa (nome stanza + istruzioni)
   header: {

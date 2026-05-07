@@ -119,20 +119,48 @@ export const STORY_GRAPH = {
 // x e y sono percentuali della larghezza/altezza dello schermo.
 // La zona utile è circa x:8%–94%, y:15%–85% (i bordi sono decorativi).
 export const MAP_NODES = {
-  intro:          { x: 5,  y: 50, size: 44, isEntry: true },
-  acrobata:       { x: 16, y: 50, size: 52 },
-  funambolo:      { x: 29, y: 30, size: 48 },
-  giocoliere:     { x: 29, y: 70, size: 48 },
-  pagliaccio:     { x: 42, y: 18, size: 48 },
-  trapezista:     { x: 42, y: 44, size: 48 },
-  cavallerizza:   { x: 42, y: 68, size: 48 },
-  contorsionista: { x: 55, y: 33, size: 48 },
-  controfigura:   { x: 55, y: 58, size: 48 },
-  domatore:       { x: 55, y: 78, size: 48 },
-  equilibrista:   { x: 68, y: 20, size: 48 },
-  sputafuoco:     { x: 68, y: 65, size: 48 },
-  illusionista:   { x: 80, y: 43, size: 56 },
-  direttrice:     { x: 93, y: 43, size: 60, isFinal: true },
+  intro:          { x: 7.99, y: 49,   size: 91,  isEntry: true,  pathAnchorX: 8,  pathAnchorY: 10 },
+  acrobata:       { x: 20,   y: 50,   size: 52 },
+  funambolo:      { x: 29,   y: 30,   size: 48 },
+  giocoliere:     { x: 29,   y: 70,   size: 48 },
+  pagliaccio:     { x: 42,   y: 18,   size: 48 },
+  trapezista:     { x: 42,   y: 44,   size: 48 },
+  cavallerizza:   { x: 42,   y: 68,   size: 48 },
+  contorsionista: { x: 55,   y: 33,   size: 48 },
+  controfigura:   { x: 55,   y: 58,   size: 48 },
+  domatore:       { x: 55,   y: 78,   size: 48 },
+  equilibrista:   { x: 68,   y: 20,   size: 48 },
+  sputafuoco:     { x: 68,   y: 65,   size: 48 },
+  illusionista:   { x: 75,   y: 43,   size: 56 },
+  direttrice:     { x: 90,   y: 46.4, size: 110, isFinal: true,  pathAnchorX: -3, pathAnchorY: 10 },
+};
+
+// ---------------------------------------------------------------------------
+// CONFIGURAZIONE BANNER TENDE (intro e direttrice)
+// ---------------------------------------------------------------------------
+// bannerScale     → larghezza banner (% della tenda, es. 0.5 = 50%)
+// bannerTop       → posizione verticale banner sulla tenda (0 = cima, 1 = fondo)
+// bannerOffsetX   → scostamento orizzontale banner (% tenda, + = destra, - = sinistra)
+// bannerFontScale → dimensione testo (% larghezza banner)
+// textOffsetX     → scostamento orizzontale testo nel banner (% bannerW)
+// textOffsetY     → scostamento verticale testo nel banner   (% bannerH)
+export const BANNER_CONFIG = {
+  intro: {
+    bannerScale:   0.45,
+    bannerTop:     0.335,
+    bannerOffsetX: -0.08,
+    fontScale:     0.08,
+    textOffsetX:   0,
+    textOffsetY:   -0.12,
+  },
+  direttrice: {
+    bannerScale:   0.5,
+    bannerTop:     0.35,
+    bannerOffsetX: 0.1,
+    fontScale:     0.09,
+    textOffsetX:   0,
+    textOffsetY:   0,
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -140,7 +168,11 @@ export const MAP_NODES = {
 // ---------------------------------------------------------------------------
 export const ASSETS = {
   map: {
-    background: require('../assets/map/circus_map.png'),
+    background:    require('../assets/map/circus_map.png'),
+    nodeFrame:     require('../assets/map/node_frame.png'),
+    nodeTentEntry: require('../assets/map/node_tent_entry.png'),
+    nodeTentFinal: require('../assets/map/node_tent_final.png'),
+    nodeBanner:    require('../assets/map/node_banner.png'),
   },
   characters: {
     acrobata: require('../assets/characters/acrobata.png'),

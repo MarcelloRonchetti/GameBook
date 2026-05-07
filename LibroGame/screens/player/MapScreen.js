@@ -2,30 +2,32 @@
 // Mappa interattiva del circo con fog of war progressivo.
 //
 // STATI DI OGNI NODO:
-//   'fog'       → sconosciuto, coperto da nebbia (grigio scuro)
-//   'revealed'  → visibile ma non selezionabile (nodo che non puoi ancora raggiungere)
-//   'available' → selezionabile ora (il player deve scegliere tra questi)
-//   'visited'   → già risolto (bordo verde, nessuna nebbia)
-//   'entry'     → nodo entrata (sempre visibile, non cliccabile)
+//   'fog'       → bloccato: arco grigio + overlay scuro + "?"
+//   'available' → sbloccato e selezionabile: arco normale + bordo oro + sprite
+//   'visited'   → già risolto: arco + sprite + badge verde ✓
+//   'entry'     → nodo entrata (tenda speciale, non cliccabile)
 //
-// LOGICA SBLOCCO:
-//   Al caricamento legge tutti i progress del player da Supabase.
-//   Calcola quali nodi sono visited, quali available (next del nodo appena risolto),
-//   e copre tutto il resto con la nebbia.
+// NODI SPECIALI:
+//   'intro'      → tenda ENTRATA (node_tent_entry.png), sempre visibile
+//   'direttrice' → tenda FINALE  (node_tent_final.png), cliccabile se available
 //
-// PARAMS dalla navigation:
-//   room             — oggetto stanza
-//   justSolvedScene  — sceneId appena risolto (per calcolare i next)
-//   allChoices       — array dei prossimi sceneId disponibili
-//
-// Dopo che il player sceglie un nodo available → CircoStanzaScreen di quella stanza.
+// TUNING — regola queste costanti se sprite/label non sono allineati:
+const FRAME_RATIO      = 1.85; // frameH = frameW * FRAME_RATIO
+const INTERIOR_TOP     = 0.08; // posizione verticale area sprite (% di frameH)
+const INTERIOR_SIZE    = 0.60; // dimensione area sprite (% di frameW)
+const INTERIOR_OFFSET_X = 0.01;    // scostamento orizzontale sprite/? dentro l'arco (% di frameW)
+const INTERIOR_OFFSET_Y = 0.23;  // scostamento verticale   sprite/? dentro l'arco (% di frameH)
+const SPRITE_SCALE      = 0.9;  // dimensione sprite/? (moltiplicatore su intSize, es. 0.8 = più piccolo)
+const BANNER_BOTTOM     = 0.31; // posizione verticale label dal fondo (% di frameH)
+const LABEL_FONT_SCALE  = 0.084; // dimensione testo label (% di frameW)
+const ARCH_SCALE    = 3;  // moltiplicatore dimensione archi normali
+const TENT_SCALE    = 3.8;  // moltiplicatore dimensione tende speciali
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View, Text, Image, TouchableOpacity,
-  Animated, Dimensions, useWindowDimensions,
+  View, Text, Image, TouchableOpacity, useWindowDimensions, Animated,
 } from 'react-native';
-import Svg, { Line, Circle } from 'react-native-svg';
+import Svg, { Path, Circle } from 'react-native-svg';
 
 import { Asset } from 'expo-asset';
 
@@ -34,55 +36,39 @@ import { useDisableAndroidBack } from '../../lib/useRoomClosedListener';
 
 import { mapStyles as styles } from '../../styles/player';
 import {
-  colors,
   MAP_NODES,
   STORY_GRAPH,
   ASSETS,
+  BANNER_CONFIG,
   getNpcTheme,
   getCharacterAsset,
 } from '../../styles/theme';
 
 // ---------------------------------------------------------------------------
-// HELPER — calcola lo stato di ogni nodo dato l'insieme dei visitati
+// HELPER — calcola lo stato di ogni nodo
 // ---------------------------------------------------------------------------
 function computeNodeStates(visitedScenes, allChoices) {
   const states = {};
-
   Object.keys(MAP_NODES).forEach((id) => {
-    if (id === 'intro') {
-      states[id] = 'entry';
-      return;
-    }
-    if (visitedScenes.includes(id)) {
-      states[id] = 'visited';
-      return;
-    }
-    if (allChoices && allChoices.includes(id)) {
-      states[id] = 'available';
-      return;
-    }
+    if (id === 'intro') { states[id] = 'entry'; return; }
+    if (visitedScenes.includes(id)) { states[id] = 'visited'; return; }
+    if (allChoices && allChoices.includes(id)) { states[id] = 'available'; return; }
     states[id] = 'fog';
   });
-
-  // L'Acrobata è sempre revealed dopo l'intro (è il primo nodo fisso)
   if (visitedScenes.includes('intro') || visitedScenes.includes('acrobata')) {
     if (states['acrobata'] === 'fog') states['acrobata'] = 'revealed';
   }
-
   return states;
 }
 
 // ---------------------------------------------------------------------------
-// HELPER — calcola tutti i percorsi da disegnare (coppie source→target)
+// HELPER — calcola i percorsi da disegnare
 // ---------------------------------------------------------------------------
 function computePaths(nodeStates) {
   const paths = [];
   Object.entries(STORY_GRAPH).forEach(([from, { next }]) => {
     next.forEach((to) => {
-      const fromState = nodeStates[from];
-      const toState = nodeStates[to];
-      const isActive =
-        fromState !== 'fog' && toState !== 'fog';
+      const isActive = nodeStates[from] !== 'fog' && nodeStates[to] !== 'fog';
       paths.push({ from, to, active: isActive });
     });
   });
@@ -90,79 +76,175 @@ function computePaths(nodeStates) {
 }
 
 // ---------------------------------------------------------------------------
-// COMPONENTE NODO
+// NODO TENDA — per intro (ENTRATA) e direttrice (FINE)
 // ---------------------------------------------------------------------------
-function MapNode({ sceneId, nodeConf, state, screenW, screenH, onPress, pulseAnim }) {
-  const npc = getNpcTheme(sceneId);
-  const characterAsset = getCharacterAsset(sceneId);
+function TentNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
+  const npc       = getNpcTheme(sceneId);
+  const isFinal   = sceneId === 'direttrice';
+  const isFog     = state === 'fog';
+  const isAvail   = state === 'available';
+  const tentAsset = isFinal ? ASSETS.map.nodeTentFinal : ASSETS.map.nodeTentEntry;
 
-  // Coordinate assolute in dp
-  const cx = (nodeConf.x / 100) * screenW;
-  const cy = (nodeConf.y / 100) * screenH;
-  const size = nodeConf.size;
-  const half = size / 2;
-
-  const isFog = state === 'fog';
-  const isAvailable = state === 'available';
-  const isSolved = state === 'visited';
-  const isEntry = state === 'entry';
-
-  const circleStyle = [
-    styles.nodeCircle,
-    { width: size, height: size },
-    isSolved && styles.nodeCircleSolved,
-    isFog && styles.nodeCircleFog,
-  ];
-
-  // Bordo pulsante per i nodi disponibili
-  const animatedBorder = isAvailable
-    ? {
-        borderColor: colors.mapNodeBorder,
-        transform: [{ scale: pulseAnim }],
-      }
-    : {};
+  const cx      = (nodeConf.x / 100) * screenW;
+  const cy      = (nodeConf.y / 100) * screenH;
+  const tentW   = nodeConf.size * TENT_SCALE;
+  const tentH   = tentW;
+  const bc = BANNER_CONFIG[sceneId] || {};
+  const bannerW      = tentW  * (bc.bannerScale   ?? 0.4);
+  const bannerH      = bannerW / 3.18; // aspect ratio scroll: 6525:2052
+  const bannerTop    = bc.bannerTop    ?? 0.40;
+  const bannerOffsetX  = tentW   * (bc.bannerOffsetX ?? 0);
+  const bannerFontSize = bannerW * (bc.fontScale     ?? 0.09);
+  const textOffsetX    = bannerW * (bc.textOffsetX   ?? 0);
+  const textOffsetY    = bannerH * (bc.textOffsetY   ?? 0);
 
   return (
     <TouchableOpacity
       style={[
         styles.nodeContainer,
-        {
-          left: cx - half - 24,  // -24 per la label sotto
-          top: cy - half - 8,
-          width: size + 48,
-          paddingHorizontal: 24,
-        },
+        { left: cx - bannerW / 2, top: cy - tentH / 2, width: bannerW, height: tentH + bannerH * 0.6, overflow: 'visible' },
       ]}
-      onPress={() => isAvailable && onPress(sceneId)}
-      activeOpacity={isAvailable ? 0.75 : 1}
-      disabled={!isAvailable}
+      onPress={() => isAvail && onPress(sceneId)}
+      activeOpacity={isAvail ? 0.8 : 1}
+      disabled={!isAvail}
     >
-      <Animated.View style={[circleStyle, animatedBorder]}>
-        {/* Sprite personaggio o emoji */}
-        {!isFog && characterAsset ? (
-          <Image
-            source={characterAsset}
-            style={styles.nodeSprite}
-          />
-        ) : (
-          <Text style={[styles.nodeEmoji, isFog && { opacity: 0.2 }]}>
-            {isFog ? '?' : npc.emoji}
-          </Text>
-        )}
+      {/* Tenda */}
+      <Image
+        source={tentAsset}
+        style={{
+          position: 'absolute',
+          left: (bannerW - tentW) / 2, top: 0,
+          width: tentW, height: tentH,
+          opacity: isFog ? 0.4 : 1,
+          ...(isFog ? { tintColor: '#222' } : {}),
+        }}
+        resizeMode="contain"
+      />
 
-        {/* Overlay nebbia sopra il nodo */}
-        {isFog && (
-          <View style={styles.nodeFogOverlay}>
-            <Text style={styles.nodeFogIcon}>🌫️</Text>
-          </View>
-        )}
-      </Animated.View>
 
-      {/* Label sotto il nodo */}
-      <Text style={[styles.nodeLabel, isFog && styles.nodeLabelFog]}>
+      {/* Banner con nome — sovrapposto alla base della tenda */}
+      <View style={{
+        position: 'absolute',
+        top: tentH * bannerTop,
+        left: bannerOffsetX,
+        width: bannerW,
+        height: bannerH,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <Image
+          source={ASSETS.map.nodeBanner}
+          style={{
+            position: 'absolute', width: bannerW, height: bannerH,
+            opacity: isFog ? 0.4 : 1,
+          }}
+          resizeMode="contain"
+        />
+        <Text style={{
+          position: 'absolute',
+          left:  bannerW * 0.1 + textOffsetX,
+          right: bannerW * 0.1 - textOffsetX,
+          top:   bannerH * 0.2 + textOffsetY,
+          color: isFog ? 'rgba(255,255,255,0.55)' : '#3a2000',
+          fontSize: bannerFontSize,
+          fontWeight: 'bold',
+          letterSpacing: 0.5,
+          textAlign: 'center',
+          zIndex: 1,
+        }}>
+          {isFog ? '???' : npc.label.toUpperCase()}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// NODO ARCO — per tutti gli NPC
+// ---------------------------------------------------------------------------
+function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
+  const npc           = getNpcTheme(sceneId);
+  const characterAsset = getCharacterAsset(sceneId);
+
+  const cx       = (nodeConf.x / 100) * screenW;
+  const cy       = (nodeConf.y / 100) * screenH;
+  const frameW   = nodeConf.size * ARCH_SCALE;
+  const frameH   = frameW * FRAME_RATIO;
+  const intSize   = frameW * INTERIOR_SIZE;
+  const spriteSize = intSize * SPRITE_SCALE;
+  const intLeft   = (frameW - spriteSize) / 2 + frameW * INTERIOR_OFFSET_X;
+  const intTop    = frameH * INTERIOR_TOP      + frameH * INTERIOR_OFFSET_Y;
+
+  const isFog   = state === 'fog';
+  const isAvail = state === 'available';
+  const isSolved = state === 'visited';
+
+  const scale = useRef(new Animated.Value(1)).current;
+  const animIn  = () => { if (isAvail) Animated.spring(scale, { toValue: 1.18, useNativeDriver: true, speed: 20, bounciness: 6 }).start(); };
+  const animOut = () => { if (isAvail) Animated.spring(scale, { toValue: 1,    useNativeDriver: true, speed: 20, bounciness: 6 }).start(); };
+
+  return (
+    <Animated.View style={[
+      styles.nodeContainer,
+      {
+        left:  cx - frameW / 2,
+        top:   cy - frameH * (INTERIOR_TOP + INTERIOR_SIZE * 0.5),
+        width: frameW, height: frameH,
+        transform: [{ scale }],
+      },
+    ]}>
+    <TouchableOpacity
+      style={{ width: frameW, height: frameH }}
+      onPress={() => isAvail && onPress(sceneId)}
+      onPressIn={animIn}
+      onPressOut={animOut}
+      onMouseEnter={animIn}
+      onMouseLeave={animOut}
+      activeOpacity={1}
+      disabled={!isAvail}
+    >
+      {/* Frame arco */}
+      <Image
+        source={ASSETS.map.nodeFrame}
+        style={[
+          styles.nodeFrameImage,
+          isFog && { opacity: 0.45, tintColor: '#888' },
+        ]}
+        resizeMode="contain"
+      />
+
+      {/* Sprite o emoji nell'area interna (solo se non fog) */}
+      {!isFog && (
+        <View style={[styles.nodeInterior, { width: spriteSize, height: spriteSize, left: intLeft, top: intTop }]}>
+          {characterAsset ? (
+            <Image source={characterAsset} style={styles.nodeSprite} />
+          ) : (
+            <Text style={styles.nodeEmoji}>{npc.emoji}</Text>
+          )}
+        </View>
+      )}
+
+      {/* "?" nebbia senza cerchio */}
+      {isFog && (
+        <View style={[styles.nodeFogOverlay, { width: spriteSize, height: spriteSize, left: intLeft, top: intTop }]}>
+          <Text style={[styles.nodeFogIcon, { fontSize: spriteSize * 0.7 }]}>?</Text>
+        </View>
+      )}
+
+
+      {/* Nome NPC sul banner */}
+      <Text
+        style={[
+          styles.nodeLabel,
+          { bottom: frameH * BANNER_BOTTOM, width: frameW * 0.8, left: frameW * 0.1, fontSize: frameW * LABEL_FONT_SCALE },
+          isFog && styles.nodeLabelFog,
+        ]}
+        numberOfLines={1}
+      >
         {isFog ? '???' : npc.label.toUpperCase()}
       </Text>
     </TouchableOpacity>
+    </Animated.View>
   );
 }
 
@@ -175,136 +257,105 @@ export default function MapScreen({ route, navigation }) {
 
   useDisableAndroidBack();
 
-  const [visitedScenes, setVisitedScenes] = useState([]);
   const [nodeStates, setNodeStates] = useState({});
-  const [paths, setPaths] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Animazione pulsazione per nodi available
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-
-  // Animazioni reveal per ogni nodo (opacity nebbia)
-  const fogAnimations = useRef({});
-  Object.keys(MAP_NODES).forEach((id) => {
-    if (!fogAnimations.current[id]) {
-      fogAnimations.current[id] = new Animated.Value(1); // 1 = coperto
-    }
-  });
+  const [paths, setPaths]           = useState([]);
+  const [loading, setLoading]       = useState(true);
 
   useEffect(() => {
     loadProgress();
-    startPulse();
-    // Precarica backgrounds e sprites mentre il player vede la mappa,
-    // così le immagini sono già decodificate quando entra in una stanza.
-    const toPreload = [
+    Asset.loadAsync([
       ...Object.values(ASSETS.backgrounds),
       ...Object.values(ASSETS.characters),
-    ];
-    Asset.loadAsync(toPreload).catch(() => {});
+    ]).catch(() => {});
   }, []);
-
-  const startPulse = () => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.08,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  };
 
   const loadProgress = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-
     const { data: progress } = await supabase
       .from('progress')
       .select('scene_id, solved')
       .eq('room_id', room.id)
       .eq('player_id', user.id);
 
-    // Consideriamo "visitati" solo i nodi risolti
-    const visited = (progress || [])
-      .filter(p => p.solved)
-      .map(p => p.scene_id);
-
-    setVisitedScenes(visited);
-
-    const states = computeNodeStates(visited, allChoices);
+    const visited = (progress || []).filter(p => p.solved).map(p => p.scene_id);
+    const states  = computeNodeStates(visited, allChoices);
     setNodeStates(states);
     setPaths(computePaths(states));
-
-    // Animazione reveal: i nodi newly-available appaiono con un fade
-    allChoices.forEach((id) => {
-      if (fogAnimations.current[id]) {
-        Animated.timing(fogAnimations.current[id], {
-          toValue: 0,
-          duration: 800,
-          delay: 300,
-          useNativeDriver: true,
-        }).start();
-      }
-    });
-
     setLoading(false);
   };
 
   const handleNodePress = useCallback((sceneId) => {
-    navigation.replace('CircoStanza', {
-      room,
-      sceneId,
-      initialMode: 'narration',
-    });
+    navigation.replace('CircoStanza', { room, sceneId, initialMode: 'narration' });
   }, [navigation, room]);
 
-  if (loading) return <View style={{ flex: 1, backgroundColor: '#000' }} />;
+  if (loading) return <View style={{ flex: 1, backgroundColor: '#1a1205' }} />;
 
   return (
     <View style={styles.container}>
-      {/* SFONDO MAPPA */}
+      {/* SFONDO */}
       <Image
         source={ASSETS.map.background}
         style={[styles.mapBackground, styles.mapImage]}
         resizeMode="cover"
       />
 
-      {/* SVG OVERLAY — linee percorso */}
+      {/* PERCORSI SVG — linee dorate bezier */}
       <Svg style={styles.svgOverlay} width={screenW} height={screenH}>
         {paths.map(({ from, to, active }, i) => {
-          const fromNode = MAP_NODES[from];
-          const toNode = MAP_NODES[to];
-          if (!fromNode || !toNode) return null;
+          const fn = MAP_NODES[from];
+          const tn = MAP_NODES[to];
+          if (!fn || !tn) return null;
 
-          const x1 = (fromNode.x / 100) * screenW;
-          const y1 = (fromNode.y / 100) * screenH;
-          const x2 = (toNode.x / 100) * screenW;
-          const y2 = (toNode.y / 100) * screenH;
+          const x1 = ((fn.x + (fn.pathAnchorX ?? 0)) / 100) * screenW;
+          const y1 = ((fn.y + (fn.pathAnchorY ?? 0)) / 100) * screenH;
+          const x2 = ((tn.x + (tn.pathAnchorX ?? 0)) / 100) * screenW;
+          const y2 = ((tn.y + (tn.pathAnchorY ?? 0)) / 100) * screenH;
+          const mx  = (x1 + x2) / 2;
+          const my  = (y1 + y2) / 2;
+          const dx  = x2 - x1;
+          const dy  = y2 - y1;
+          const len = Math.sqrt(dx * dx + dy * dy) || 1;
+          const cpx = mx + (-dy / len) * 12;
+          const cpy = my + ( dx / len) * 12;
 
           return (
-            <Line
-              key={i}
-              x1={x1} y1={y1}
-              x2={x2} y2={y2}
-              stroke={active ? colors.mapPathColor : colors.mapPathInactive}
-              strokeWidth={active ? 2.5 : 1.5}
-              strokeDasharray={active ? undefined : '6,4'}
-              opacity={active ? 0.85 : 0.35}
-            />
+            <React.Fragment key={i}>
+              <Path
+                d={`M ${x1} ${y1} Q ${cpx} ${cpy} ${x2} ${y2}`}
+                stroke={active ? '#C8A45A' : 'rgba(120,100,60,0.35)'}
+                strokeWidth={active ? 4.5 : 2}
+                strokeLinecap="round"
+                fill="none"
+                opacity={active ? 0.92 : 0.4}
+              />
+              {active && (
+                <Circle cx={mx} cy={my} r={3.5} fill="#C8A45A" opacity={0.85} />
+              )}
+            </React.Fragment>
           );
         })}
       </Svg>
 
       {/* NODI */}
       {Object.entries(MAP_NODES).map(([sceneId, nodeConf]) => {
-        const state = nodeStates[sceneId] || 'fog';
+        const state    = nodeStates[sceneId] || 'fog';
+        const isTent   = sceneId === 'intro' || sceneId === 'direttrice';
+
+        if (isTent) {
+          return (
+            <TentNode
+              key={sceneId}
+              sceneId={sceneId}
+              nodeConf={nodeConf}
+              state={state}
+              screenW={screenW}
+              screenH={screenH}
+              onPress={handleNodePress}
+            />
+          );
+        }
         return (
-          <MapNode
+          <ArchNode
             key={sceneId}
             sceneId={sceneId}
             nodeConf={nodeConf}
@@ -312,19 +363,14 @@ export default function MapScreen({ route, navigation }) {
             screenW={screenW}
             screenH={screenH}
             onPress={handleNodePress}
-            pulseAnim={pulseAnim}
           />
         );
       })}
 
       {/* HEADER */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>
-          🎪 Il Circo delle Circostanze
-        </Text>
-        <Text style={styles.headerHint}>
-          Scegli la prossima circo-stanza
-        </Text>
+        <Text style={styles.headerTitle}>🎪 Il Circo delle Circostanze</Text>
+        <Text style={styles.headerHint}>Scegli la prossima circo-stanza</Text>
       </View>
     </View>
   );
