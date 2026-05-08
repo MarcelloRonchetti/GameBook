@@ -175,12 +175,14 @@ export const ASSETS = {
     nodeBanner:    require('../assets/map/node_banner.png'),
   },
   characters: {
-    acrobata: require('../assets/characters/acrobata.png'),
-    // funambolo: require('../assets/characters/funambolo.png'),
+    acrobata:   require('../assets/characters/acrobata.png'),
+    giocoliere: require('../assets/characters/giocoliere.png'),
+    funambolo:  require('../assets/characters/funambolo.png'),
   },
   backgrounds: {
-    acrobata: require('../assets/backgrounds/acrobata_bg.png'),
-    // funambolo: require('../assets/backgrounds/funambolo_bg.png'),
+    acrobata:   require('../assets/backgrounds/acrobata_bg.png'),
+    giocoliere: require('../assets/backgrounds/giocoliere_bg.png'),
+    funambolo:  require('../assets/backgrounds/funambolo_bg.png'),
   },
   hints: {
     acrobata: require('../assets/hints/acrobata_hint.png'),
@@ -191,7 +193,9 @@ export const ASSETS = {
 // Valori calibrati per web desktop ~1280×800 con cover sul bg landscape.
 // Regola top/left/width/height se l'allineamento non combacia sul tuo schermo.
 export const HINT_POSITIONS = {
-  acrobata: { top: '8.9%', left: '38.1%', width: '30%', height: '49.2%' },
+  acrobata:   { top: '8.9%', left: '38.1%', width: '30%', height: '49.2%' },
+  giocoliere: { top: '8.9%', left: '38.1%', width: '30%', height: '49.2%' },
+  funambolo:  { top: '8.9%', left: '38.1%', width: '30%', height: '49.2%' },
 };
 
 export function getCharacterAsset(sceneId) {

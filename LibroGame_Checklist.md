@@ -32,6 +32,8 @@
 - [x] `story/storia_1/anagrams.json` con 12 anagrammi di scena
 - [x] `styles/theme.js` — token grafici, `npcThemes`, `STORY_GRAPH`, `MAP_NODES`, registro `ASSETS`
 - [x] Asset reali iniziali: mappa, sprite Acrobata, background Acrobata
+- [x] Sprite e background Giocoliere aggiunti (`assets/characters/giocoliere.png`, `assets/backgrounds/giocoliere_bg.png`) — registrati in `ASSETS` e `HINT_POSITIONS` di `theme.js`
+- [x] Sprite e background Funambolo aggiunti (`assets/characters/funambolo.png`, `assets/backgrounds/funambolo_bg.png`) — registrati in `ASSETS` e `HINT_POSITIONS` di `theme.js`
 - [x] Fallback grafico con colori/emoji per NPC senza asset
 - [x] `lib/helpers.js` — normalizeText, checkAnagram, generateRoomCode, formatTime, `notify()`
 - [x] `lib/session.js` — logout, confirmLogout, confirm cross-platform, resolvePlayerResumeRoute
