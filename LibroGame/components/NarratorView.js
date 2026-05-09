@@ -22,11 +22,12 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, Image,
   TouchableWithoutFeedback, TouchableOpacity, Animated,
+  useWindowDimensions,
 } from 'react-native';
 
 import AutoHintEffect from './AutoHintEffect';
 import { circoStanzaStyles as styles } from '../styles/player';
-import { getNpcTheme } from '../styles/theme';
+import { getNpcTheme, BG_ASPECT_RATIO } from '../styles/theme';
 
 const TYPEWRITER_SPEED = 28;
 const INITIAL_DELAY = 200;
@@ -44,6 +45,32 @@ export default function NarratorView({
 }) {
   const npc = getNpcTheme(sceneId);
   const blocks = scene.narratorBlocks || [scene.text || ''];
+  const { width: screenW, height: screenH } = useWindowDimensions();
+
+  // Converte posizione relativa all'immagine in coordinate assolute schermo,
+  // compensando il resizeMode="cover" del background.
+  const computeHintStyle = useCallback((pos) => {
+    if (!pos) return null;
+    const screenAspect = screenW / screenH;
+    let renderedW, renderedH, offsetX, offsetY;
+    if (screenAspect >= BG_ASPECT_RATIO) {
+      renderedW = screenW;
+      renderedH = screenW / BG_ASPECT_RATIO;
+      offsetX = 0;
+      offsetY = (screenH - renderedH) / 2;
+    } else {
+      renderedH = screenH;
+      renderedW = screenH * BG_ASPECT_RATIO;
+      offsetX = (screenW - renderedW) / 2;
+      offsetY = 0;
+    }
+    return {
+      top:    offsetY + pos.top    * renderedH,
+      left:   offsetX + pos.left   * renderedW,
+      width:           pos.width   * renderedW,
+      height:          pos.height  * renderedH,
+    };
+  }, [screenW, screenH]);
 
   const [quickView, setQuickView] = useState(skipNarration);
 
@@ -144,11 +171,11 @@ export default function NarratorView({
       )}
       <View style={styles.overlay} />
       {characterAsset ? (
-        <View style={styles.characterContainer} pointerEvents="none">
+        <View style={[styles.characterContainer, { zIndex: 2 }]} pointerEvents="none">
           <Image source={characterAsset} style={styles.characterImage} resizeMode="contain" />
         </View>
       ) : (
-        <View style={[styles.characterContainer, { alignItems: 'center', justifyContent: 'center' }]} pointerEvents="none">
+        <View style={[styles.characterContainer, { alignItems: 'center', justifyContent: 'center', zIndex: 2 }]} pointerEvents="none">
           <Text style={{ fontSize: 100 }}>{npc.emoji}</Text>
         </View>
       )}
@@ -160,7 +187,7 @@ export default function NarratorView({
     return (
       <View style={styles.container}>
         {renderBackground()}
-        <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={hintPosition} />
+        <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={computeHintStyle(hintPosition)} />
         <View style={styles.quickViewPanel}>
           <Text style={styles.dialogName}>{npc.label.toUpperCase()}</Text>
           <View style={styles.quickViewButtons}>
@@ -188,7 +215,7 @@ export default function NarratorView({
   return (
     <View style={styles.container}>
       {renderBackground()}
-      <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={hintPosition} />
+      <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={computeHintStyle(hintPosition)} />
       <TouchableWithoutFeedback onPress={handleTap}>
         <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2 }}>
           <View style={styles.dialogBox}>

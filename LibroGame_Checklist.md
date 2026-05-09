@@ -34,6 +34,10 @@
 - [x] Asset reali iniziali: mappa, sprite Acrobata, background Acrobata
 - [x] Sprite e background Giocoliere aggiunti (`assets/characters/giocoliere.png`, `assets/backgrounds/giocoliere_bg.png`) — registrati in `ASSETS` e `HINT_POSITIONS` di `theme.js`
 - [x] Sprite e background Funambolo aggiunti (`assets/characters/funambolo.png`, `assets/backgrounds/funambolo_bg.png`) — registrati in `ASSETS` e `HINT_POSITIONS` di `theme.js`
+- [x] Hint image Funambolo e Giocoliere aggiunti (`assets/hints/funambolo_hint.png`, `assets/hints/giocoliere_hint.png`) — registrati in `ASSETS.hints` di `theme.js`
+- [x] Sistema hint positions reso responsivo: `HINT_POSITIONS` ora usa valori decimali 0-1 relativi all'immagine di sfondo; `NarratorView` calcola dinamicamente le coordinate assolute tramite `computeHintStyle` compensando `resizeMode="cover"` — l'hint segue la posizione corretta a qualsiasi dimensione schermo/finestra intera
+- [x] Fix zIndex hint: personaggio portato a `zIndex: 2`, hint a `zIndex: 1` — il lampeggio appare sotto il personaggio
+- [x] `story/storia_1/CIRCO-STANZE.pdf` aggiunto come riferimento narrativo completo
 - [x] Fallback grafico con colori/emoji per NPC senza asset
 - [x] `lib/helpers.js` — normalizeText, checkAnagram, generateRoomCode, formatTime, `notify()`
 - [x] `lib/session.js` — logout, confirmLogout, confirm cross-platform, resolvePlayerResumeRoute

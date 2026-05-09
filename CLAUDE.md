@@ -61,7 +61,7 @@ Ignore node_modules folder when scanning the project files
 - Player screens:
   - `JoinRoomScreen` validates a 6-digit code, joins open rooms, and resumes progress. The code input is trimmed and then `.padStart(6, '0')` is applied so that codes with leading zeros (e.g. `001234`) are preserved before the Supabase lookup. Uses `maybeSingle()` to avoid errors on missing rooms. Calls `resolvePlayerResumeRoute` and `navigation.reset` to the right scene. Logout link via `confirmLogout`.
   - `IntroScreen` handles the initial cipher and unlocks `acrobata` on the map.
-  - `MapScreen` renders the circus map with illustrated arch-frame nodes. Two node types: `TentNode` (intro/direttrice, PNG tents + banner scroll) and `ArchNode` (12 NPCs, arch frame PNG + sprite inside). Fog state: arch shows `?` without dark circle; tent darkens via `tintColor`. Available arch nodes scale up on hover/press (`Animated.timing`, 140ms ease-out quad — sostituisce spring per performance su web). SVG bezier paths connect nodes; `pathAnchorX/Y` in `MAP_NODES` offset path endpoints for intro/direttrice. All visual tuning constants at top of file (`ARCH_SCALE`, `TENT_SCALE`, `INTERIOR_*`, `SPRITE_SCALE`, `BANNER_BOTTOM`, `LABEL_FONT_SCALE`). Banner config for tents in `BANNER_CONFIG` in `theme.js`.
+  - `MapScreen` renders the circus map with illustrated arch-frame nodes. Two node types: `TentNode` (intro/direttrice, PNG tents + banner scroll) and `ArchNode` (12 NPCs, arch frame PNG + sprite inside). Fog state: arch shows `?` without dark circle; tent darkens via `tintColor`. Available arch nodes scale up on hover/press (`Animated.timing`, 140ms ease-out quad — sostituisce spring per performance su web). `HINT_POSITIONS` usa valori decimali 0-1 relativi all'immagine di sfondo; `NarratorView.computeHintStyle` converte in coordinate assolute compensando `resizeMode="cover"` in base alle dimensioni schermo correnti (`useWindowDimensions`). `BG_ASPECT_RATIO = 16/9` in `theme.js`. Personaggio a `zIndex: 2`, hint a `zIndex: 1`. SVG bezier paths connect nodes; `pathAnchorX/Y` in `MAP_NODES` offset path endpoints for intro/direttrice. All visual tuning constants at top of file (`ARCH_SCALE`, `TENT_SCALE`, `INTERIOR_*`, `SPRITE_SCALE`, `BANNER_BOTTOM`, `LABEL_FONT_SCALE`). Banner config for tents in `BANNER_CONFIG` in `theme.js`.
   - `CircoStanzaScreen` combines narration and anagram play for the current active flow.
   - `DirectriceScreen` handles the final twelve anagrams (with skip and free navigation) and stores final completion in `progress`.
   - `SceneScreen` and `AnagramScreen` are legacy route fallbacks.
@@ -138,7 +138,7 @@ Existing bitmap assets:
 - `assets/map/circus_map.png`
 - `assets/characters/acrobata.png`, `giocoliere.png`, `funambolo.png`
 - `assets/backgrounds/acrobata_bg.png`, `giocoliere_bg.png`, `funambolo_bg.png`
-- `assets/hints/acrobata_hint.png`
+- `assets/hints/acrobata_hint.png`, `funambolo_hint.png`, `giocoliere_hint.png`
 - `story/storia_1/CIRCO-STANZE.pdf` — testo sorgente completo del gioco (riferimento narrativo per personaggi e stanze)
 
 Missing NPC/background assets fall back to themed colors and emoji placeholders.

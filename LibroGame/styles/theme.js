@@ -164,6 +164,14 @@ export const BANNER_CONFIG = {
 };
 
 // ---------------------------------------------------------------------------
+// ASPECT RATIO SFONDI
+// ---------------------------------------------------------------------------
+// Tutti i background sono landscape 16:9.
+// Usato da NarratorView per calcolare la posizione reale degli hint
+// indipendentemente dalle dimensioni dello schermo.
+export const BG_ASPECT_RATIO = 16 / 9;
+
+// ---------------------------------------------------------------------------
 // ASSET CENTRALIZZATI
 // ---------------------------------------------------------------------------
 export const ASSETS = {
@@ -185,17 +193,24 @@ export const ASSETS = {
     funambolo:  require('../assets/backgrounds/funambolo_bg.png'),
   },
   hints: {
-    acrobata: require('../assets/hints/acrobata_hint.png'),
+    acrobata:   require('../assets/hints/acrobata_hint.png'),
+    funambolo:  require('../assets/hints/funambolo_hint.png'),
+    giocoliere: require('../assets/hints/giocoliere_hint.png'),
   },
 };
 
 // Posizione dell'overlay hint sullo schermo (percentuali).
 // Valori calibrati per web desktop ~1280×800 con cover sul bg landscape.
 // Regola top/left/width/height se l'allineamento non combacia sul tuo schermo.
+// Posizioni hint relative all'immagine di sfondo (valori 0-1).
+// top/left: distanza dal bordo superiore/sinistro dell'immagine.
+// width/height: dimensione relativa all'immagine.
+// NarratorView converte questi valori in coordinate assolute schermo
+// tenendo conto di resizeMode="cover" e delle dimensioni correnti.
 export const HINT_POSITIONS = {
-  acrobata:   { top: '8.9%', left: '38.1%', width: '30%', height: '49.2%' },
-  giocoliere: { top: '8.9%', left: '38.1%', width: '30%', height: '49.2%' },
-  funambolo:  { top: '8.9%', left: '38.1%', width: '30%', height: '49.2%' },
+  acrobata:   { top: 0.147, left: 0.381, width: 0.30,  height: 0.422 },
+  funambolo:  { top: 0.649,  left: 0.552,  width: 0.518,  height: 0.348  },
+  giocoliere: { top: 0.181,  left: 0.278,  width: 0.45,  height: 0.53  },
 };
 
 export function getCharacterAsset(sceneId) {
