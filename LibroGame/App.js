@@ -4,20 +4,45 @@
 // tutta la navigazione tra le schermate.
 
 import React, { useEffect } from 'react';
-import { Platform, View, Image } from 'react-native';
+import { Platform, View, Image, Text, ScrollView } from 'react-native';
 import AppNavigator from './navigation/AppNavigator';
 import { ASSETS } from './styles/theme';
 
-// --- Fix scroll su web ---------------------------------------------------
-// Su react-native-web, gli ScrollView/FlatList con `flex: 1` riescono ad
-// abilitare lo scroll solo se TUTTA la catena di antenati ha un'altezza
-// definita. Expo per default imposta `#root { height: 100% }` ma alcune
-// versioni/configurazioni hanno problemi con la propagazione della height
-// nel stack navigator card.
-//
-// Iniettiamo CSS AGGIUNTIVO che garantisce la height chain completa e
-// che il wrapper di React sia flex. Questo lo facciamo in useEffect per
-// assicurarci che il DOM sia pronto (non al modulo load time).
+// Error boundary che mostra eventuali crash a schermo invece di chiudere l'app
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null, info: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  componentDidCatch(error, info) {
+    this.setState({ error, info });
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <ScrollView style={{ flex: 1, backgroundColor: '#000', padding: 20 }}>
+          <Text style={{ color: '#ff5555', fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
+            CRASH:
+          </Text>
+          <Text style={{ color: '#fff', fontSize: 14, marginBottom: 10 }}>
+            {String(this.state.error?.message || this.state.error)}
+          </Text>
+          <Text style={{ color: '#aaa', fontSize: 12, marginBottom: 20 }}>
+            {String(this.state.error?.stack || '')}
+          </Text>
+          <Text style={{ color: '#888', fontSize: 11 }}>
+            {String(this.state.info?.componentStack || '')}
+          </Text>
+        </ScrollView>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function useWebScrollFix() {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -26,8 +51,6 @@ function useWebScrollFix() {
     if (!document.getElementById(STYLE_ID)) {
       const style = document.createElement('style');
       style.id = STYLE_ID;
-      // Garantisce che tutta la chain sia full-height e flex.
-      // Questo sovrascrive eventuali stili conflittuosi da Stack navigator.
       style.textContent = `
         html, body {
           height: 100% !important;
@@ -52,11 +75,6 @@ function useWebScrollFix() {
   }, []);
 }
 
-// Precarica tutte le immagini pesanti mantenendole decodificate in memoria.
-// Su web, renderizzare un <Image> nascosto è l'unico modo sicuro per
-// evitare che il browser ri-decodifichi il file ad ogni navigazione.
-// Precarica le immagini pesanti DOPO che la mappa è già visibile,
-// così non blocca il primo render.
 function ImagePreloader() {
   const [ready, setReady] = React.useState(false);
 
@@ -84,10 +102,10 @@ function ImagePreloader() {
 function AppWithScrollFix() {
   useWebScrollFix();
   return (
-    <>
+    <ErrorBoundary>
       <ImagePreloader />
       <AppNavigator />
-    </>
+    </ErrorBoundary>
   );
 }
 

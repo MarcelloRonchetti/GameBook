@@ -9,6 +9,7 @@
 //     ma non più usate nel flusso principale. Verranno rimosse in futuro.
 
 import React from 'react';
+import { Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -44,9 +45,11 @@ const Stack = createStackNavigator();
 // I prefissi includono sia l'origin web sia il deep link mobile (placeholder).
 const linking = {
   prefixes: [
-    typeof window !== 'undefined' ? window.location.origin : '',
+    Platform.OS === 'web' && typeof window !== 'undefined' && window.location
+      ? window.location.origin
+      : '',
     'librogame://',
-  ],
+  ].filter(Boolean),
   config: {
     screens: {
       ResetPassword: 'reset-password',

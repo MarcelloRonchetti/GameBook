@@ -135,6 +135,7 @@ LibroGame/
 `styles/player.js`: `joinRoomStyles` (+ `errorBanner`), `introStyles` (cipher grid), `sceneStyles` (NPC placeholder styles), `anagramScreenStyles` (`npcMini` + choice buttons), `directriceStyles` (gold placeholder, progress bar, navDot grid, completionBox).
 
 Existing bitmap assets:
+- `assets/app-icons/icon.png`, `adaptive-icon.png`, `splash-icon.png`, `favicon.png` — icone APK/web (placeholder 1024×1024 colore `#1a1a1a`, da sostituire con grafica definitiva)
 - `assets/map/circus_map.png`
 - `assets/characters/acrobata.png`, `giocoliere.png`, `funambolo.png`
 - `assets/backgrounds/acrobata_bg.png`, `giocoliere_bg.png`, `funambolo_bg.png`
@@ -463,6 +464,7 @@ The `gm elimina stanza` policy is required by `RoomListScreen` deletion. Without
 - `npm run web` launches the web target.
 - `npm run android` launches Android.
 - `npm run ios` launches iOS.
+- `npm run clean-pngs` ripulisce metadata PNG (lanciare prima di ogni build APK).
 
 ## Development rules
 
@@ -474,10 +476,69 @@ The `gm elimina stanza` policy is required by `RoomListScreen` deletion. Without
 - No direct `Alert.alert` — use `notify()` for messages, `confirm()` for destructive prompts, inline banners for form errors.
 - Ask before proceeding when something is unclear.
 
-## Deployment (suggested, not yet executed)
+## Deployment
+
+### EAS Build APK Android — funzionante
+
+Configurazione attuale che produce APK installabile su telefono fisico:
+
+- **`eas.json`** profilo `preview`: `distribution: "internal"`, `android.buildType: "apk"`. Resource class default (medium, free tier).
+- **`app.json`** essenziale per build cloud:
+  - `newArchEnabled: false` — la new architecture causa crash silenziosi durante prebuild con SDK 54 + RN 0.81.5
+  - `orientation: "default"` — supporta portrait + landscape
+  - `android.package: "com.librogame.app"`
+  - `extra.eas.projectId: "<UUID>"` — generato da `eas build:configure`, NON una stringa libera
+  - `plugins: ["./gradle-memory-plugin"]`
+- **`gradle-memory-plugin.js`** — Expo config plugin custom che modifica `gradle.properties` al prebuild aggiungendo `org.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=512m` e `org.gradle.daemon=false`. Senza questo le build crashano con "Gradle build failed with unknown error" durante la compilazione native multi-architettura.
+- **`.easignore`** esclude `node_modules`, `.git`, `*.log` per ridurre size archivio upload (da 295 MB a pochi MB).
+- **App icons** (`assets/icon.png`, `adaptive-icon.png`, `splash-icon.png`, `favicon.png`) DEVONO essere quadrate, altrimenti `expo doctor` blocca la build. Attualmente sono placeholder 1024×1024 colore `#1a1a1a` da sostituire con grafica definitiva.
+- **PNG cleanliness** — AAPT (Android Asset Packaging Tool) fallisce su PNG con metadata/profili colore non standard. Soluzione automatizzata: `npm run clean-pngs` (script `scripts/clean-pngs.ps1`) ri-salva tutti i PNG di `assets/` con `System.Drawing.Bitmap` PowerShell, strippando i metadata. Idempotente — lanciare prima di ogni build APK quando si aggiungono nuove immagini.
+
+### Comandi build
+
+```
+cd LibroGame
+npm run clean-pngs                                  # IMPORTANTE prima della build
+eas build --platform android --profile preview
+```
+
+La build dura ~15 min sul cloud Expo. Limite free tier: 30 build/mese.
+
+### Sviluppo vs Build
+
+- **Web** (`npm run web`): istantaneo, usare per sviluppo quotidiano e test su mobile via browser (`http://<IP-PC>:8081`).
+- **APK**: solo per milestone, test di compatibilità nativa, demo offline. Ogni rebuild consuma 1 build dei 30/mese.
+- **Future**: configurare `expo-updates` per OTA updates senza ricompilare APK ad ogni modifica JS.
+
+### Crash all'avvio APK — pattern da evitare
+
+Codice che accede a oggetti DOM (`window`, `document`, `localStorage`, `navigator`) al **modulo load time** (top-level del file, non dentro componenti React/funzioni async) crasha l'APK Android perché su React Native:
+- `window` esiste come oggetto globale
+- `window.location`, `document`, `localStorage` NON esistono
+
+Pattern sicuro:
+```js
+import { Platform } from 'react-native';
+const safeOrigin = Platform.OS === 'web' && typeof window !== 'undefined' && window.location
+  ? window.location.origin
+  : '';
+```
+
+`AppNavigator.js → linking.prefixes` usa questo pattern.
+
+### Debug crash su telefono
+
+ADB via USB è il modo più affidabile:
+1. Scaricare Platform Tools da https://developer.android.com/tools/releases/platform-tools
+2. Telefono: Opzioni Sviluppatore → Debug USB ON
+3. Verificare connessione: `adb devices`
+4. Filtrare crash JS: `adb logcat *:E ReactNative:V ReactNativeJS:V AndroidRuntime:E`
+
+`App.js` ha un `ErrorBoundary` che cattura errori React e li mostra a schermo (non chiude l'app). Utile come fallback se ADB non è disponibile.
+
+### Web hosting (futuro)
 
 - **Web hosting:** Vercel or Netlify free tier. `npx expo export -p web` outputs static files; both providers give a free `*.vercel.app` / `*.netlify.app` subdomain with HTTPS, suitable as the production redirect URL for Brevo password-reset emails. Add the deployed URL to Supabase → Authentication → URL Configuration → Redirect URLs allowlist.
-- **Mobile:** EAS Build for APK/IPA. Free tier = 30 builds/month. Required to test the `librogame://` deep link on a real device. Distribute the APK directly to teachers, or publish to Play Store.
 - **Custom domain (later):** when a domain is acquired, verify it as a Brevo sender (DKIM/SPF setup) and switch the Supabase sender from a personal email to `noreply@<domain>`.
 
 ## Known gaps

@@ -3,12 +3,12 @@
     "name": "LibroGame",
     "slug": "librogame",
     "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "orientation": "default",
+    "icon": "./assets/app-icons/icon.png",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/app-icons/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#1a1a1a"
     },
@@ -18,19 +18,21 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/app-icons/adaptive-icon.png",
         "backgroundColor": "#1a1a1a"
       },
       "package": "com.librogame.app",
-      "versionCode": 1,
       "permissions": []
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/app-icons/favicon.png"
     },
+    "plugins": [
+      "./gradle-memory-plugin"
+    ],
     "extra": {
       "eas": {
-        "projectId": "librogame"
+        "projectId": "bf9b86f3-59ad-4400-8249-9c26abcc7106"
       }
     }
   }

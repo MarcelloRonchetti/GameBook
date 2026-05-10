@@ -69,7 +69,19 @@
 - [x] `AuthLoadingScreen` — handler evento `PASSWORD_RECOVERY` di Supabase: redirige a `ResetPassword` invece che alla home in base al ruolo (con `recoveryFired` guard contro la race con `getSession()`)
 - [x] `AppNavigator` — route `ForgotPassword` e `ResetPassword` registrate + `linking` config sul `NavigationContainer` per mappare `/reset-password` su web (deep link `librogame://` registrato come placeholder per il futuro build EAS)
 - [x] `lib/supabase.js` — `detectSessionInUrl: Platform.OS === 'web'` per permettere al client di processare il fragment `#access_token=...&type=recovery` dell'URL al boot (richiesto per il flusso di recupero password)
-- [x] Supabase SMTP via Brevo (free tier 300 email/giorno) configurato; template "Reset Password" tradotto in italiano; redirect URL allowlist aggiornata con `http://localhost:8081/reset-password`
+- [x] Supabase SMTP via Brevo (free tier 300 email/giorno) configurato; template "Reset Password" tradotto in italiano; redirect URL allowlist aggiornata con `http://localhost:8581/reset-password`
+- [x] **EAS Build APK Android funzionante** — primo build per test su telefono fisico riuscito. Pipeline: `eas build:configure` per generare `projectId` UUID, `eas.json` con profilo `preview` (`buildType: apk`), `app.json` con `newArchEnabled: false` (richiesto per stabilità SDK 54+RN 0.81.5 con build cloud Expo)
+- [x] **`gradle-memory-plugin.js` Expo config plugin custom** — modifica `gradle.properties` al prebuild aggiungendo `org.gradle.jvmargs=-Xmx3072m` e `org.gradle.daemon=false`. Risolveva i crash Gradle "unknown error" durante la compilazione native dei moduli C++
+- [x] **`.easignore`** creato per escludere `node_modules/`, `.git/`, `*.log` dall'archivio EAS (prima upload era 295 MB)
+- [x] **Asset icone app** creati come placeholder quadrati 1024×1024 (#1a1a1a) in `assets/`: `icon.png`, `adaptive-icon.png`, `splash-icon.png`, `favicon.png`. Necessari per superare il check `expo doctor` che richiede icone quadrate
+- [x] **Pulizia PNG `circus_map.png`** — ri-salvato senza metadata/profili colore problematici per superare AAPT (Android Asset Packaging Tool). Il PNG originale falliva in `app:mergeReleaseResources` con errore generico "file failed to compile"
+- [x] **`assets_backup/`** copia di sicurezza di tutta la cartella assets prima della pulizia PNG
+- [x] **Fix crash all'avvio APK Android — `window.location.origin` undefined**: in `navigation/AppNavigator.js` il `linking.prefixes` valutava `typeof window !== 'undefined' ? window.location.origin : ''` al modulo load. Su React Native `window` esiste ma `window.location` no, causando `TypeError: Cannot read property 'origin' of undefined` e crash immediato. Risolto con check più robusto: `Platform.OS === 'web' && typeof window !== 'undefined' && window.location ? window.location.origin : ''` + `.filter(Boolean)` per rimuovere stringhe vuote dall'array prefixes
+- [x] **`App.js` — ErrorBoundary** che cattura crash React e li mostra a schermo invece di chiudere l'app. Utile per debug futuro su dispositivi senza accesso facile a logcat
+- [x] **`app.json` orientation: "default"** — l'app supporta sia portrait sia landscape (rotazione libera in base al telefono). Originariamente era bloccato a portrait
+- [x] **Riorganizzazione `assets/`**: icone APK spostate in sottocartella dedicata `assets/app-icons/` (icon, adaptive-icon, splash-icon, favicon) — separate dal contenuto del gioco. Path aggiornati in `app.json`
+- [x] **Script `scripts/clean-pngs.ps1`** + comando `npm run clean-pngs`: ripulisce automaticamente i metadata di tutti i PNG in `assets/`. Idempotente, da lanciare prima di ogni build APK quando si aggiungono nuove immagini al progetto. Risolve preventivamente i fallimenti AAPT
+- [x] **Cartella `assets_backup/` rimossa** — non più necessaria dopo che la build APK è andata a buon fine
 
 ---
 
@@ -163,7 +175,10 @@
 ## 🚀 Distribuzione
 
 - [ ] Emulatore Android per test più accurati
-- [ ] Build APK tramite EAS Build
+- [x] Build APK tramite EAS Build — primo APK funzionante installato su telefono fisico
+- [ ] Sostituire icone placeholder (`assets/icon.png`, `adaptive-icon.png`, `splash-icon.png`, `favicon.png`) con grafica definitiva del gioco
+- [x] Pulizia automatica PNG prima della build — `scripts/clean-pngs.ps1` + `npm run clean-pngs`
+- [ ] Configurare `expo-updates` per OTA updates senza ricompilare APK ad ogni modifica JS
 - [ ] Build iOS tramite EAS Build, opzionale
 
 ---
@@ -205,6 +220,10 @@
 21. **Password reset — Web-first con hook deep link**: implementato solo per web (`window.location.origin + '/reset-password'`). Il prefisso `librogame://` è già registrato nel `linking` config del navigator e in `lib/resetRedirect.js` come placeholder, ma il deep link mobile non è ancora attivo: dipende dal primo build EAS che registrerà lo scheme nell'AndroidManifest / Info.plist. Decisione presa perché il use case classroom è browser-based (Chromebook/laptop scolastici) e Expo Go non è compatibile con SDK 54.
 22. **Password reset — `AuthLoadingScreen` come gateway PASSWORD_RECOVERY**: il listener `onAuthStateChange` è registrato in `AuthLoadingScreen` (entry point dell'app) invece che nel root `App.js` perché in questo modo gestisce sia il caso "app aperta su /reset-password da link" sia il caso "app navigated da Login → ForgotPassword → email" senza duplicare logica. Un `recoveryFired` guard impedisce che `checkSession()` (asincrono) ridiriga alla home dopo che PASSWORD_RECOVERY è già stato gestito.
 23. **Bug fix — link recupero password "Link non valido"**: cliccando il link nell'email atterravamo su `/reset-password#access_token=…&type=recovery` ma `getSession()` restituiva sempre `null`, facendo scattare il direct-visit guard. Root cause: `lib/supabase.js` aveva `detectSessionInUrl: false` (opzione pensata per evitare parsing su mobile), che impediva al client di processare il fragment dell'URL su web. Risolto impostando `detectSessionInUrl: Platform.OS === 'web'`. Aggiunta anche robustezza in `ResetPasswordScreen`: oltre a `getSession()` al mount, sottoscrive `onAuthStateChange` per gli eventi `PASSWORD_RECOVERY` / `SIGNED_IN` / `INITIAL_SESSION`, con timeout di sicurezza 2s per attivare il guard se davvero non c'è sessione. Senza questo doppio meccanismo c'era una race tra il mount della schermata (via `linking` config) e il parsing asincrono dell'URL fragment da parte del client Supabase.
+24. **EAS Build memoria Gradle via Expo config plugin**: `GRADLE_OPTS` nelle env vars di `eas.json` non veniva propagato correttamente al processo Gradle, causando crash silenziosi durante la compilazione native dei moduli C++ (expo-modules-core per 4 architetture). Risolto creando `gradle-memory-plugin.js` che usa `withGradleProperties` di `@expo/config-plugins` per scrivere direttamente in `gradle.properties` durante il prebuild. Il plugin imposta `org.gradle.jvmargs=-Xmx3072m` e disattiva il daemon. Registrato in `app.json → plugins`.
+25. **EAS Build PNG cleaning per AAPT**: AAPT (Android Asset Packaging Tool) fallisce silenziosamente in `app:mergeReleaseResources` se trova PNG con metadata/profili colore non standard (errore generico "file failed to compile"). Il file `circus_map.png` originale aveva questo problema. Soluzione provvisoria: re-saving via `System.Drawing.Bitmap` in PowerShell strippa tutti i metadata e produce un PNG "AAPT-safe". Trade-off: file passa da 0.32 MB a 3.5 MB (formato 32bpp ARGB senza compressione indicizzata) ma è compatibile. Da automatizzare in script pre-build per i nuovi asset.
+26. **Crash all'avvio APK — controlli `window.*` al modulo load**: codice come `typeof window !== 'undefined' ? window.location.origin : ''` valutato a top-level del modulo (non dentro componenti React) crasha su React Native perché `window` esiste come oggetto globale ma `window.location` è undefined. Pattern sicuro: `Platform.OS === 'web' && typeof window !== 'undefined' && window.location ? window.location.origin : ''`. Vale per qualsiasi codice che accede a oggetti DOM (`document`, `localStorage`, `navigator`, ecc.) al boot.
+27. **Orientamento app**: scelto `"default"` in `app.json` invece di `"portrait"` o `"landscape"` per lasciare l'utente libero di ruotare il telefono. La UI è progettata in landscape (mappa, scene di gioco) ma supporta entrambi.
 
 
 ## Bugs
@@ -217,6 +236,11 @@
 - **Personaggio sopra il pannello anagramma**: `characterContainer` con zIndex 1 era sopra `AnagramOverlay` (senza zIndex). Risolto con `zIndex: 0` in modalità anagramma.
 - **Sfondo nero in modalità anagramma**: nessuna immagine di sfondo renderizzata. Risolto aggiungendo `backgroundAsset` + `overlayAnagram` + `characterContainer` nella branch anagramma di `CircoStanzaScreen`.
 - **Animazione hint lagga su web**: `Animated.createAnimatedComponent(Image)` meno ottimizzato su web. Risolto con `Animated.View` che wrappa `Image` normale.
+- **APK Android crash immediato all'apertura**: `TypeError: Cannot read property 'origin' of undefined` al modulo load di `AppNavigator.js` (uso non protetto di `window.location.origin` nel `linking.prefixes`). Risolto con check `Platform.OS === 'web'` + verifica `window.location`. Diagnosticato via `adb logcat *:E ReactNative:V ReactNativeJS:V AndroidRuntime:E`.
+- **EAS Build "Gradle build failed with unknown error"**: causato da impostazioni JVM non sufficienti per la compilazione native multi-architettura. Risolto via `gradle-memory-plugin.js` che imposta `-Xmx3072m` in `gradle.properties`.
+- **EAS Build "AAPT: file failed to compile" su `circus_map.png`**: PNG con metadata problematici. Risolto re-salvando il file in formato pulito via PowerShell + System.Drawing.
+- **EAS Build "expo doctor failed - icons not square"**: `acrobata.png` (5905×6655) usato come placeholder per `icon.png`/`adaptive-icon.png` ma Expo richiede icone quadrate. Risolto creando placeholder quadrati 1024×1024 via PowerShell.
+- **EAS Build "Invalid UUID appId"**: `app.json` aveva `extra.eas.projectId: "librogame"` (stringa, non UUID). Risolto rimuovendo il campo e lasciando che `eas build:configure` generasse un UUID valido.
 
 ### Aperti
 - **Lentezza caricamento sfondo su web (~1 sec)**: `ImagePreloader` con delay 100 ms non è sufficiente per scene con immagini pesanti. Possibili strade: ridurre dimensione PNG, `new window.Image()` per pre-fetch puro su web, o aumentare delay preloader.
