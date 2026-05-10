@@ -35,6 +35,7 @@
 - [x] Sprite e background Giocoliere aggiunti (`assets/characters/giocoliere.png`, `assets/backgrounds/giocoliere_bg.png`) — registrati in `ASSETS` e `HINT_POSITIONS` di `theme.js`
 - [x] Sprite e background Funambolo aggiunti (`assets/characters/funambolo.png`, `assets/backgrounds/funambolo_bg.png`) — registrati in `ASSETS` e `HINT_POSITIONS` di `theme.js`
 - [x] Hint image Funambolo e Giocoliere aggiunti (`assets/hints/funambolo_hint.png`, `assets/hints/giocoliere_hint.png`) — registrati in `ASSETS.hints` di `theme.js`
+- [x] Sprite, background e hint Pagliaccio aggiunti (`assets/characters/pagliaccio.png`, `assets/backgrounds/pagliaccio_bg.png`, `assets/hints/pagliaccio_hint.png`) — registrati in `ASSETS` e `HINT_POSITIONS` di `theme.js`. Personaggio "fuori scena" (senza trucco né parrucca) per coerenza con il testo del gioco — la maschera abbandonata è nello sfondo
 - [x] Sistema hint positions reso responsivo: `HINT_POSITIONS` ora usa valori decimali 0-1 relativi all'immagine di sfondo; `NarratorView` calcola dinamicamente le coordinate assolute tramite `computeHintStyle` compensando `resizeMode="cover"` — l'hint segue la posizione corretta a qualsiasi dimensione schermo/finestra intera
 - [x] Fix zIndex hint: personaggio portato a `zIndex: 2`, hint a `zIndex: 1` — il lampeggio appare sotto il personaggio
 - [x] `story/storia_1/CIRCO-STANZE.pdf` aggiunto come riferimento narrativo completo
@@ -82,6 +83,8 @@
 - [x] **Riorganizzazione `assets/`**: icone APK spostate in sottocartella dedicata `assets/app-icons/` (icon, adaptive-icon, splash-icon, favicon) — separate dal contenuto del gioco. Path aggiornati in `app.json`
 - [x] **Script `scripts/clean-pngs.ps1`** + comando `npm run clean-pngs`: ripulisce automaticamente i metadata di tutti i PNG in `assets/`. Idempotente, da lanciare prima di ogni build APK quando si aggiungono nuove immagini al progetto. Risolve preventivamente i fallimenti AAPT
 - [x] **Cartella `assets_backup/` rimossa** — non più necessaria dopo che la build APK è andata a buon fine
+- [x] **`components/ErrorBoundary.js`** estratto da `App.js` in file dedicato. Mescolare class component (ErrorBoundary) e functional components nello stesso file rompeva Fast Refresh di Metro (forzava full reload ad ogni save invece di hot reload, perdendo lo stato di navigazione). Separazione = Fast Refresh funziona di nuovo
+- [x] **Asset hint Pagliaccio ritagliato dallo sfondo dall'utente** invece di generarlo con Gemini — coerenza visiva al 100% con il background della stanza
 
 ---
 
@@ -224,6 +227,8 @@
 25. **EAS Build PNG cleaning per AAPT**: AAPT (Android Asset Packaging Tool) fallisce silenziosamente in `app:mergeReleaseResources` se trova PNG con metadata/profili colore non standard (errore generico "file failed to compile"). Il file `circus_map.png` originale aveva questo problema. Soluzione provvisoria: re-saving via `System.Drawing.Bitmap` in PowerShell strippa tutti i metadata e produce un PNG "AAPT-safe". Trade-off: file passa da 0.32 MB a 3.5 MB (formato 32bpp ARGB senza compressione indicizzata) ma è compatibile. Da automatizzare in script pre-build per i nuovi asset.
 26. **Crash all'avvio APK — controlli `window.*` al modulo load**: codice come `typeof window !== 'undefined' ? window.location.origin : ''` valutato a top-level del modulo (non dentro componenti React) crasha su React Native perché `window` esiste come oggetto globale ma `window.location` è undefined. Pattern sicuro: `Platform.OS === 'web' && typeof window !== 'undefined' && window.location ? window.location.origin : ''`. Vale per qualsiasi codice che accede a oggetti DOM (`document`, `localStorage`, `navigator`, ecc.) al boot.
 27. **Orientamento app**: scelto `"default"` in `app.json` invece di `"portrait"` o `"landscape"` per lasciare l'utente libero di ruotare il telefono. La UI è progettata in landscape (mappa, scene di gioco) ma supporta entrambi.
+28. **Class components in file separati per Fast Refresh**: Metro Fast Refresh fa fatica a preservare lo stato quando un file contiene sia class component che functional component. Si manifesta come full reload ad ogni save (stato React Navigation perso → l'utente torna a `JoinRoom` ogni volta). Pattern adottato: ogni class component (es. ErrorBoundary) in un file dedicato. Vale come regola anche per HOC e provider con state interno complesso.
+29. **Hint image ritagliata dal background invece di generata separatamente**: per le stanze dove la grafica già contiene l'elemento-hint (es. bottiglie del pagliaccio), conviene ritagliare la zona direttamente dal `<scene>_bg.png` invece di generare un hint a sé con AI. Risultato: coerenza visiva al 100% (stessa illuminazione, stesso stile, stessi colori), zero rischio di mismatch durante il lampeggio.
 
 
 ## Bugs

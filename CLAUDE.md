@@ -69,6 +69,7 @@ Ignore node_modules folder when scanning the project files
 - Components:
   - Current flow: `NarratorView` (typewriter dialog with placeholder fallback; the narration body is wrapped in a `ScrollView` and the character + dialog use a flow layout — not absolute positioning — so they remain reachable via scroll on short windows), `AnagramOverlay` (anagram panel, GM hints, Illusionista cipher, next-scene choices), `AutoHintEffect`, `GmHint` (shows only the latest hint), `AnagramInput`.
   - Reusable/legacy support: `PlayerCard`, `SceneCard`.
+  - `ErrorBoundary` (class component, file dedicato): cattura crash React e li mostra a schermo invece di chiudere l'app. Wrappa `AppNavigator` in `App.js`. Tenere in file separato per non rompere Fast Refresh.
 
 - Libraries:
   - `lib/supabase.js`: Supabase client + session persistence via `AsyncStorage`. `detectSessionInUrl` is set to `Platform.OS === 'web'` so the client parses the `#access_token=…&type=recovery` fragment on web (required for password reset); mobile leaves it off.
@@ -137,9 +138,9 @@ LibroGame/
 Existing bitmap assets:
 - `assets/app-icons/icon.png`, `adaptive-icon.png`, `splash-icon.png`, `favicon.png` — icone APK/web (placeholder 1024×1024 colore `#1a1a1a`, da sostituire con grafica definitiva)
 - `assets/map/circus_map.png`
-- `assets/characters/acrobata.png`, `giocoliere.png`, `funambolo.png`
-- `assets/backgrounds/acrobata_bg.png`, `giocoliere_bg.png`, `funambolo_bg.png`
-- `assets/hints/acrobata_hint.png`, `funambolo_hint.png`, `giocoliere_hint.png`
+- `assets/characters/acrobata.png`, `giocoliere.png`, `funambolo.png`, `pagliaccio.png`
+- `assets/backgrounds/acrobata_bg.png`, `giocoliere_bg.png`, `funambolo_bg.png`, `pagliaccio_bg.png`
+- `assets/hints/acrobata_hint.png`, `funambolo_hint.png`, `giocoliere_hint.png`, `pagliaccio_hint.png`
 - `story/storia_1/CIRCO-STANZE.pdf` — testo sorgente completo del gioco (riferimento narrativo per personaggi e stanze)
 
 Missing NPC/background assets fall back to themed colors and emoji placeholders.

@@ -186,16 +186,19 @@ export const ASSETS = {
     acrobata:   require('../assets/characters/acrobata.png'),
     giocoliere: require('../assets/characters/giocoliere.png'),
     funambolo:  require('../assets/characters/funambolo.png'),
+    pagliaccio: require('../assets/characters/pagliaccio.png'),
   },
   backgrounds: {
     acrobata:   require('../assets/backgrounds/acrobata_bg.png'),
     giocoliere: require('../assets/backgrounds/giocoliere_bg.png'),
     funambolo:  require('../assets/backgrounds/funambolo_bg.png'),
+    pagliaccio: require('../assets/backgrounds/pagliaccio_bg.png'),
   },
   hints: {
     acrobata:   require('../assets/hints/acrobata_hint.png'),
     funambolo:  require('../assets/hints/funambolo_hint.png'),
     giocoliere: require('../assets/hints/giocoliere_hint.png'),
+    pagliaccio: require('../assets/hints/pagliaccio_hint.png'),
   },
 };
 
@@ -211,6 +214,7 @@ export const HINT_POSITIONS = {
   acrobata:   { top: 0.147, left: 0.381, width: 0.30,  height: 0.422 },
   funambolo:  { top: 0.649,  left: 0.552,  width: 0.518,  height: 0.348  },
   giocoliere: { top: 0.181,  left: 0.278,  width: 0.45,  height: 0.53  },
+  pagliaccio: { top: 0.446,   left: 0.5586,   width: 0.4,   height: 0.215   },
 };
 
 export function getCharacterAsset(sceneId) {
