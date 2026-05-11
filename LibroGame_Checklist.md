@@ -162,8 +162,15 @@
 
 ## 🎨 Design e Grafica
 
-- [ ] Aggiungere immagini reali per tutti gli NPC mancanti
+- [ ] Aggiungere immagini reali per tutti gli NPC mancanti (rimasti: Domatore, Equilibrista, Sputafuoco, Illusionista)
 - [ ] Aggiungere background stanza per tutti gli NPC mancanti
+- [ ] **Circo-stanza di partenza (intro)**: aggiungere immagine sfondo + eventuale sprite/elemento visivo per la schermata `IntroScreen`. Attualmente la scena di partenza è grafica placeholder
+- [ ] **Splitting testi narratore vs personaggio**: i testi delle stanze sono attualmente in un unico blocco. Da dividere in due flussi: una parte di "narrazione esterna" (descrizione ambiente, contesto, "entrate nella stanza...") e una parte di "dialogo del personaggio" (le sue battute dirette). Implica modificare `scenes.json` (struttura) e `NarratorView` (rendering differenziato — magari font/stile diverso, etichetta NPC vs voce narrante)
+- [ ] **Grafica testi narrazione**: rifinire tipografia del `NarratorView` (font, dimensioni, spaziature, animazioni typewriter)
+- [ ] **Restyle schermate auth**: `LoginScreen`, `RegisterScreen`, `ForgotPasswordScreen`, `ResetPasswordScreen` — adeguarle al tema visivo del gioco (attualmente molto basiche)
+- [ ] **Restyle schermate GM**: `RoomListScreen`, `CreateRoomScreen`, `DashboardScreen`, `PlayerDetailScreen`
+- [ ] **Restyle schermata `JoinRoomScreen`** (lato player): primo touchpoint, deve essere accogliente
+- [ ] **Restyle schermata `DirectriceScreen`**: il finale del gioco merita una grafica più curata
 - [ ] Raffinare mappa e coordinate dei nodi dopo test su dispositivi reali
 - [x] Sistema `AutoHintEffect` per-scena implementato (componente, `getHintAsset`, `HINT_POSITIONS`) — asset Acrobata (`acrobata_hint.png`) da posizionare in `assets/hints/`; coordinate calibrate: `top: 8.9%, left: 38.1%, width: 30%, height: 49.2%`
 - [ ] Aggiungere asset hint per gli altri NPC (Funambolo, Giocoliere, ecc.)
@@ -193,6 +200,12 @@
 
 ## 🔧 Miglioramenti Futuri
 
+- [ ] **Performance caricamento immagini**: alcuni PNG sono molto grandi (>5 MB sprite, >10 MB sfondi). Strategie da valutare:
+  - Conversione asset a WebP (qualità simile, dimensione molto inferiore)
+  - Generazione mipmap/versioni a risoluzione multipla
+  - Lazy loading per le scene non ancora visitate
+  - Preload smart in background dopo che la mappa è visibile
+  - Ottimizzazione `ImagePreloader` (attualmente carica tutto dopo 100ms)
 - [ ] Aggiungere altre storie tramite struttura `story_id`
 - [ ] Multi-GM per stanza
 - [ ] Statistiche partita: tempo totale, errori, hints ricevuti
