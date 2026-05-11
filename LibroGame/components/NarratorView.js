@@ -42,6 +42,7 @@ export default function NarratorView({
   hintActive = false,
   hintAsset = null,
   hintPosition = null,
+  characterPosition = null,
 }) {
   const npc = getNpcTheme(sceneId);
   const blocks = scene.narratorBlocks || [scene.text || ''];
@@ -171,11 +172,11 @@ export default function NarratorView({
       )}
       <View style={styles.overlay} />
       {characterAsset ? (
-        <View style={[styles.characterContainer, { zIndex: 2 }]} pointerEvents="none">
+        <View style={[styles.characterContainer, characterPosition, { zIndex: 2 }]} pointerEvents="none">
           <Image source={characterAsset} style={styles.characterImage} resizeMode="contain" />
         </View>
       ) : (
-        <View style={[styles.characterContainer, { alignItems: 'center', justifyContent: 'center', zIndex: 2 }]} pointerEvents="none">
+        <View style={[styles.characterContainer, characterPosition, { alignItems: 'center', justifyContent: 'center', zIndex: 2 }]} pointerEvents="none">
           <Text style={{ fontSize: 100 }}>{npc.emoji}</Text>
         </View>
       )}

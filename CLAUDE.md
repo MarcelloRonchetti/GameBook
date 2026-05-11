@@ -126,6 +126,7 @@ LibroGame/
 - `ASSETS` (map: `background`, `nodeFrame`, `nodeTentEntry`, `nodeTentFinal`, `nodeBanner`), `getCharacterAsset`, `getBackgroundAsset`
 - `BANNER_CONFIG` — parametri banner tende (intro/direttrice): `bannerScale`, `bannerTop`, `bannerOffsetX`, `fontScale`, `textOffsetX`, `textOffsetY`
 - `MAP_NODES` supporta `pathAnchorX/Y` per offset endpoint percorsi SVG
+- `CHARACTER_POSITIONS` + `DEFAULT_CHARACTER_POSITION` — override posizione/dimensione sprite NPC per-scena. Helper `getCharacterPosition(sceneId)`. Usato in `CircoStanzaScreen` e `NarratorView` come prop `characterPosition` per applicare style override sul `characterContainer`
 
 `styles/components.js`: `anagramInputStyles`, `autoHintEffectStyles` (gold border 4px overlay, zIndex 1000), `gmHintStyles` (yellow banner with left border), `playerCardStyles`, `sceneCardStyles`.
 
@@ -138,9 +139,9 @@ LibroGame/
 Existing bitmap assets:
 - `assets/app-icons/icon.png`, `adaptive-icon.png`, `splash-icon.png`, `favicon.png` — icone APK/web (placeholder 1024×1024 colore `#1a1a1a`, da sostituire con grafica definitiva)
 - `assets/map/circus_map.png`
-- `assets/characters/acrobata.png`, `giocoliere.png`, `funambolo.png`, `pagliaccio.png`
-- `assets/backgrounds/acrobata_bg.png`, `giocoliere_bg.png`, `funambolo_bg.png`, `pagliaccio_bg.png`
-- `assets/hints/acrobata_hint.png`, `funambolo_hint.png`, `giocoliere_hint.png`, `pagliaccio_hint.png`
+- `assets/characters/acrobata.png`, `giocoliere.png`, `funambolo.png`, `pagliaccio.png`, `trapezista.png`, `cavallerizza.png`, `contorsionista.png`, `controfigura.png`
+- `assets/backgrounds/acrobata_bg.png`, `giocoliere_bg.png`, `funambolo_bg.png`, `pagliaccio_bg.png`, `trapezista_bg.png`, `cavallerizza_bg.png`, `contorsionista_bg.png`, `controfigura_bg.png`
+- `assets/hints/acrobata_hint.png`, `funambolo_hint.png`, `giocoliere_hint.png`, `pagliaccio_hint.png`, `trapezista_hint.png`, `cavallerizza_hint.png`, `contorsionista_hint.png`, `controfigura_hint.png`
 - `story/storia_1/CIRCO-STANZE.pdf` — testo sorgente completo del gioco (riferimento narrativo per personaggi e stanze)
 
 Missing NPC/background assets fall back to themed colors and emoji placeholders.

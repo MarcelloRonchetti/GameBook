@@ -188,6 +188,9 @@ export const ASSETS = {
     funambolo:  require('../assets/characters/funambolo.png'),
     pagliaccio: require('../assets/characters/pagliaccio.png'),
     trapezista: require('../assets/characters/trapezista.png'),
+    cavallerizza: require('../assets/characters/cavallerizza.png'),
+    contorsionista: require('../assets/characters/contorsionista.png'),
+    controfigura: require('../assets/characters/controfigura.png'),
   },
   backgrounds: {
     acrobata:   require('../assets/backgrounds/acrobata_bg.png'),
@@ -195,6 +198,9 @@ export const ASSETS = {
     funambolo:  require('../assets/backgrounds/funambolo_bg.png'),
     pagliaccio: require('../assets/backgrounds/pagliaccio_bg.png'),
     trapezista: require('../assets/backgrounds/trapezista_bg.png'),
+    cavallerizza: require('../assets/backgrounds/cavallerizza_bg.png'),
+    contorsionista: require('../assets/backgrounds/contorsionista_bg.png'),
+    controfigura: require('../assets/backgrounds/controfigura_bg.png'),
   },
   hints: {
     acrobata:   require('../assets/hints/acrobata_hint.png'),
@@ -202,6 +208,9 @@ export const ASSETS = {
     giocoliere: require('../assets/hints/giocoliere_hint.png'),
     pagliaccio: require('../assets/hints/pagliaccio_hint.png'),
     trapezista: require('../assets/hints/trapezista_hint.png'),
+    cavallerizza: require('../assets/hints/cavallerizza_hint.png'),
+    contorsionista: require('../assets/hints/contorsionista_hint.png'),
+    controfigura: require('../assets/hints/controfigura_hint.png'),
   },
 };
 
@@ -219,7 +228,33 @@ export const HINT_POSITIONS = {
   giocoliere: { top: 0.181,  left: 0.278,  width: 0.45,  height: 0.53  },
   pagliaccio: { top: 0.446,   left: 0.5586,   width: 0.4,   height: 0.215   },
   trapezista: { top: 0.192,   left: 0.301,   width: 0.405,   height: 0.6   },
+  cavallerizza: { top: 0.178,   left: 0.813,   width: 0.24,   height: 0.5   },
+  contorsionista: { top: 0.47,   left: 0.31,   width: 0.383,   height: 0.4   },
+  controfigura: { top: 0.032,   left: 0.153,   width: 0.148,   height: 0.4   },
 };
+
+// ---------------------------------------------------------------------------
+// POSIZIONE PERSONAGGIO (sprite) PER-SCENA
+// ---------------------------------------------------------------------------
+// Override della posizione/dimensione dello sprite NPC in CircoStanza.
+// Se una scena non e' in CHARACTER_POSITIONS usa DEFAULT_CHARACTER_POSITION.
+// Valori = percentuali stringa CSS (es. '-5%', '70%').
+export const DEFAULT_CHARACTER_POSITION = {
+  left:   '-5%',
+  bottom: '-55%',
+  width:  '70%',
+  height: '145%',
+};
+
+export const CHARACTER_POSITIONS = {
+  // Aggiungi qui override per-scena, es.:
+  contorsionista: {left:   '-17%',bottom: '-55%',width:  '70%',height: '145%',},
+  controfigura:   {left:   '8%',bottom: '-55%',width:  '70%',height: '145%',},
+};
+
+export function getCharacterPosition(sceneId) {
+  return CHARACTER_POSITIONS[sceneId] || DEFAULT_CHARACTER_POSITION;
+}
 
 export function getCharacterAsset(sceneId) {
   return ASSETS.characters[sceneId] || null;

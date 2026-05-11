@@ -29,6 +29,7 @@ import {
   getCharacterAsset,
   getBackgroundAsset,
   getHintAsset,
+  getCharacterPosition,
   HINT_POSITIONS,
 } from '../../styles/theme';
 
@@ -45,6 +46,7 @@ export default function CircoStanzaScreen({ route, navigation }) {
   const backgroundAsset = getBackgroundAsset(sceneId);
   const hintAsset = getHintAsset(sceneId);
   const hintPosition = HINT_POSITIONS[sceneId] || null;
+  const characterPosition = getCharacterPosition(sceneId);
 
   const [mode, setMode] = useState(initialMode);
 
@@ -195,6 +197,7 @@ export default function CircoStanzaScreen({ route, navigation }) {
           hintActive={hintActive}
           hintAsset={hintAsset}
           hintPosition={hintPosition}
+          characterPosition={characterPosition}
         />
       ) : (
         <>
@@ -209,9 +212,9 @@ export default function CircoStanzaScreen({ route, navigation }) {
           )}
           {/* Overlay scuro più intenso per far risaltare il pannello */}
           <View style={[styles.overlay, styles.overlayAnagram]} />
-          {/* Personaggio visibile in basso a sinistra */}
+          {/* Personaggio visibile in basso a sinistra (posizione override-able da theme) */}
           {characterAsset && (
-            <View style={[styles.characterContainer, { zIndex: 0 }]} pointerEvents="none">
+            <View style={[styles.characterContainer, characterPosition, { zIndex: 0 }]} pointerEvents="none">
               <Image
                 source={characterAsset}
                 style={styles.characterImage}
