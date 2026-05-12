@@ -194,6 +194,7 @@ export const ASSETS = {
     domatore: require('../assets/characters/domatore.png'),
     equilibrista: require('../assets/characters/equilibrista.png'),
     sputafuoco: require('../assets/characters/sputafuoco.png'),
+    illusionista: require('../assets/characters/illusionista.png'),
   },
   backgrounds: {
     acrobata:   require('../assets/backgrounds/acrobata_bg.png'),
@@ -207,6 +208,7 @@ export const ASSETS = {
     domatore: require('../assets/backgrounds/domatore_bg.png'),
     equilibrista: require('../assets/backgrounds/equilibrista_bg.png'),
     sputafuoco: require('../assets/backgrounds/sputafuoco_bg.png'),
+    illusionista: require('../assets/backgrounds/illusionista_bg.png'),
   },
   hints: {
     acrobata:   require('../assets/hints/acrobata_hint.png'),
@@ -220,6 +222,7 @@ export const ASSETS = {
     domatore: require('../assets/hints/domatore_hint.png'),
     equilibrista: require('../assets/hints/equilibrista_hint.png'),
     sputafuoco: require('../assets/hints/sputafuoco_hint.png'),
+    illusionista: require('../assets/hints/illusionista_hint.png'),
   },
 };
 
@@ -236,13 +239,14 @@ export const HINT_POSITIONS = {
   funambolo:  { top: 0.649,  left: 0.552,  width: 0.518,  height: 0.348  },
   giocoliere: { top: 0.181,  left: 0.278,  width: 0.45,  height: 0.53  },
   pagliaccio: { top: 0.446,   left: 0.5586,   width: 0.4,   height: 0.215   },
-  trapezista: { top: 0.192,   left: 0.301,   width: 0.405,   height: 0.6   },
+  trapezista: { top: 0.192,   left: 0.304,   width: 0.405,   height: 0.6   },
   cavallerizza: { top: 0.178,   left: 0.813,   width: 0.24,   height: 0.5   },
   contorsionista: { top: 0.47,   left: 0.31,   width: 0.383,   height: 0.4   },
   controfigura: { top: 0.032,   left: 0.153,   width: 0.148,   height: 0.4   },
   domatore: { top: 0.216,   left: 0.508,   width: 0.4,   height: 0.257   },
-  equilibrista: { top: 0.01,   left: 0.489,   width: 0.48,   height: 0.792   },
-  sputafuoco: { top: 0.477,   left: 0.361,   width: 0.298,   height: 0.4   },
+  equilibrista: { top: 0.01,   left: 0.497,   width: 0.48,   height: 0.792   },
+  sputafuoco: { top: 0.477,   left: 0.363,   width: 0.298,   height: 0.4   },
+  illusionista: { top: 0.064,   left: 0.215,   width: 0.559,   height: 0.7   },
 };
 
 // ---------------------------------------------------------------------------
@@ -263,6 +267,9 @@ export const CHARACTER_POSITIONS = {
   contorsionista: {left:   '-17%',bottom: '-55%',width:  '70%',height: '145%',},
   controfigura:   {left:   '8%',bottom: '-55%',width:  '70%',height: '145%',},
   domatore:         {left:   '-12%',bottom: '-55%',width:  '70%',height: '145%',},
+  illusionista:     {left:   '17%',bottom: '-55%',width:  '70%',height: '145%',},
+  sputafuoco:     {left:   '-13%',bottom: '-55%',width:  '70%',height: '145%',},
+  trapezista:     {left:   '-18%',bottom: '-55%',width:  '70%',height: '145%',},
 };
 
 export function getCharacterPosition(sceneId) {
