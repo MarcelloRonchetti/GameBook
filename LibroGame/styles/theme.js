@@ -267,7 +267,7 @@ export const CHARACTER_POSITIONS = {
   contorsionista: {left:   '-17%',bottom: '-55%',width:  '70%',height: '145%',},
   controfigura:   {left:   '8%',bottom: '-55%',width:  '70%',height: '145%',},
   domatore:         {left:   '-12%',bottom: '-55%',width:  '70%',height: '145%',},
-  illusionista:     {left:   '17%',bottom: '-55%',width:  '70%',height: '145%',},
+  illusionista:     {left:   '15%',bottom: '-55%',width:  '70%',height: '145%',},
   sputafuoco:     {left:   '-13%',bottom: '-55%',width:  '70%',height: '145%',},
   trapezista:     {left:   '-18%',bottom: '-55%',width:  '70%',height: '145%',},
 };
