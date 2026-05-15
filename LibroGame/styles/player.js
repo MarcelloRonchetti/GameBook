@@ -115,6 +115,10 @@ export const introStyles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.primary,
     marginBottom: spacing.md,
+    textAlign: 'left',
+    maxWidth: 950,
+    width: '95%',
+    alignSelf: 'center',
   },
   cipherText: {
     fontSize: fontSize.xl,
@@ -128,6 +132,9 @@ export const introStyles = StyleSheet.create({
     borderColor: colors.borderDark,
     marginBottom: spacing.xl,
     textAlign: 'center',
+    maxWidth: 950,
+    width: '95%',
+    alignSelf: 'center',
   },
   keyContainer: {
     backgroundColor: colors.surfaceDark,
@@ -136,6 +143,9 @@ export const introStyles = StyleSheet.create({
     marginBottom: spacing.xxl,
     borderWidth: 1,
     borderColor: colors.borderDark,
+    maxWidth: 950,
+    width: '95%',
+    alignSelf: 'center',
   },
   keyTitle: {
     fontSize: fontSize.lg,
@@ -186,6 +196,9 @@ export const introStyles = StyleSheet.create({
     marginBottom: spacing.md,
     minHeight: 80,
     textAlignVertical: 'top',
+    maxWidth: 950,
+    width: '95%',
+    alignSelf: 'center',
   },
   inputError: { borderColor: colors.error, borderWidth: 2 },
   errorText: {
@@ -196,9 +209,11 @@ export const introStyles = StyleSheet.create({
   },
   button: {
     backgroundColor: colors.primary,
-    padding: spacing.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xxxl,
     borderRadius: radius.md,
     alignItems: 'center',
+    alignSelf: 'center',
   },
   buttonDisabled: { backgroundColor: colors.textFaint },
   buttonText: {

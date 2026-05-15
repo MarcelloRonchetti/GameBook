@@ -14,7 +14,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet,
+  View, Text, Image, TouchableOpacity, StyleSheet,
   ScrollView, KeyboardAvoidingView, Platform, StatusBar,
 } from 'react-native';
 
@@ -24,6 +24,7 @@ import { useRoomClosedListener, useDisableAndroidBack } from '../../lib/useRoomC
 
 import AnagramInput from '../../components/AnagramInput';
 import NarratorView from '../../components/NarratorView';
+import { circoStanzaStyles } from '../../styles/player';
 import {
   getCharacterAsset,
   getBackgroundAsset,
@@ -198,13 +199,35 @@ export default function DirectriceScreen({ route, navigation }) {
 
   // --- Modalità anagrammi: lista 12 anagrammi finali ---
   return (
+    <View style={{ flex: 1 }}>
+      <StatusBar hidden />
+      {/* Sfondo + overlay + sprite Direttrice (stesso pattern delle altre stanze in modalità anagramma) */}
+      <View style={[circoStanzaStyles.background, { backgroundColor: '#2a1a0a' }]} />
+      {backgroundAsset && (
+        <Image
+          source={backgroundAsset}
+          style={[circoStanzaStyles.background, circoStanzaStyles.backgroundImage]}
+          resizeMode="cover"
+        />
+      )}
+      <View style={[circoStanzaStyles.overlay, circoStanzaStyles.overlayAnagram]} />
+      {characterAsset && (
+        <View style={[circoStanzaStyles.characterContainer, characterPosition, { zIndex: 0 }]} pointerEvents="none">
+          <Image
+            source={characterAsset}
+            style={circoStanzaStyles.characterImage}
+            resizeMode="contain"
+          />
+        </View>
+      )}
+
     <KeyboardAvoidingView
-      style={styles.flex}
+      style={[styles.flex, circoStanzaStyles.anagramPanel]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
+        style={{ flex: 1, backgroundColor: 'transparent' }}
+        contentContainerStyle={{ paddingBottom: 20 }}
         keyboardShouldPersistTaps="handled"
       >
         {/* Bottone per tornare alla narrazione (immagine + sprite Direttrice) */}
@@ -330,6 +353,7 @@ export default function DirectriceScreen({ route, navigation }) {
         <View style={{ height: 40 }} />
       </ScrollView>
     </KeyboardAvoidingView>
+    </View>
   );
 }
 

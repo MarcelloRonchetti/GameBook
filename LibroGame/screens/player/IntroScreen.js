@@ -172,7 +172,7 @@ export default function IntroScreen({ route, navigation }) {
           <Text style={styles.title}>{intro.title}</Text>
 
           <Text style={styles.sectionTitle}>📜 Messaggio cifrato</Text>
-          <Text style={styles.cipherText}>{intro.cipher}</Text>
+          <Text style={styles.cipherText}>{intro.cipher.replace(/-/g, '‑')}</Text>
 
           <View style={styles.keyContainer}>
             <Text style={styles.keyTitle}>🔑 Chiave di decodifica</Text>

@@ -23,9 +23,9 @@ const LABEL_FONT_SCALE  = 0.084; // dimensione testo label (% di frameW)
 const ARCH_SCALE    = 3;  // moltiplicatore dimensione archi normali
 const TENT_SCALE    = 3.8;  // moltiplicatore dimensione tende speciali
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  View, Text, Image, TouchableOpacity, useWindowDimensions, Animated, Easing,
+  View, Text, Image, TouchableOpacity, useWindowDimensions,
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 
@@ -177,28 +177,19 @@ function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
   const isAvail = state === 'available';
   const isSolved = state === 'visited';
 
-  const scale = useRef(new Animated.Value(1)).current;
-  const animIn  = () => { if (isAvail) Animated.timing(scale, { toValue: 1.18, duration: 140, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(); };
-  const animOut = () => { if (isAvail) Animated.timing(scale, { toValue: 1,    duration: 140, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(); };
-
   return (
-    <Animated.View style={[
+    <View style={[
       styles.nodeContainer,
       {
         left:  cx - frameW / 2,
         top:   cy - frameH * (INTERIOR_TOP + INTERIOR_SIZE * 0.5),
         width: frameW, height: frameH,
-        transform: [{ scale }],
       },
     ]}>
     <TouchableOpacity
       style={{ width: frameW, height: frameH }}
       onPress={() => isAvail && onPress(sceneId)}
-      onPressIn={animIn}
-      onPressOut={animOut}
-      onMouseEnter={animIn}
-      onMouseLeave={animOut}
-      activeOpacity={1}
+      activeOpacity={isAvail ? 0.85 : 1}
       disabled={!isAvail}
     >
       {/* Frame arco */}
@@ -242,7 +233,7 @@ function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
         {isFog ? '???' : npc.label.toUpperCase()}
       </Text>
     </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 }
 

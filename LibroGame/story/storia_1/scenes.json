@@ -9,7 +9,7 @@
       { "speaker": "narrator", "text": "Nelle diverse circo-stanze in cui vi troverete, sarà la vostra volontà a fare la differenza, perché di volta in volta dovrete compiere una scelta che condizionerà la successione degli eventi." },
       { "speaker": "narrator", "text": "Come per qualsiasi percorso, per iniziare, vi occorre sapere l'obiettivo, che non è sempre chiaro e immediato; è necessario prima decodificarlo, poi rivolgetevi dunque a chi saprà darvi indicazioni. Intanto sappiate che la chiave è sempre: la volontà delle circostanze." }
     ],
-    "cipher": "7-4-3-8-6-8 6-11-4-3-2-11-8 1-2 7-10-11-8-6-6-11-10-9-8 7-8-1-1-8 9-10-11-9-4-12-6-2-5-13-8 10-5-10-13-10-2-5-7-4 7-2-1-1' 2-9-11-4-14-2-6-2",
+    "cipher": "7-4-3-8-6-8     6-11-4-3-2-11-8     1-2     7-10-11-8-6-6-11-10-9-8     7-8-1-1-8     9-10-11-9-4-12-6-2-5-13-8     10-5-10-13-10-2-5-7-4     7-2-1-1'     2-9-11-4-14-2-6-2",
     "cipherSolution": "Dovete trovare la direttrice delle circostanze iniziando dall'acrobata",
     "next": ["acrobata"]
   },
@@ -278,7 +278,7 @@
       { "speaker": "narrator", "text": "La sua abilità ha prodotto lenti in grado di decifrare, riconoscere e spiegare, ma anche di confondere, nascondere e negare. Con quali lenti state guardando?" },
       { "speaker": "narrator", "text": "Voi cosa vedete? e cosa ricordate?" }
     ],
-    "cipher": "1-2 3-4-1-4-5-6-2 3-10 9-4-5-7-15-9-8 2-1-1-2 7-10-11-8-6-6-11-10-9-8. 9-16-10-8-7-8-6-8 7-10 1-8-10 12-8-5-13-2 17-2-11-3-10 12-8-5-6-10-11-8",
+    "cipher": "1-2     3-4-1-4-5-6-2     3-10     9-4-5-7-15-9-8     2-1-1-2     7-10-11-8-6-6-11-10-9-8.     9-16-10-8-7-8-6-8     7-10     1-8-10     12-8-5-13-2     17-2-11-3-10     12-8-5-6-10-11-8",
     "cipherSolution": "La volontà vi conduce alla direttrice. Chiedete di lei senza farvi sentire",
     "question": null,
     "choices": [],

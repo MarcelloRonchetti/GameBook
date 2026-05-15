@@ -132,7 +132,7 @@ export default function AnagramOverlay({
           {isIllusionista && scene.cipher && (
             <View style={styles.cipherSection}>
               <Text style={styles.sectionTitle}>📜 Messaggio cifrato</Text>
-              <Text style={styles.cipherText}>{scene.cipher}</Text>
+              <Text style={styles.cipherText}>{scene.cipher.replace(/-/g, '‑')}</Text>
 
               <View style={styles.keyContainer}>
                 <Text style={styles.keyTitle}>🔑 La chiave</Text>
