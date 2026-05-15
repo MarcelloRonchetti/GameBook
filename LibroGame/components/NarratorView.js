@@ -43,6 +43,8 @@ export default function NarratorView({
   hintAsset = null,
   hintPosition = null,
   characterPosition = null,
+  anagramButtonLabel = "🔤 Affronta l'anagramma",
+  hideCharacter = false,
 }) {
   const npc = getNpcTheme(sceneId);
   const blocks = scene.narratorBlocks || [scene.text || ''];
@@ -171,15 +173,15 @@ export default function NarratorView({
         />
       )}
       <View style={styles.overlay} />
-      {characterAsset ? (
+      {!hideCharacter && characterAsset ? (
         <View style={[styles.characterContainer, characterPosition, { zIndex: 2 }]} pointerEvents="none">
           <Image source={characterAsset} style={styles.characterImage} resizeMode="contain" />
         </View>
-      ) : (
+      ) : !hideCharacter ? (
         <View style={[styles.characterContainer, characterPosition, { alignItems: 'center', justifyContent: 'center', zIndex: 2 }]} pointerEvents="none">
           <Text style={{ fontSize: 100 }}>{npc.emoji}</Text>
         </View>
-      )}
+      ) : null}
     </>
   );
 
@@ -204,7 +206,7 @@ export default function NarratorView({
               onPress={onStartAnagram}
               activeOpacity={0.8}
             >
-              <Text style={styles.anagramButtonText}>🔤 Affronta l'anagramma</Text>
+              <Text style={styles.anagramButtonText}>{anagramButtonLabel}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -242,7 +244,7 @@ export default function NarratorView({
                 onPress={onStartAnagram}
                 activeOpacity={0.8}
               >
-                <Text style={styles.anagramButtonText}>🔤 Affronta l'anagramma</Text>
+                <Text style={styles.anagramButtonText}>{anagramButtonLabel}</Text>
               </TouchableOpacity>
             )}
           </View>

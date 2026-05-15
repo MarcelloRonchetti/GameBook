@@ -195,8 +195,10 @@ export const ASSETS = {
     equilibrista: require('../assets/characters/equilibrista.png'),
     sputafuoco: require('../assets/characters/sputafuoco.png'),
     illusionista: require('../assets/characters/illusionista.png'),
+    direttrice: require('../assets/characters/direttrice.png'),
   },
   backgrounds: {
+    intro:      require('../assets/backgrounds/intro_bg.png'),
     acrobata:   require('../assets/backgrounds/acrobata_bg.png'),
     giocoliere: require('../assets/backgrounds/giocoliere_bg.png'),
     funambolo:  require('../assets/backgrounds/funambolo_bg.png'),
@@ -209,6 +211,7 @@ export const ASSETS = {
     equilibrista: require('../assets/backgrounds/equilibrista_bg.png'),
     sputafuoco: require('../assets/backgrounds/sputafuoco_bg.png'),
     illusionista: require('../assets/backgrounds/illusionista_bg.png'),
+    direttrice: require('../assets/backgrounds/direttrice_bg.png'),
   },
   hints: {
     acrobata:   require('../assets/hints/acrobata_hint.png'),
@@ -270,6 +273,7 @@ export const CHARACTER_POSITIONS = {
   illusionista:     {left:   '15%',bottom: '-55%',width:  '70%',height: '145%',},
   sputafuoco:     {left:   '-13%',bottom: '-55%',width:  '70%',height: '145%',},
   trapezista:     {left:   '-18%',bottom: '-55%',width:  '70%',height: '145%',},
+  direttrice:     {left:   '10%',bottom: '-55%',width:  '70%',height: '145%',},
 };
 
 export function getCharacterPosition(sceneId) {

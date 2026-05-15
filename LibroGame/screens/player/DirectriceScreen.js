@@ -15,7 +15,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  ScrollView, KeyboardAvoidingView, Platform
+  ScrollView, KeyboardAvoidingView, Platform, StatusBar,
 } from 'react-native';
 
 import { supabase } from '../../lib/supabase';
@@ -23,6 +23,12 @@ import { normalizeText } from '../../lib/helpers';
 import { useRoomClosedListener, useDisableAndroidBack } from '../../lib/useRoomClosedListener';
 
 import AnagramInput from '../../components/AnagramInput';
+import NarratorView from '../../components/NarratorView';
+import {
+  getCharacterAsset,
+  getBackgroundAsset,
+  getCharacterPosition,
+} from '../../styles/theme';
 
 // Dati della scena Direttrice dal JSON
 import scenes from '../../story/storia_1/scenes.json';
@@ -36,6 +42,15 @@ export default function DirectriceScreen({ route, navigation }) {
 
   const direttrice = scenes.direttrice;
   const finalAnagrams = direttrice.finalAnagrams;
+
+  // Asset visivi della Direttrice
+  const characterAsset = getCharacterAsset('direttrice');
+  const backgroundAsset = getBackgroundAsset('direttrice');
+  const characterPosition = getCharacterPosition('direttrice');
+
+  // 'narration' = schermata di benvenuto della Direttrice (sfondo+sprite+testo)
+  // 'anagrams'  = lista 12 anagrammi finali (comportamento storico)
+  const [mode, setMode] = useState('narration');
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState(finalAnagrams.map(() => ''));
@@ -64,7 +79,8 @@ export default function DirectriceScreen({ route, navigation }) {
       .maybeSingle();
 
     if (data && data.solved) {
-      // Già completato in precedenza -> mostra subito il finale
+      // Già completato in precedenza -> salta la narrazione e mostra subito il finale
+      setMode('anagrams');
       setAllSolved(true);
       setCompletionSaved(true);
       // Segna tutti come risolti visivamente
@@ -162,6 +178,25 @@ export default function DirectriceScreen({ route, navigation }) {
 
   const currentAnagram = finalAnagrams[currentIndex];
 
+  // --- Modalità narrazione: schermata di benvenuto della Direttrice ---
+  if (mode === 'narration') {
+    return (
+      <View style={{ flex: 1 }}>
+        <StatusBar hidden />
+        <NarratorView
+          scene={direttrice}
+          sceneId="direttrice"
+          onStartAnagram={() => setMode('anagrams')}
+          characterAsset={characterAsset}
+          backgroundAsset={backgroundAsset}
+          characterPosition={characterPosition}
+          anagramButtonLabel="🎩 Risolvi gli anagrammi finali"
+        />
+      </View>
+    );
+  }
+
+  // --- Modalità anagrammi: lista 12 anagrammi finali ---
   return (
     <KeyboardAvoidingView
       style={styles.flex}
@@ -172,6 +207,15 @@ export default function DirectriceScreen({ route, navigation }) {
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Bottone per tornare alla narrazione (immagine + sprite Direttrice) */}
+        <TouchableOpacity
+          style={styles.backToNarration}
+          onPress={() => setMode('narration')}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.backToNarrationText}>← Torna alla Direttrice</Text>
+        </TouchableOpacity>
+
         <Text style={styles.title}>{direttrice.title}</Text>
         <Text style={styles.storyText}>{direttrice.text}</Text>
 
@@ -294,6 +338,21 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   container: { flex: 1, backgroundColor: '#1a1a1a' },
   content: { padding: 20, paddingBottom: 40 },
+  backToNarration: {
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    backgroundColor: '#2a2a2a',
+    borderWidth: 1,
+    borderColor: '#c8a45a',
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  backToNarrationText: {
+    color: '#c8a45a',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   title: {
     fontSize: 26,
     fontWeight: 'bold',

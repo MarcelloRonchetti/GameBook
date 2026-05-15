@@ -60,14 +60,14 @@ Ignore node_modules folder when scanning the project files
 
 - Player screens:
   - `JoinRoomScreen` validates a 6-digit code, joins open rooms, and resumes progress. The code input is trimmed and then `.padStart(6, '0')` is applied so that codes with leading zeros (e.g. `001234`) are preserved before the Supabase lookup. Uses `maybeSingle()` to avoid errors on missing rooms. Calls `resolvePlayerResumeRoute` and `navigation.reset` to the right scene. Logout link via `confirmLogout`.
-  - `IntroScreen` handles the initial cipher and unlocks `acrobata` on the map.
+  - `IntroScreen` handles the initial cipher and unlocks `acrobata` on the map. Due modalità interne: `'narration'` (NarratorView con sfondo `intro_bg.png` + testo narrativo + bottone "📜 Decifra il messaggio", no sprite tramite `hideCharacter`) e `'cipher'` (chiave 1-14 + messaggio cifrato + input). Bottone "← Torna all'immagine" in modalità cipher. Auto-skip narrazione se già risolto.
   - `MapScreen` renders the circus map with illustrated arch-frame nodes. Two node types: `TentNode` (intro/direttrice, PNG tents + banner scroll) and `ArchNode` (12 NPCs, arch frame PNG + sprite inside). Fog state: arch shows `?` without dark circle; tent darkens via `tintColor`. Available arch nodes scale up on hover/press (`Animated.timing`, 140ms ease-out quad — sostituisce spring per performance su web). `HINT_POSITIONS` usa valori decimali 0-1 relativi all'immagine di sfondo; `NarratorView.computeHintStyle` converte in coordinate assolute compensando `resizeMode="cover"` in base alle dimensioni schermo correnti (`useWindowDimensions`). `BG_ASPECT_RATIO = 16/9` in `theme.js`. Personaggio a `zIndex: 2`, hint a `zIndex: 1`. SVG bezier paths connect nodes; `pathAnchorX/Y` in `MAP_NODES` offset path endpoints for intro/direttrice. All visual tuning constants at top of file (`ARCH_SCALE`, `TENT_SCALE`, `INTERIOR_*`, `SPRITE_SCALE`, `BANNER_BOTTOM`, `LABEL_FONT_SCALE`). Banner config for tents in `BANNER_CONFIG` in `theme.js`.
   - `CircoStanzaScreen` combines narration and anagram play for the current active flow.
-  - `DirectriceScreen` handles the final twelve anagrams (with skip and free navigation) and stores final completion in `progress`.
+  - `DirectriceScreen` handles the final twelve anagrams (with skip and free navigation) and stores final completion in `progress`. Due modalità interne: `'narration'` (NarratorView con sfondo + sprite Direttrice + testo dal PDF + bottone "🎩 Risolvi gli anagrammi finali") e `'anagrams'` (lista 12 anagrammi). Bottone "← Torna alla Direttrice" in modalità anagrams. Auto-skip narrazione se già completato.
   - `SceneScreen` and `AnagramScreen` are legacy route fallbacks.
 
 - Components:
-  - Current flow: `NarratorView` (typewriter dialog with placeholder fallback; the narration body is wrapped in a `ScrollView` and the character + dialog use a flow layout — not absolute positioning — so they remain reachable via scroll on short windows), `AnagramOverlay` (anagram panel, GM hints, Illusionista cipher, next-scene choices), `AutoHintEffect`, `GmHint` (shows only the latest hint), `AnagramInput`.
+  - Current flow: `NarratorView` (typewriter dialog with placeholder fallback; the narration body is wrapped in a `ScrollView` and the character + dialog use a flow layout — not absolute positioning — so they remain reachable via scroll on short windows; props `anagramButtonLabel` per personalizzare il testo del bottone finale, `hideCharacter` per non renderizzare lo sprite/emoji — usati da `DirectriceScreen` e `IntroScreen`), `AnagramOverlay` (anagram panel, GM hints, Illusionista cipher, next-scene choices), `AutoHintEffect`, `GmHint` (shows only the latest hint), `AnagramInput`.
   - Reusable/legacy support: `PlayerCard`, `SceneCard`.
   - `ErrorBoundary` (class component, file dedicato): cattura crash React e li mostra a schermo invece di chiudere l'app. Wrappa `AppNavigator` in `App.js`. Tenere in file separato per non rompere Fast Refresh.
 
@@ -139,9 +139,9 @@ LibroGame/
 Existing bitmap assets:
 - `assets/app-icons/icon.png`, `adaptive-icon.png`, `splash-icon.png`, `favicon.png` — icone APK/web (placeholder 1024×1024 colore `#1a1a1a`, da sostituire con grafica definitiva)
 - `assets/map/circus_map.png`
-- `assets/characters/acrobata.png`, `giocoliere.png`, `funambolo.png`, `pagliaccio.png`, `trapezista.png`, `cavallerizza.png`, `contorsionista.png`, `controfigura.png`, `domatore.png`, `equilibrista.png`, `sputafuoco.png`, `illusionista.png`
-- `assets/backgrounds/acrobata_bg.png`, `giocoliere_bg.png`, `funambolo_bg.png`, `pagliaccio_bg.png`, `trapezista_bg.png`, `cavallerizza_bg.png`, `contorsionista_bg.png`, `controfigura_bg.png`, `domatore_bg.png`, `equilibrista_bg.png`, `sputafuoco_bg.png`, `illusionista_bg.png`
-- `assets/hints/acrobata_hint.png`, `funambolo_hint.png`, `giocoliere_hint.png`, `pagliaccio_hint.png`, `trapezista_hint.png`, `cavallerizza_hint.png`, `contorsionista_hint.png`, `controfigura_hint.png`, `domatore_hint.png`, `equilibrista_hint.png`, `sputafuoco_hint.png`, `illusionista_hint.png`
+- `assets/characters/` — `acrobata.png`, `giocoliere.png`, `funambolo.png`, `pagliaccio.png`, `trapezista.png`, `cavallerizza.png`, `contorsionista.png`, `controfigura.png`, `domatore.png`, `equilibrista.png`, `sputafuoco.png`, `illusionista.png`, `direttrice.png`
+- `assets/backgrounds/` — `intro_bg.png`, `acrobata_bg.png`, `giocoliere_bg.png`, `funambolo_bg.png`, `pagliaccio_bg.png`, `trapezista_bg.png`, `cavallerizza_bg.png`, `contorsionista_bg.png`, `controfigura_bg.png`, `domatore_bg.png`, `equilibrista_bg.png`, `sputafuoco_bg.png`, `illusionista_bg.png`, `direttrice_bg.png`
+- `assets/hints/` — `acrobata_hint.png`, `funambolo_hint.png`, `giocoliere_hint.png`, `pagliaccio_hint.png`, `trapezista_hint.png`, `cavallerizza_hint.png`, `contorsionista_hint.png`, `controfigura_hint.png`, `domatore_hint.png`, `equilibrista_hint.png`, `sputafuoco_hint.png`, `illusionista_hint.png` (la Direttrice non ha hint, l'intro nemmeno)
 - `story/storia_1/CIRCO-STANZE.pdf` — testo sorgente completo del gioco (riferimento narrativo per personaggi e stanze)
 
 Missing NPC/background assets fall back to themed colors and emoji placeholders.
@@ -237,7 +237,7 @@ Illusionista → Direttrice (finale)
 | Giocoliere | ISPETTORI IDEE GREEN | STEREOTIPI DI GENERE |
 | Pagliaccio | SUB ODIA COLLA | ABUSO DI ALCOL |
 | Trapezista | IMMAGINI ZERO | IMMIGRAZIONE |
-| Cavallerizza | UNITE ZERO POSTI | PROSTITUZIONE |
+| Cavallerizza | UNTI ZERO POSTI | PROSTITUZIONE |
 | Contorsionista | ABITI SALDI | DISABILITÀ |
 | Controfigura | MAESTRE PROVATE | POVERTÀ ESTREMA |
 | Domatore | INTERPOSI ZEUS | SUPERSTIZIONE |

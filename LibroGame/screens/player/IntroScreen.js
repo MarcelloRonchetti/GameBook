@@ -1,20 +1,25 @@
 // IntroScreen.js
 // Schermata introduttiva del giocatore — Circo-stanza di Partenza.
-// Mostra il testo narrativo, la chiave di decodifica (1–14)
-// e il messaggio cifrato che il giocatore deve decodificare
-// per scoprire l'obiettivo e proseguire verso l'Acrobata.
+//
+// Due modalità interne:
+//   'narration' → NarratorView con sfondo + testo narrativo + bottone
+//                 "Decifra il messaggio" che porta alla modalità cifrario
+//   'cipher'    → chiave di decodifica (1-14) + messaggio cifrato + input
+//                 + bottone "← Torna all'immagine" per tornare alla narrazione
 
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Platform
+  View, Text, TextInput, TouchableOpacity, Image,
+  ScrollView, KeyboardAvoidingView, Platform, StatusBar,
 } from 'react-native';
 
 import { supabase } from '../../lib/supabase';
 import { normalizeText } from '../../lib/helpers';
 import { useRoomClosedListener, useDisableAndroidBack } from '../../lib/useRoomClosedListener';
 import { introStyles as styles } from '../../styles/player';
+import { getBackgroundAsset } from '../../styles/theme';
 
+import NarratorView from '../../components/NarratorView';
 import scenes from '../../story/storia_1/scenes.json';
 
 // Chiave di decodifica — 14 valori noti al giocatore
@@ -27,9 +32,14 @@ const CIPHER_KEY = {
 export default function IntroScreen({ route, navigation }) {
   const { room } = route.params;
   const intro = scenes.intro;
+  const introBackground = getBackgroundAsset('intro');
 
   useRoomClosedListener(room, navigation);
   useDisableAndroidBack();
+
+  // 'narration' = schermata di benvenuto col sfondo della partenza
+  // 'cipher'    = sezione cifrario (comportamento storico)
+  const [mode, setMode] = useState('narration');
 
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
@@ -52,7 +62,11 @@ export default function IntroScreen({ route, navigation }) {
       .eq('scene_id', 'intro')
       .maybeSingle();
 
-    if (data && data.solved) setSolved(true);
+    if (data && data.solved) {
+      // Già risolto in precedenza → salta la narrazione, vai diretto al cifrario in stato successo
+      setSolved(true);
+      setMode('cipher');
+    }
   };
 
   const handleCheck = () => {
@@ -105,97 +119,154 @@ export default function IntroScreen({ route, navigation }) {
     });
   };
 
+  // --- Modalità narrazione: schermata di benvenuto col sfondo della partenza ---
+  if (mode === 'narration') {
+    return (
+      <View style={{ flex: 1 }}>
+        <StatusBar hidden />
+        <NarratorView
+          scene={intro}
+          sceneId="intro"
+          onStartAnagram={() => setMode('cipher')}
+          characterAsset={null}
+          backgroundAsset={introBackground}
+          hideCharacter={true}
+          anagramButtonLabel="📜 Decifra il messaggio"
+        />
+      </View>
+    );
+  }
+
+  // --- Modalità cifrario: chiave + messaggio + input ---
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
+    <View style={{ flex: 1, backgroundColor: '#1a1a1a' }}>
+      {/* Sfondo della Circo-stanza di Partenza */}
+      {introBackground && (
+        <Image
+          source={introBackground}
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }}
+          resizeMode="cover"
+        />
+      )}
+      {/* Overlay scuro per leggibilità del testo */}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.55)' }} />
+
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Text style={styles.title}>{intro.title}</Text>
-        <Text style={styles.storyText}>{intro.text}</Text>
+        <ScrollView
+          style={[styles.container, { backgroundColor: 'transparent' }]}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Bottone per tornare alla narrazione (immagine) */}
+          <TouchableOpacity
+            style={localStyles.backToNarration}
+            onPress={() => setMode('narration')}
+            activeOpacity={0.8}
+          >
+            <Text style={localStyles.backToNarrationText}>← Torna all'immagine</Text>
+          </TouchableOpacity>
 
-        <View style={styles.divider} />
+          <Text style={styles.title}>{intro.title}</Text>
 
-        <Text style={styles.sectionTitle}>📜 Messaggio cifrato</Text>
-        <Text style={styles.cipherText}>{intro.cipher}</Text>
+          <Text style={styles.sectionTitle}>📜 Messaggio cifrato</Text>
+          <Text style={styles.cipherText}>{intro.cipher}</Text>
 
-        <View style={styles.keyContainer}>
-          <Text style={styles.keyTitle}>🔑 Chiave di decodifica</Text>
-          <View style={styles.keyGrid}>
-            {Object.entries(CIPHER_KEY).map(([num, letter]) => (
-              <View key={num} style={styles.keyItem}>
-                <Text style={styles.keyNumber}>{num}</Text>
-                <Text style={styles.keyEquals}>=</Text>
-                <Text style={styles.keyLetter}>{letter}</Text>
-              </View>
-            ))}
+          <View style={styles.keyContainer}>
+            <Text style={styles.keyTitle}>🔑 Chiave di decodifica</Text>
+            <View style={styles.keyGrid}>
+              {Object.entries(CIPHER_KEY).map(([num, letter]) => (
+                <View key={num} style={styles.keyItem}>
+                  <Text style={styles.keyNumber}>{num}</Text>
+                  <Text style={styles.keyEquals}>=</Text>
+                  <Text style={styles.keyLetter}>{letter}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
 
-        <View style={styles.answerSection}>
-          <Text style={styles.sectionTitle}>✏️ La tua decodifica</Text>
+          <View style={styles.answerSection}>
+            <Text style={styles.sectionTitle}>✏️ La tua decodifica</Text>
 
-          {!solved ? (
-            <>
-              <TextInput
-                style={[styles.input, error && styles.inputError]}
-                value={answer}
-                onChangeText={(text) => {
-                  setAnswer(text);
-                  setError(false);
-                }}
-                placeholder="Scrivi qui il messaggio decodificato..."
-                placeholderTextColor="#666"
-                multiline
-                numberOfLines={3}
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
+            {!solved ? (
+              <>
+                <TextInput
+                  style={[styles.input, error && styles.inputError]}
+                  value={answer}
+                  onChangeText={(text) => {
+                    setAnswer(text);
+                    setError(false);
+                  }}
+                  placeholder="Scrivi qui il messaggio decodificato..."
+                  placeholderTextColor="#666"
+                  multiline
+                  numberOfLines={3}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
 
-              {error && (
-                <Text style={styles.errorText}>
-                  ❌ Decodifica non corretta, riprova!
-                </Text>
-              )}
+                {error && (
+                  <Text style={styles.errorText}>
+                    ❌ Decodifica non corretta, riprova!
+                  </Text>
+                )}
 
-              <TouchableOpacity
-                style={[styles.button, !answer.trim() && styles.buttonDisabled]}
-                onPress={handleCheck}
-                disabled={!answer.trim()}
-              >
-                <Text style={styles.buttonText}>Verifica</Text>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <View style={styles.successBox}>
-                <Text style={styles.successText}>
-                  ✅ Corretto! Il messaggio dice:
-                </Text>
-                <Text style={styles.solutionText}>
-                  "{intro.cipherSolution}"
-                </Text>
-              </View>
+                <TouchableOpacity
+                  style={[styles.button, !answer.trim() && styles.buttonDisabled]}
+                  onPress={handleCheck}
+                  disabled={!answer.trim()}
+                >
+                  <Text style={styles.buttonText}>Verifica</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <View style={styles.successBox}>
+                  <Text style={styles.successText}>
+                    ✅ Corretto! Il messaggio dice:
+                  </Text>
+                  <Text style={styles.solutionText}>
+                    "{intro.cipherSolution}"
+                  </Text>
+                </View>
 
-              <TouchableOpacity
-                style={[styles.proceedButton, loading && styles.buttonDisabled]}
-                onPress={handleProceed}
-                disabled={loading}
-              >
-                <Text style={styles.buttonText}>
-                  {loading ? 'Caricamento...' : "Vai dall'Acrobata →"}
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
+                <TouchableOpacity
+                  style={[styles.proceedButton, loading && styles.buttonDisabled]}
+                  onPress={handleProceed}
+                  disabled={loading}
+                >
+                  <Text style={styles.buttonText}>
+                    {loading ? 'Caricamento...' : "Vai dall'Acrobata →"}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
 
-        <View style={{ height: 40 }} />
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
+
+import { StyleSheet } from 'react-native';
+const localStyles = StyleSheet.create({
+  backToNarration: {
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    backgroundColor: '#2a2a2a',
+    borderWidth: 1,
+    borderColor: '#c8a45a',
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  backToNarrationText: {
+    color: '#c8a45a',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+});
