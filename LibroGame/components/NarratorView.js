@@ -20,7 +20,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View, Text, Image,
+  View, Text, Image, ScrollView,
   TouchableWithoutFeedback, TouchableOpacity, Animated,
   useWindowDimensions,
 } from 'react-native';
@@ -47,7 +47,13 @@ export default function NarratorView({
   hideCharacter = false,
 }) {
   const npc = getNpcTheme(sceneId);
-  const blocks = scene.narratorBlocks || [scene.text || ''];
+  // Normalizza i blocchi del dialogo in formato uniforme {speaker, text}.
+  // Priorità: scene.dialogue (strutturato) > scene.narratorBlocks (legacy) > scene.text
+  const blocks = scene.dialogue
+    ? scene.dialogue
+    : scene.narratorBlocks
+      ? scene.narratorBlocks.map(t => ({ speaker: 'narrator', text: t }))
+      : [{ speaker: 'narrator', text: scene.text || '' }];
   const { width: screenW, height: screenH } = useWindowDimensions();
 
   // Converte posizione relativa all'immagine in coordinate assolute schermo,
@@ -111,12 +117,12 @@ export default function NarratorView({
     setBlockDone(false);
     setIsTyping(true);
 
-    const currentBlock = blocks[blockIndex] || '';
+    const currentBlockText = blocks[blockIndex]?.text || '';
     const startTimer = setTimeout(() => {
       timerRef.current = setInterval(() => {
         charIndexRef.current += 1;
-        setDisplayed(currentBlock.slice(0, charIndexRef.current));
-        if (charIndexRef.current >= currentBlock.length) {
+        setDisplayed(currentBlockText.slice(0, charIndexRef.current));
+        if (charIndexRef.current >= currentBlockText.length) {
           clearInterval(timerRef.current);
           setIsTyping(false);
           setBlockDone(true);
@@ -132,9 +138,10 @@ export default function NarratorView({
 
   const handleTap = () => {
     if (isTyping) {
+      const currentText = blocks[blockIndex]?.text || '';
       clearInterval(timerRef.current);
-      setDisplayed(blocks[blockIndex] || '');
-      charIndexRef.current = (blocks[blockIndex] || '').length;
+      setDisplayed(currentText);
+      charIndexRef.current = currentText.length;
       setIsTyping(false);
       setBlockDone(true);
       return;
@@ -215,38 +222,51 @@ export default function NarratorView({
   }
 
   // --- NARRAZIONE NORMALE con typewriter ---
+  // Altezza dinamica del dialog box: 22% dello schermo come massimo
+  // (testi corti restano compatti; testi lunghi crescono fino al limite + scroll)
+  const dialogMaxH = screenH * 0.22;
   return (
     <View style={styles.container}>
       {renderBackground()}
       <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={computeHintStyle(hintPosition)} />
       <TouchableWithoutFeedback onPress={handleTap}>
         <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2 }}>
-          <View style={styles.dialogBox}>
+          <View style={[styles.dialogBox, { maxHeight: dialogMaxH }]}>
             <View style={styles.dialogHeader}>
-              <Text style={styles.dialogName}>{npc.label.toUpperCase()}</Text>
+              <Text style={styles.dialogName}>
+                {blocks[blockIndex]?.speaker === 'character'
+                  ? npc.label.toUpperCase()
+                  : 'NARRATORE'}
+              </Text>
               {!allDone && (
                 <Text style={styles.dialogTapHint}>
                   {isTyping ? 'tocca per saltare' : 'tocca per continuare ›'}
                 </Text>
               )}
             </View>
-            <Text style={styles.dialogText}>
-              {displayed}
-              {!allDone && (
-                <Animated.Text style={[styles.dialogCursor, { opacity: cursorOpacity }]}>
-                  {blockDone ? '' : '▌'}
-                </Animated.Text>
+            <ScrollView
+              style={{ flexGrow: 0 }}
+              contentContainerStyle={styles.dialogScrollContent}
+              showsVerticalScrollIndicator={true}
+            >
+              <Text style={styles.dialogText}>
+                {displayed}
+                {!allDone && (
+                  <Animated.Text style={[styles.dialogCursor, { opacity: cursorOpacity }]}>
+                    {blockDone ? '' : '▌'}
+                  </Animated.Text>
+                )}
+              </Text>
+              {allDone && (
+                <TouchableOpacity
+                  style={styles.anagramButton}
+                  onPress={onStartAnagram}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.anagramButtonText}>{anagramButtonLabel}</Text>
+                </TouchableOpacity>
               )}
-            </Text>
-            {allDone && (
-              <TouchableOpacity
-                style={styles.anagramButton}
-                onPress={onStartAnagram}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.anagramButtonText}>{anagramButtonLabel}</Text>
-              </TouchableOpacity>
-            )}
+            </ScrollView>
           </View>
         </View>
       </TouchableWithoutFeedback>

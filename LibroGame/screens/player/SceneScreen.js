@@ -99,7 +99,9 @@ export default function SceneScreen({ route, navigation }) {
 
       <Text style={styles.title}>{scene.title}</Text>
 
-      <Text style={styles.storyText}>{scene.text}</Text>
+      <Text style={styles.storyText}>
+        {scene.text || (scene.dialogue ? scene.dialogue.map(b => b.text).join('\n\n') : '')}
+      </Text>
 
       <View style={styles.divider} />
 

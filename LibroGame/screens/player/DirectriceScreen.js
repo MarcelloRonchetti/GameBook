@@ -217,7 +217,6 @@ export default function DirectriceScreen({ route, navigation }) {
         </TouchableOpacity>
 
         <Text style={styles.title}>{direttrice.title}</Text>
-        <Text style={styles.storyText}>{direttrice.text}</Text>
 
         {/* Contatore progressi */}
         <View style={styles.progressBar}>

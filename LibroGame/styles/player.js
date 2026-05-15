@@ -818,14 +818,20 @@ export const circoStanzaStyles = StyleSheet.create({
 
   // --- DIALOG BOX (narrazione) ---
   // zIndex: 2 → copre le gambe del personaggio (che ha zIndex: 1)
+  // maxHeight: limita l'altezza a ~45% dello schermo; lo scroll interno
+  // gestisce i testi lunghi (es. monologhi del domatore/cavallerizza)
   dialogBox: {
-    backgroundColor: 'rgba(15,10,5,0.92)',
+    backgroundColor: 'rgba(15,10,5,0.7)',
     borderTopWidth: 2,
     borderTopColor: '#c8a45a',
     padding: 16,
     paddingBottom: 28,
     minHeight: 150,
+    maxHeight: '45%',
     zIndex: 2,
+  },
+  dialogScrollContent: {
+    flexGrow: 1,
   },
   dialogHeader: {
     flexDirection: 'row',
@@ -890,17 +896,19 @@ export const circoStanzaStyles = StyleSheet.create({
     marginTop: 14,
   },
   rereadButton: {
+    marginTop: 14,
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: '#c8a45a',
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 28,
     borderRadius: 8,
+    alignSelf: 'center',
   },
   rereadButtonText: {
     color: '#c8a45a',
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 
   // --- ANAGRAM PANEL ---

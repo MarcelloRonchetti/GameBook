@@ -2,7 +2,13 @@
   "intro": {
     "id": "intro",
     "title": "Circo-stanza di Partenza",
-    "text": "Benvenuti e benvenute nelle quinte del tendone, la struttura dalle convenzionali strisce rosse e bianche, che tutti e tutte associamo ad un luogo di spettacolo tanto antico quanto ricco di talenti.\n\nAttorno a voi potete notare i caravan di artisti e artiste circensi che fungono da camerini, e che diventano, solo per voi — e solo per oggi — delle precise circo-stanze, poiché rivelano costumi che potreste indossare anche voi.\n\nEbbene sì, anche voi, perché l'etica riguarda tutte le persone di ogni età. Ogni persona può cogliere i risvolti etici presenti nelle diverse situazioni.\n\nNelle diverse circo-stanze in cui vi troverete, sarà la vostra volontà a fare la differenza, perché di volta in volta dovrete compiere una scelta che condizionerà la successione degli eventi.\n\nCome per qualsiasi percorso, per iniziare, vi occorre sapere l'obiettivo. Intanto sappiate che la chiave è sempre: la volontà delle circostanze.",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Benvenuti e benvenute nelle quinte del tendone, la struttura dalle convenzionali strisce rosse e bianche, che tutti e tutte associamo ad un luogo di spettacolo tanto antico quanto ricco di talenti. È in questo spiazzo nascosto al pubblico che avviene la preparazione di ogni aspetto della grande opera circense, dal più ordinario al più suggestivo." },
+      { "speaker": "narrator", "text": "Attorno a voi potete notare i caravan di artisti e artiste circensi che fungono da camerini, e che diventano, solo per voi — e solo per oggi — delle precise circo-stanze, poiché rivelano costumi che potreste indossare anche voi." },
+      { "speaker": "narrator", "text": "Ebbene sì, anche voi, perché l'etica riguarda tutte le persone di ogni età. Ogni persona può cogliere i risvolti etici presenti nelle diverse situazioni." },
+      { "speaker": "narrator", "text": "Nelle diverse circo-stanze in cui vi troverete, sarà la vostra volontà a fare la differenza, perché di volta in volta dovrete compiere una scelta che condizionerà la successione degli eventi." },
+      { "speaker": "narrator", "text": "Come per qualsiasi percorso, per iniziare, vi occorre sapere l'obiettivo, che non è sempre chiaro e immediato; è necessario prima decodificarlo, poi rivolgetevi dunque a chi saprà darvi indicazioni. Intanto sappiate che la chiave è sempre: la volontà delle circostanze." }
+    ],
     "cipher": "7-4-3-8-6-8 6-11-4-3-2-11-8 1-2 7-10-11-8-6-6-11-10-9-8 7-8-1-1-8 9-10-11-9-4-12-6-2-5-13-8 10-5-10-13-10-2-5-7-4 7-2-1-1' 2-9-11-4-14-2-6-2",
     "cipherSolution": "Dovete trovare la direttrice delle circostanze iniziando dall'acrobata",
     "next": ["acrobata"]
@@ -11,8 +17,18 @@
     "id": "acrobata",
     "title": "Circo-stanza dell'Acrobata",
     "theme": "Inquinamento",
-    "text": "Il nome della sua mansione deriva dal greco e significa \"che cammina sulla punta dei piedi\". Si tratta dell'acrobata, capace di eseguire esercizi spettacolari e difficili che richiedono allenamenti estremamente faticosi.\n\nEntrando nella circo-stanza dell'acrobata notate, alle pareti, numerose foto dei suoi successi ed un ambiente molto ordinato e pulito.\n\nMentre commenta le foto posizionate con cura, vi fa accomodare e vi offre un vassoio di biscotti appena sfornati, e qualche bibita in lattina opportunamente versata in bicchieri di vetro.\n\n\"Non mi piace usare stoviglie usa e getta\" dice orgoglioso mentre vi porge i bicchieri. \"Nel mio piccolo cerco di fare scelte ecologiche ma spesso mi sembra che in fondo siano inutili. Nei pressi del nostro tendone non ci sono nemmeno contenitori per la raccolta differenziata!\"\n\nL'acrobata, lieto del vostro aiuto, vi indica due persone a cui potreste rivolgervi.",
-    "question": "Da chi volete andare?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Il nome della sua mansione deriva dal greco e significa \"che cammina sulla punte dei piedi\". Si tratta dell'acrobata, capace di eseguire esercizi spettacolari e difficili che richiedono allenamenti estremamente faticosi. Fin da piccolo è stato abituato alla disciplina e al rigore che questa forma d'arte richiede." },
+      { "speaker": "narrator", "text": "Entrando nella circo-stanza dell'acrobata notate, alle pareti, numerose foto dei suoi successi ed un ambiente molto ordinato e pulito." },
+      { "speaker": "narrator", "text": "Mentre commenta le foto posizionate con cura, vi fa accomodare e vi offre un vassoio di biscotti appena sfornati, e qualche bibita in lattina opportunamente versata in bicchieri di vetro." },
+      { "speaker": "character", "text": "Non mi piace usare stoviglie usa e getta." },
+      { "speaker": "character", "text": "Nel mio piccolo cerco di fare scelte ecologiche ma spesso mi sembra che in fondo siano inutili. Nei pressi del nostro tendone non ci sono nemmeno contenitori per la raccolta differenziata! Devo allontanarmi per eliminare i rifiuti differenziati e penso di essere l'unico a farlo. Ho provato a coinvolgere altri artisti e artiste della compagnia, ma non credo di esserci riuscito. Mi sono sentito dire che tanto la situazione non cambia e che ci sono ben altri problemi. Io non riesco a puntare i piedi e far sentire la mia voce. Preferisco, forse con fin troppa leggerezza, cedere alle ragioni altrui e tenere per me le mie." },
+      { "speaker": "narrator", "text": "Chissà quante volte ha provato a parlarne, e quante volte si è sentito incapace di portare avanti la sua idea. Gli offrite la vostra collaborazione, proponendo di accennare la questione a qualche altra/o artista." },
+      { "speaker": "narrator", "text": "L'acrobata, lieto del vostro aiuto, vi indica due persone a cui potreste rivolgervi: il funambolo e il giocoliere." },
+      { "speaker": "narrator", "text": "Il primo potrebbe mostrarsi sensibile alla questione ma è nuovo nella compagnia e ancora non sente di avere sufficiente confidenza per parlargli schiettamente; forse il vostro intervento può rivelarsi motivante e generare persino un pretesto per una maggiore conoscenza reciproca." },
+      { "speaker": "narrator", "text": "Il secondo, invece, è un suo amico d'infanzia, lo conosce bene, è un tipo cocciuto che riesce a far valere le sue regole, soprattutto con le persone che conosce molto bene; forse ascoltare una voce nuova sarà stimolante e si mostrerà più collaborativo." }
+    ],
+    "question": "Da chi volete andare: dal funambolo o dal giocoliere?",
     "choices": [
       { "label": "Funambolo", "next": "funambolo" },
       { "label": "Giocoliere", "next": "giocoliere" }
@@ -24,8 +40,19 @@
     "id": "funambolo",
     "title": "Circo-stanza del Funambolo",
     "theme": "Stupefacenti",
-    "text": "Avete scelto di recarvi dal funambolo per provare a parlare con lui di questioni ecologiche piuttosto semplici, come la raccolta differenziata nei caravan.\n\nEntrati nella circo-stanza del funambolo vi colpisce il disordine diffuso, soprattutto in contrapposizione all'ambiente appena visitato.\n\nL'artista sposta qualche indumento per creare giusto lo spazio sufficiente a farvi sedere sul suo divanetto.\n\nNel momento in cui provate ad accennare all'argomento \"raccolta differenziata\", l'artista tira fuori da una tasca una piccola busta contenente della polvere bianca. Ammette candidamente che si tratta di cocaina, che ne fa uso da diverso tempo e che su questa sostanza ci sono fin troppi luoghi comuni.\n\nGli chiedete se secondo lui ci sono altri artisti che consumano droghe. Egli risponde che sospetta di due suoi colleghi in particolare.",
-    "question": "Chi volete incontrare?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Avete scelto di recarvi dal funambolo per provare a parlare con lui di questioni ecologiche piuttosto semplici, come la raccolta differenziata nei caravan." },
+      { "speaker": "narrator", "text": "Entrati nella circo-stanza del funambolo vi colpisce il disordine diffuso, soprattutto in contrapposizione all'ambiente appena visitato." },
+      { "speaker": "narrator", "text": "L'artista sposta qualche indumento per creare giusto lo spazio sufficiente a farvi sedere sul suo divanetto." },
+      { "speaker": "narrator", "text": "Nel momento in cui provate ad accennare all'argomento \"raccolta differenziata\", l'artista tira fuori da una tasca una piccola busta contenente della polvere bianca." },
+      { "speaker": "narrator", "text": "Ammette candidamente che si tratta di cocaina, che ne fa uso da diverso tempo e che su questa sostanza ci sono fin troppi luoghi comuni in giro, ragione per cui non ha rivelato a nessuno della compagnia di farne uso, per paura di venire persino licenziato." },
+      { "speaker": "narrator", "text": "Voi faticate a nascondere il vostro stupore, tanto per l'esibizione della sostanza, quanto per la naturalezza con cui si esprime a riguardo; non sapete nemmeno come reagire. Da una parte non volete farlo sentire giudicato ma dall'altra non volete nemmeno avallare la sua scelta incondizionatamente." },
+      { "speaker": "narrator", "text": "Gli chiedete dunque se secondo lui ci sono altri artisti che consumano droghe e non lo dicono per timore delle conseguenze, ed egli risponde che sospetta di due suoi colleghi in particolare: il giocoliere e il pagliaccio." },
+      { "speaker": "narrator", "text": "Il primo, a detta sua, è un tipo determinato, sempre energico, potrebbe essere un consumatore di stimolanti assunti per mantenere sempre alto il livello delle sue prestazioni; il secondo invece, mostra atteggiamenti piuttosto malinconici, quando toglie gli abiti di scena, e trascorre molto tempo da solo." },
+      { "speaker": "narrator", "text": "Queste informazioni suscitano in voi una certa preoccupazione e volete provare a capire se quanto sospetta il funambolo sia corrispondente a verità." },
+      { "speaker": "narrator", "text": "Bisogna parlare, almeno con uno di loro, ma da chi partire?" }
+    ],
+    "question": "Chi volete incontrare: il giocoliere o il pagliaccio?",
     "choices": [
       { "label": "Giocoliere", "next": "giocoliere" },
       { "label": "Pagliaccio", "next": "pagliaccio" }
@@ -37,7 +64,17 @@
     "id": "giocoliere",
     "title": "Circo-stanza del Giocoliere",
     "theme": "Stereotipi di genere",
-    "text": "Avete scelto di incontrare il giocoliere, forse per via della descrizione del suo carattere; è possibile immaginarlo come interlocutore con il quale la conversazione assume il sapore della sfida.\n\nEntrati nella circo-stanza del giocoliere, balza subito all'occhio la quantità e la qualità di immagini riportate alle pareti. Le foto riportano esclusivamente immagini femminili, poco o per nulla vestite, quasi a formare muri di corpi esposti.\n\nIl giocoliere non bada molto ai convenevoli e piuttosto seccato si lamenta della vostra presenza, ritenendola invadente. Fa commenti sessisti sulle colleghe, riferendosi alla trapezista e alla cavallerizza.\n\nVi allontanate con perplessità. Forse andrebbero informate, ma a chi rivolgersi per non inasprire queste tensioni?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Avete scelto di incontrare il giocoliere, forse per via della descrizione del suo carattere; è possibile immaginarlo come interlocutore con il quale la conversazione assume il sapore della sfida." },
+      { "speaker": "narrator", "text": "Entrati nella circo-stanza del giocoliere, balza subito all'occhio la quantità e la qualità di immagini riportate alle pareti. Era possibile aspettarsi di trovare attrezzi per le sue esibizioni sparsi in giro, oppure foto che lo immortalano, mentre si esibisce con una dozzina di birilli o forse più." },
+      { "speaker": "narrator", "text": "Invece le foto riportano esclusivamente immagini femminili, poco o per nulla vestite, quasi a formare muri di corpi esposti, come scaffali di merci in vendita a prezzo accessibile per una larga fascia di consumatori." },
+      { "speaker": "narrator", "text": "Il giocoliere non bada molto ai convenevoli e piuttosto seccato si lamenta della vostra presenza, ritenendola invadente. Non ha intenzione – riferisce – di perdere tempo in chiacchiere e lamenti come una femminuccia qualsiasi, come fanno certe sue colleghe." },
+      { "speaker": "narrator", "text": "Dopo una breve pausa prosegue insinuando che la carriera di queste donne sia stata incentivata anche, o soprattutto, da fattori non proprio derivanti dal loro talento; poi aggiunge che sono ossessionate dal dimostrare di essere all'altezza dei maschi, e che questo genera un clima conflittuale col resto del personale." },
+      { "speaker": "narrator", "text": "Si riferisce alla trapezista e alla cavallerizza. Della prima in particolare critica i modi di porsi, sempre troppo avventata nel relazionarsi e nelle conclusioni a cui giunge; la seconda invece risulta essere troppo ambigua, mantenendo sempre i piedi su due staffe ed evitando di prendere una posizione chiara quando c'è da esprimersi su qualcosa." },
+      { "speaker": "character", "text": "Se si potessero abolire le quote rosa sarei d'accordo. Chissà cosa farebbero senza questo circo che le lascia lavorare! Ma non ci pensano ai loro figli o ai loro mariti?" },
+      { "speaker": "character", "text": "Provate voi a parlare con loro e vedrete che in fondo ho ragione, sono tutte uguali le donne, magari convincete una di loro a cambiare per lo meno atteggiamento." },
+      { "speaker": "narrator", "text": "Vi allontanate con perplessità. Chissà se queste donne sono a conoscenza del fatto che ci siano insinuazioni ed opinioni di questo tipo nei loro confronti. Forse andrebbero informate, ma a chi rivolgersi per non inasprire queste tensioni?" }
+    ],
     "question": "Alla trapezista o alla cavallerizza?",
     "choices": [
       { "label": "Trapezista", "next": "trapezista" },
@@ -50,8 +87,19 @@
     "id": "pagliaccio",
     "title": "Circo-stanza del Pagliaccio",
     "theme": "Abuso di alcol",
-    "text": "Avete scelto di incontrare il pagliaccio. Sebbene la sua professione abbia lo scopo di suscitare allegria e risate, si intuisce subito dallo sguardo di quest'uomo che, tolti trucco e parrucca, ciò che resta è una grande malinconia.\n\nVarcato l'ingresso della circo-stanza del pagliaccio, inciampate su una decina di bottiglie lasciate a terra. Guardando attorno notate altri mucchi di bottiglie e lattine sparsi nei vari angoli.\n\nNell'intimità del suo caravan il pagliaccio beve senza controllo, è evidente, sebbene riesca a camuffare la sua dipendenza fuori dal suo nido.\n\nConfida un pensiero tremendo: \"Nessuno si accorgerebbe di me se sparissi, sono certo che verrei sostituito facilmente da qualcuno più giovane.\"\n\nPercepite nelle sue parole un grido disperato d'aiuto. Vi chiede di trovare qualcuno che lo accompagni a un gruppo di supporto.",
-    "question": "Chi scegliete?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Avete scelto di incontrare il pagliaccio. Sebbene la sua professione abbia lo scopo di suscitare allegria e risate, si intuisce subito dallo sguardo di quest'uomo che, tolti trucco e parrucca, ciò che resta è una grande malinconia." },
+      { "speaker": "narrator", "text": "Il funambolo forse ha ragione, forse quest'uomo ha una dipendenza e ha bisogno di aiuto." },
+      { "speaker": "narrator", "text": "Varcato l'ingresso della circo-stanza del pagliaccio, inciampate su una decina di bottiglie lasciate a terra. Guardando attorno notate altri mucchi di bottiglie e lattine sparsi nei vari angoli e pertugi offerti dal suo ambiente." },
+      { "speaker": "narrator", "text": "Nell'intimità del suo caravan il pagliaccio beve senza controllo, è evidente, sebbene riesca a camuffare la sua dipendenza fuori dal suo nido." },
+      { "speaker": "narrator", "text": "Vi fa accomodare e vi racconta come ha iniziato, come lentamente l'alcool ha preso il posto di tutto. Niente gli sembra importante e degno d'essere vissuto. Confida un pensiero tremendo che lo tormenta da tempo:" },
+      { "speaker": "character", "text": "Nessuno si accorgerebbe di me se sparissi, sono certo che io verrei sostituito facilmente da qualcuno più giovane e bravo di me; qualcuno che non sia un fallimento totale come il sottoscritto." },
+      { "speaker": "narrator", "text": "Percepite nelle sue parole un grido disperato d'aiuto ma non avete certezza su cosa bisogna fare in queste situazioni. Gli chiedete se davvero non ci sia nessuno che gli è vicino all'interno della compagnia, magari semplicemente qualcuno con cui gli è capitato di scambiare qualche chiacchiera piacevole." },
+      { "speaker": "narrator", "text": "Ci pensa un momento poi indica la cavallerizza e la contorsionista come uniche persone con cui da anni ha un minimo di interazione." },
+      { "speaker": "character", "text": "La prima non mi fa sentire mai giudicato, mentre la seconda mi ascolta sempre, preferisce ascoltare che parlare, perciò, quando è possibile, ne approfitto. Da tempo penso che dovrei rivolgermi a qualche gruppo di supporto, so di avere un problema ma non voglio andarci da solo. Potete chiederlo voi? Scegliete voi chi potrebbe sentirsela di accompagnarmi." },
+      { "speaker": "narrator", "text": "Non vi aspettavate di certo una responsabilità del genere, ma di fronte a questa richiesta sentite di dover dare una mano per quanto potete, e forse è questo il modo migliore per farlo." }
+    ],
+    "question": "Chi scegliete? La cavallerizza o la contorsionista?",
     "choices": [
       { "label": "Cavallerizza", "next": "cavallerizza" },
       { "label": "Contorsionista", "next": "contorsionista" }
@@ -63,8 +111,18 @@
     "id": "trapezista",
     "title": "Circo-stanza della Trapezista",
     "theme": "Immigrazione",
-    "text": "Avete scelto di incontrare la trapezista. Le parole crude e irritanti del giocoliere risuonano ancora in voi.\n\nNella circo-stanza della trapezista vi immergete in un mondo di colori e profumi. L'ambiente che ha costruito intorno a sé è accogliente e suscita curiosità.\n\n\"Accomodatevi dove preferite\" vi dice. Poi prosegue: \"L'integrazione credo sia questo, sentirsi in armonia con l'ambiente e le sue dinamiche, senza fusione né scontro.\"\n\n\"Quando parlo di integrazione, soprattutto tra le diverse culture, non sempre vengo capita. Lo sanno bene sia la contorsionista, sia la controfigura, e ve lo potranno raccontare in prima persona, proprio in virtù di questa diversità, che io preferisco chiamare unicità.\"",
-    "question": "Quale diversa unicità volete ascoltare?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Avete scelto di incontrare la trapezista. Le parole crude e irritanti del giocoliere risuonano ancora in voi e possono creare incomprensioni, danni e discriminazioni." },
+      { "speaker": "narrator", "text": "Occorre opporsi a questa logica, combattere il pregiudizio quando lo si incontra, e questo la trapezista lo sa bene." },
+      { "speaker": "narrator", "text": "Nella circo-stanza della trapezista vi immergete in un mondo di colori e profumi. L'ambiente che ha costruito intorno a sé è accogliente e suscita curiosità per la ricchezza di stimoli sensoriali di cui dispone." },
+      { "speaker": "character", "text": "Accomodatevi dove preferite." },
+      { "speaker": "character", "text": "Dalle mie parti ci si siede spesso a terra su un grande tappeto, ma nel mio caravan non c'è sufficiente spazio per poterlo fare! E poi non mi piace indicare il posto o il modo in cui sedersi, preferisco che ognuno lo faccia spontaneamente dove ha voglia di farlo, individuando quel punto in cui si sente in armonia con ciò che lo circonda." },
+      { "speaker": "narrator", "text": "Forse non capite ciò che sta dicendo, il vostro sguardo comunica una certa perplessità. Volevate intessere una conversazione su stereotipi di genere e pregiudizi, ma lei vi ha spiazzato con questo vorticoso ragionamento." },
+      { "speaker": "character", "text": "L'integrazione credo sia questo, sentirsi in armonia con l'ambiente e le sue dinamiche, senza fusione né scontro. Non c'è adeguamento di una delle parti, quanto piuttosto la sintonizzazione, che richiede tempo, allenamento e anche coraggio. Sì, anche coraggio, perché può essere un vero salto nel vuoto." },
+      { "speaker": "character", "text": "Quando parlo di integrazione, soprattutto tra le diverse culture, non sempre vengo capita. Mi prendono per avventata, perché ammetto che la persona straniera può far paura per la sua diversità dallo standard. Lo sanno bene sia la contorsionista, sia la controfigura, e ve lo potranno raccontare in prima persona, proprio in virtù di questa diversità, che io preferisco chiamare unicità." },
+      { "speaker": "character", "text": "La collega contorsionista è sistematicamente sminuita, e molti preferiscono concentrarsi su ciò che non va in lei, senza vedere, invece, le sue qualità. Il collega che fa la controfigura ha corso tanti pericoli vivendo per strada, desiderando costantemente una vita più dignitosa che gli permettesse di essere qualcun'altro." }
+    ],
+    "question": "Quale diversa unicità volete ascoltare? Quella della contorsionista o quella della controfigura?",
     "choices": [
       { "label": "Contorsionista", "next": "contorsionista" },
       { "label": "Controfigura", "next": "controfigura" }
@@ -76,8 +134,17 @@
     "id": "cavallerizza",
     "title": "Circo-stanza della Cavallerizza",
     "theme": "Prostituzione",
-    "text": "Avete scelto di incontrare la cavallerizza.\n\nEntrate nella circo-stanza della cavallerizza e lei è lì, intenta a sistemare alcuni abiti di scena. Sono luccicanti e appariscenti.\n\n\"Essere una donna non è facile\" esordisce lapidaria. \"Vengono date per scontate tante cose, buona parte delle quali riconducibili a stereotipi diffusi.\"\n\n\"Vengo da un passato in cui vendere il mio corpo era stata una scelta dettata da necessità, ma anche un libero esercizio di autodeterminazione; ho vissuto sulla mia pelle tanti pregiudizi. Il confronto e l'ascolto sono stati fondamentali per non sentirmi sola.\"\n\n\"La mia collega contorsionista ha un rapporto col suo corpo molto diverso dal mio, mentre il domatore fatica a mettere in discussione le sue convinzioni.\"",
-    "question": "Con chi volete conversare?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Avete scelto di incontrare la cavallerizza, di rivolgere a lei un appello alla sua sensibilità, alla sua consapevolezza di come possono essere percepite le parole che sentiamo." },
+      { "speaker": "narrator", "text": "Entrate nella circo-stanza della cavallerizza e lei è lì, intenta a sistemare alcuni abiti di scena. Sono luccicanti e appariscenti. Richiamano volutamente attenzione perché nelle sue esibizioni non può rischiare di passare inosservata. Gli animali di cui si prende amorevolmente cura non sono i protagonisti, sebbene determinanti per il nome del suo ruolo artistico." },
+      { "speaker": "character", "text": "Essere una donna non è facile. Vengono date per scontate tante cose, buona parte delle quali riconducibili a stereotipi diffusi in maniera più o meno esplicita." },
+      { "speaker": "narrator", "text": "Le chiedete di spiegarsi, di indicare a cosa stia facendo riferimento." },
+      { "speaker": "character", "text": "Tante volte ho sentito il peso di aspettative legate ad un presunto dovere di cura, così come tante altre volte ho subìto il pregiudizio laddove questa cura non la offrivo nel modo in cui era voluta o pretesa. Ho attraversato un periodo difficile in cui non sono stata in grado nemmeno di proteggermi, e ho fatto scelte di cui mi sono pentita, pensando di poter scindere la mia immagine e le mie prestazioni da ciò che sono io, dalla mia identità." },
+      { "speaker": "narrator", "text": "La ascoltate con attenzione ma non sapete bene come proseguire la conversazione, così pensa lei a riempire il silenzio che si è creato." },
+      { "speaker": "character", "text": "So di non essere sola nel provare questa sensazione, ma conosco anche la difficoltà che c'è nell'intraprendere un cammino per andare oltre i pregiudizi che ci riguardano, sia come destinatari, sia come mittenti. Vengo da un passato in cui vendere il mio corpo era stata una scelta dettata da necessità, ma anche un libero esercizio di autodeterminazione; ho vissuto sulla mia pelle tanti pregiudizi, e ho dovuto anche rielaborare tante convinzioni. Il confronto e l'ascolto sono stati fondamentali per non sentirmi sola e per trovare la forza di cambiare la situazione in cui versavo; ma non è possibile per tutti." },
+      { "speaker": "character", "text": "La mia collega contorsionista ha un rapporto col suo corpo molto diverso dal mio mentre il domatore fatica a mettere in discussione le sue convinzioni. Una conversazione con loro sono certa che potrebbe darvi altri spunti." }
+    ],
+    "question": "Con chi volete conversare: con la contorsionista o con il domatore?",
     "choices": [
       { "label": "Contorsionista", "next": "contorsionista" },
       { "label": "Domatore", "next": "domatore" }
@@ -89,8 +156,16 @@
     "id": "contorsionista",
     "title": "Circo-stanza della Contorsionista",
     "theme": "Disabilità",
-    "text": "Avete scelto di incontrare la contorsionista, stimata artista del tendone.\n\nEntrando nella circo-stanza della contorsionista il vostro sguardo si poggia immediatamente su alcune protesi appoggiate sul tavolo.\n\n\"Sono inquietanti tutte queste mani vero?\" Ironizza l'artista. \"Alcune ormai non le uso più da tempo, ma ancora non me ne libero, potrebbero tornare utili anche per qualche scherzo ad Halloween!\"\n\n\"So che forse vi sto spiazzando con le mie parole. Cosa significa avere un handicap? Le prime barriere su cui riflettere sono le parole che usiamo. Il linguaggio che adottiamo è precario, perché si evolve sempre, ed è potenzialmente ingannevole.\"\n\nPotete proseguire con l'equilibrista oppure con l'illusionista.",
-    "question": "Con chi volete parlare?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Avete scelto di incontrare la contorsionista, stimata artista del tendone. In tanti negli anni hanno ritenuto un complimento riconoscere che il suo limite è diventato opportunità, che è stata capace di tramutare la sua \"sfiga\" in sfida." },
+      { "speaker": "narrator", "text": "Entrando nella circo-stanza della contorsionista il vostro sguardo si poggia immediatamente su alcune protesi appoggiate sul tavolo. Guardate lei e vi accorgete di provare imbarazzo. Non sapete se questa sensazione sia dettata dal notare solo adesso la sua menomazione, o dal non sapere bene come reagire all'improvvisa constatazione della sua esistenza." },
+      { "speaker": "character", "text": "Sono inquietanti tutte queste mani vero? Alcune ormai non le uso più da tempo, ma ancora non me ne libero, potrebbero tornare utili anche per qualche scherzo ad Halloween!" },
+      { "speaker": "narrator", "text": "Nonostante le sue parole vogliano probabilmente mettervi a vostro agio e riescano a farvi sorridere, la vostra sensazione non passa. Dipende da chi parla, da chi ascolta, o dal contenuto trattato?" },
+      { "speaker": "narrator", "text": "Forse ci sono questioni su cui non si può scherzare e quando succede la cosa può spiazzare chi ascolta; o forse è pervasiva l'abitudine a sentir parlare di quelle questioni solo in un modo, solo con un punto di vista, che non necessariamente è sbagliato, ma quando è uno soltanto, non può che essere incompleto." },
+      { "speaker": "character", "text": "So che forse vi sto spiazzando con le mie parole, dunque vi chiedo: cosa significa avere un handicap? Come se ne parla? Ci si prefigge di distruggere barriere non solo architettoniche in nome di una perenne parola d'ordine: inclusione. Ma cosa significa veramente? Secondo me le prime barriere, su cui riflettere, sono le parole che usiamo per pensare e comunicare, che rivolgiamo al mondo con la presunzione di sapere che gli altri condividano a priori il significato che noi attribuiamo loro. Dobbiamo essere consapevoli che il linguaggio che adottiamo è precario, perché si evolve sempre, ed è potenzialmente ingannevole se non si chiarisce cosa si vuole davvero dire. Che ne pensate?" },
+      { "speaker": "narrator", "text": "Potete proseguire questa riflessione con l'equilibrista, a cui non spaventa la precarietà delle cose e la sfrutta per ideare progetti apparentemente impensabili, oppure con la illusionista, che riesce a ingannare, certo, ma non per danneggiare." }
+    ],
+    "question": "Con chi volete parlare: con l'equilibrista o con la illusionista?",
     "choices": [
       { "label": "Equilibrista", "next": "equilibrista" },
       { "label": "Illusionista", "next": "illusionista" }
@@ -102,8 +177,17 @@
     "id": "controfigura",
     "title": "Circo-stanza della Controfigura",
     "theme": "Povertà estrema",
-    "text": "Avete scelto di incontrare la controfigura, colui che per lavoro si spaccia per qualcun altro.\n\n\"Ho origini molto umili\" esordisce l'uomo. \"Sono dovuto scappare dal mio paese e non ho trovato subito l'accoglienza che avrei voluto.\"\n\n\"Avevo bisogno di lavorare. Ci ho provato ma ogni volta veniva preferita un'altra persona, oppure lavoravo per giorni senza essere pagato. In breve tempo sono finito per strada.\"\n\n\"Una mattina d'inverno un volontario distribuiva bevande calde. Nel porgere la tazza di tè mi ha guardato e mi ha sorriso. Io esistevo per lui.\"\n\n\"Sono stato dapprima ospitato, poi mi hanno aiutato nella ricerca di un lavoro. Così sono finito in questa compagnia.\"",
-    "question": "Volete incontrare?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Avete scelto di incontrare la controfigura, colui che per lavoro si spaccia per qualcun altro, esponendo la propria vita a pericoli che la persona che sostituisce non può o non vuole prendere in considerazione." },
+      { "speaker": "narrator", "text": "Entrando nella circo-stanza della controfigura, notate un ambiente molto semplice." },
+      { "speaker": "character", "text": "Ho origini molto umili. Sono dovuto scappare dal mio paese e non ho trovato subito l'accoglienza che avrei voluto e di cui avevo bisogno." },
+      { "speaker": "narrator", "text": "Di cosa aveva bisogno? Glielo chiedete perché sentite che non è scontata la risposta." },
+      { "speaker": "character", "text": "Avevo bisogno di lavorare per avere un tetto sulla testa e il tanto necessario per sopravvivere. Ci ho provato ma ogni volta veniva preferita un'altra persona, oppure lavoravo per giorni senza essere pagato o ricevendo una cifra misera. Senza accorgermi in breve tempo sono finito per strada. Quando non hai pasti sicuri, un posto per riposare e per lavarti, è ancora più difficile trovare qualcuno che ti prenda a lavorare. Nessuno si fida più di te. Diventi inguardabile, al disprezzo subentra l'indifferenza. Da immigrato la mia presenza disturbava, da misero accattone la mia presenza non suscitava più nulla." },
+      { "speaker": "character", "text": "Una mattina d'inverno un volontario distribuiva bevande calde. Nel porgere la tazza di tè mi ha guardato e mi ha sorriso. Io esistevo per lui. L'ho incontrato altre volte e abbiamo iniziato a conoscerci. Mi ha invitato presso un centro dove si offre assistenza a persone emarginate come me." },
+      { "speaker": "character", "text": "Sono stato dapprima ospitato, poi mi hanno aiutato nella ricerca di un lavoro. Così sono finito in questa compagnia e ora non sono più inguardabile, ora non è indifferente la mia presenza! Per anni mi sono rifugiato nel pensiero che non fosse reale ciò che vivevo, che non stava accadendo a me, perché non me lo meritavo. Ma non c'entra il merito. Le cose brutte non accadono per delle colpe e le cose belle non sono solo effimere illusioni." },
+      { "speaker": "character", "text": "Se non ci credete chiedete alle mie colleghe. La contorsionista sa cosa significhi chiedersi \"perché a me?\" e la illusionista conosce la differenza tra vero e reale." }
+    ],
+    "question": "Volete incontrare la contorsionista o la illusionista?",
     "choices": [
       { "label": "Contorsionista", "next": "contorsionista" },
       { "label": "Illusionista", "next": "illusionista" }
@@ -115,8 +199,23 @@
     "id": "domatore",
     "title": "Circo-stanza del Domatore",
     "theme": "Superstizione",
-    "text": "Avete scelto di incontrare il domatore.\n\nNella stanza del domatore non potete evitare di notare numerosi amuleti e talismani, attaccati alle pareti, appesi alle maniglie della porta e della finestra.\n\n\"Questo lo indosso in ogni nuova esibizione\" dice l'uomo afferrando un talismano raffigurante uno scarabeo. \"La fortuna non è questione di casualità ma di potere, la si può controllare e dominare.\"\n\nSono parole forti e gli fate notare che chi esercita un potere agisce su qualcuno che spesso ne ha meno. Vi risponde: \"Queste sono tutte facili credenze.\"\n\nConclude perentorio: \"Non sono l'unico a pensare una realtà diversa, chiedete allo sputafuoco oppure alla illusionista.\"",
-    "question": "Con chi volete parlare?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Avete scelto di incontrare il domatore, forse perché si allude a lui come qualcuno fortemente aggrappato alle sue convinzioni, e magari è presente in voi l'intenzione di verificare se davvero è così." },
+      { "speaker": "narrator", "text": "Nella stanza del domatore non potete evitare di notare numerosi amuleti e talismani, attaccati alle pareti, appesi alle maniglie della porta e della finestra o semplicemente appoggiati sul comodino." },
+      { "speaker": "character", "text": "Questo lo indosso in ogni nuova esibizione." },
+      { "speaker": "narrator", "text": "Dice l'uomo afferrando un talismano raffigurante uno scarabeo." },
+      { "speaker": "character", "text": "La fortuna non è questione di casualità ma di potere, la si può controllare e dominare come faccio con elefanti e leoni. Coi felini, però, è necessario questo amuleto." },
+      { "speaker": "narrator", "text": "Il domatore mostra un ciondolo con l'occhio di Horus e continua:" },
+      { "speaker": "character", "text": "Non dobbiamo pretendere di essere protetti da altri, dobbiamo farlo noi ricorrendo a qualsiasi strumento a nostra disposizione." },
+      { "speaker": "narrator", "text": "Tono e parole dell'uomo confermano quanto avete sentito su di lui; pensate che abbia le sue convinzioni e per ora non vedete nulla di male in questo." },
+      { "speaker": "narrator", "text": "Poi prosegue e il tono cambia:" },
+      { "speaker": "character", "text": "Pochi conoscono davvero il potenziale di questi oggetti, ma con le armi giuste si può vincere qualsiasi sfida, basta capire quanto e quale potere abbiamo o possiamo acquisire; non sopporto chi condanna il potere come una logica disumana, perché tutti lo cerchiamo e lo vogliamo, tutti ne abbiamo bisogno per essere liberi e realizzati. Fortuna, potere e controllo, ecco ciò che conta davvero." },
+      { "speaker": "narrator", "text": "Sono parole forti e gli fate notare che chi esercita un potere, a bene vedere, agisce su qualcuno che spesso di potere ne ha meno, e che la condanna di questo come logica disumana si riferisce a contesti di violenza o di sopruso, in cui non vengono riconosciuti diritti fondamentali come la stessa libertà che è l'opposto del controllo." },
+      { "speaker": "character", "text": "Queste sono tutte facili credenze. So che vengo additato come uno fissato che non mette mai in discussione le sue convinzioni; e se invece fosse il contrario? Senza contesti di violenza emergerebbero i diritti che vengono poi riconosciuti come tali? Il male non è forse necessario per far emergere il bene? Se è così, anche il male diventa bene, si equilibrano o si annullano, e alla fine resta solo il potere nelle mani di chi lo sa usare." },
+      { "speaker": "narrator", "text": "La risposta del domatore genera un momento di silenzio, così conclude perentorio:" },
+      { "speaker": "character", "text": "Non sono l'unico a pensare una realtà diversa, chiedete allo sputafuoco oppure alla illusionista." }
+    ],
+    "question": "Con chi volete parlare: con lo sputafuoco o con la illusionista?",
     "choices": [
       { "label": "Sputafuoco", "next": "sputafuoco" },
       { "label": "Illusionista", "next": "illusionista" }
@@ -128,8 +227,18 @@
     "id": "equilibrista",
     "title": "Circo-stanza dell'Equilibrista",
     "theme": "Etica e Pubblicità",
-    "text": "Avete scelto di parlare con l'equilibrista, l'artista che sa trovare il baricentro perfetto degli oggetti per disporli in modo incredibile e prodigioso.\n\nEntrando nella circo-stanza dell'equilibrista vi stupisce la grande quantità di libri presenti nel suo caravan. Manuali scientifici di vario tipo, atlanti e dizionari.\n\n\"L'artista circense non è dedito solo all'allenamento fisico. Per le mie esibizioni devo documentarmi sugli oggetti che manovro.\"\n\n\"Una comunicazione efficace, che vada oltre il semplice slogan accattivante, dovrebbe portare a riflettere, a mettere in discussione le proprie convinzioni.\"\n\n\"Il domatore non si presta così facilmente a mettere in discussione le sue convinzioni, mentre la illusionista è brava a rendere più criptica una realtà già difficile da decifrare.\"",
-    "question": "Volete incontrare?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Avete scelto di parlare con l'equilibrista, l'artista che sa trovare il baricentro perfetto degli oggetti per disporli in modo incredibile e prodigioso. La contorsionista vi ha detto che lui trasforma la precarietà delle cose. Già questo è un concetto interessante." },
+      { "speaker": "narrator", "text": "Entrando nella circo-stanza dell'equilibrista vi stupisce la grande quantità di libri presenti nel suo caravan. Manuali scientifici di vario tipo, atlanti e dizionari." },
+      { "speaker": "character", "text": "L'artista circense non è dedito solo all'allenamento fisico. Per le mie esibizioni devo documentarmi sugli oggetti che manovro, sui materiali di cui sono fatti, e se ciò che leggo è complicato, devo assolutamente trovare il modo di capirlo." },
+      { "speaker": "narrator", "text": "Commentate positivamente che questo è decisamente un approccio scientifico." },
+      { "speaker": "character", "text": "E non basta che lo capisca io, perché nella preparazione dei miei numeri non sono solo. Parte del mio lavoro è adottare una comunicazione chiara e convincente, che susciti interesse e che promuova il valore di tutte le cose, quindi anche della conoscenza." },
+      { "speaker": "narrator", "text": "Commentate nuovamente dicendo che col suo lavoro, oltre a generare stupore e ammirazione, sponsorizza l'importanza dello studio, che evidentemente sta alla base di ogni disciplina e arte, compresa quella circense." },
+      { "speaker": "character", "text": "Infatti è così. Una comunicazione efficace, che vada oltre il semplice slogan accattivante – il quale ha il suo fine legittimo e indiscusso – dovrebbe portare a riflettere, a mettere in discussione le proprie convinzioni, o a prendere in considerazione che la realtà può essere diversa da come la vediamo." },
+      { "speaker": "narrator", "text": "Siete d'accordo con quanto dice, e lui si accorge che seguite il suo ragionamento con interesse, così conclude:" },
+      { "speaker": "character", "text": "So che ciò che ho detto è condivisibile, ma metterlo in atto è altra cosa. L'efficacia della comunicazione si misura nella sua potenza persuasiva. Non tutte le persone accettano di venire persuase. In questa compagnia, per esempio, il domatore non si presta così facilmente a mettere in discussione le sue convinzioni, mentre la illusionista è brava a rendere più criptica una realtà già di per sé difficile da decifrare. Incontrando l'uno o l'altra potrete capire meglio." }
+    ],
+    "question": "Volete incontrare il domatore o la illusionista?",
     "choices": [
       { "label": "Domatore", "next": "domatore" },
       { "label": "Illusionista", "next": "illusionista" }
@@ -141,8 +250,18 @@
     "id": "sputafuoco",
     "title": "Circo-stanza dello Sputafuoco",
     "theme": "Guerra e disarmo",
-    "text": "Avete scelto di parlare con lo sputafuoco.\n\nEntrate nella circo-stanza dello sputafuoco ed emerge subito una sua singolare passione. L'ambiente è pieno di armi da fuoco, di poster commemorativi di conflitti neanche troppo lontani.\n\n\"Vi intimorisce ciò che vedete? Le armi sono spesso giudicate come strumenti di morte ma dipende da come vengono usate. Sono tutte detenute legalmente, ho un regolare porto d'armi.\"\n\n\"Possederle e saperle usare mi dà sicurezza. Il fatto che posso agire armato allontana chi pensa di poter imporre il suo potere su di me.\"\n\n\"Se pensate che i pericoli vadano affrontati, vi consiglio di parlare con la controfigura, mentre se pensate che la realtà sia diversa da come siete abituati a vederla, rivolgetevi alla illusionista.\"",
-    "question": "Volete incontrare?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Avete scelto di parlare con lo sputafuoco. Le affermazioni del domatore non vi hanno lasciato indifferenti. Forse sono congetture assurde e magari in questa assurdità c'è del vero. Sostiene di non essere il solo a pensare una realtà diversa, ad avere una visione alternativa del potere, del male e della violenza. Lo sputafuoco avrà davvero idee simili?" },
+      { "speaker": "narrator", "text": "Entrate nella circo-stanza dello sputafuoco ed emerge subito una sua singolare passione. L'ambiente è pieno di armi da fuoco, di poster commemorativi di conflitti neanche troppo lontani, di testi a sostegno della violenza come mezzo efficace di repressione e mantenimento dell'ordine, nonché di conquista di ciò che è giusto possedere." },
+      { "speaker": "character", "text": "Vi intimorisce ciò che vedete? Le armi sono spesso giudicate come strumenti di morte ma dipende da come vengono usate e per quale motivo si utilizzano. Certamente richiedono responsabilità. Non preoccupatevi, sono tutte detenute legalmente, ho un regolare porto d'armi, e nessuna è carica e potenzialmente pericolosa in questo momento." },
+      { "speaker": "narrator", "text": "Gli chiedete come mai ne possiede così tante, se si tratta di una collezione come altre, o se ci sono altre ragioni." },
+      { "speaker": "character", "text": "Negli anni ho accumulato queste armi anche per passione, collezionando diversi prototipi di cui mi affascina il funzionamento, ma ammetto che possederle e saperle usare mi dà sicurezza. Il fatto che posso agire armato allontana chi pensa di poter imporre il suo potere su di me. Non ha senso privarmi di questa opportunità." },
+      { "speaker": "narrator", "text": "Replicate che però ci sono situazioni in cui è giusto accettare il potere di qualcun altro, che sia una persona o uno stato." },
+      { "speaker": "character", "text": "Quando questo avviene non sono certo che stiamo parlando di vero potere ma solo del normale ordine sociale. Se nel lavoro ho un capo che deve darmi degli ordini io devo eseguire, lo stesso vale per il mio paese. Non vale però se si tratta di un altro paese che su di me non ha alcuna autorità. Se mi viene chiesto di imbracciare un'arma e andare al fronte per difendere il mio paese, io obbedisco. In questo caso non subisco il potere, lo stato condivide il suo con me, ed è il normale ordine sociale." },
+      { "speaker": "narrator", "text": "Dopo una breve pausa conclude:" },
+      { "speaker": "character", "text": "Secondo voi come ci si pone di fronte al pericolo, è forse sbagliato affrontarlo? Come pensate ci si possa difendere realmente nel mondo in cui vivete? Se ritenete che i pericoli vadano affrontati, e non evitati, vi consiglio di parlare con la controfigura, mentre se pensate che la realtà sia diversa da come siete abituati a vederla rivolgetevi alla illusionista." }
+    ],
+    "question": "Volete incontrare la controfigura o la illusionista?",
     "choices": [
       { "label": "Controfigura", "next": "controfigura" },
       { "label": "Illusionista", "next": "illusionista" }
@@ -154,7 +273,11 @@
     "id": "illusionista",
     "title": "Circo-stanza dell'Illusionista",
     "theme": "Tecnologia",
-    "text": "Eccovi giunti alla circo-stanza dell'illusionista, colei che grazie al suo talento può indurre a pensare e vedere una realtà diversa da quella a cui si è abituati.\n\nDiversa può significare più vera o meno vera, più giusta o anche meno giusta. Il progresso non si può fermare, ma siamo ancora noi esseri umani i soggetti che ne dispongono o siamo diventati oggetti e pedine di qualcosa che ormai è oltre il nostro controllo?\n\nLa sua abilità ha prodotto lenti in grado di decifrare, riconoscere e spiegare, ma anche di confondere, nascondere e negare.\n\nCon quali lenti state guardando? Voi cosa vedete? E cosa ricordate?",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Eccovi giunti alla circo-stanza dell'illusionista, colei che grazie al suo talento può indurre a pensare e vedere una realtà diversa da quella a cui si è abituati. Diversa può significare più vera o meno vera, più giusta o anche meno giusta. Il progresso non si può fermare, ma siamo ancora noi esseri umani i soggetti che ne dispongono o siamo diventati oggetti e pedine di qualcosa che ormai è oltre il nostro controllo e di cui abbiamo sempre più bisogno?" },
+      { "speaker": "narrator", "text": "La sua abilità ha prodotto lenti in grado di decifrare, riconoscere e spiegare, ma anche di confondere, nascondere e negare. Con quali lenti state guardando?" },
+      { "speaker": "narrator", "text": "Voi cosa vedete? e cosa ricordate?" }
+    ],
     "cipher": "1-2 3-4-1-4-5-6-2 3-10 9-4-5-7-15-9-8 2-1-1-2 7-10-11-8-6-6-11-10-9-8. 9-16-10-8-7-8-6-8 7-10 1-8-10 12-8-5-13-2 17-2-11-3-10 12-8-5-6-10-11-8",
     "cipherSolution": "La volontà vi conduce alla direttrice. Chiedete di lei senza farvi sentire",
     "question": null,
@@ -166,7 +289,10 @@
   "direttrice": {
     "id": "direttrice",
     "title": "Circo-stanza della Direttrice",
-    "text": "Benvenuti e benvenute nella circo-stanza della Direttrice, colei che mette in ordine i costumi delle varie circostanze.\n\nProvate a fare altrettanto:",
+    "dialogue": [
+      { "speaker": "narrator", "text": "Benvenuti e benvenute nella circo-stanza della Direttrice, colei che mette in ordine i costumi delle varie circostanze." },
+      { "speaker": "narrator", "text": "Provate a fare altrettanto:" }
+    ],
     "finalAnagrams": [
       { "anagram": "ACCOGLI API", "solution": "PAGLIACCIO" },
       { "anagram": "ALBUM FONO", "solution": "FUNAMBOLO" },
