@@ -206,8 +206,8 @@
 - [ ] **Grafica testi narrazione**: rifinire tipografia del `NarratorView` (font, dimensioni, spaziature, animazioni typewriter)
 - [x] **Restyle schermate auth (parziale)**: `LoginScreen` e `RegisterScreen` rifatte con palette "velluto teatrale" + `VelvetBackdrop` + glow ring CTA. `ForgotPasswordScreen` e `ResetPasswordScreen` sono rimaste alla resa minimal originale (saranno propagate quando il design e' validato)
 - [x] **Restyle schermate GM**: `RoomListScreen`, `CreateRoomScreen`, `DashboardScreen`, `PlayerDetailScreen` rifatte con identita "velluto teatrale" coerente con auth
-- [ ] **Propagare lo stile "velluto teatrale" alle schermate auth restanti**: `ForgotPasswordScreen`, `ResetPasswordScreen`, `JoinRoomScreen`. Mantenere il `VelvetBackdrop` e la palette `colors.velvet` per coerenza
-- [ ] **Restyle schermata `JoinRoomScreen`** (lato player): primo touchpoint, deve essere accogliente — adeguare al tema velluto teatrale
+- [ ] **Propagare lo stile "velluto teatrale" alle schermate auth restanti**: `ForgotPasswordScreen`, `ResetPasswordScreen`. Mantenere il `VelvetBackdrop` e la palette `colors.velvet` per coerenza
+- [x] **Restyle `JoinRoomScreen` (velluto teatrale)** — primo touchpoint del player allineato visivamente a Login/Register: `VelvetBackdrop` + card velluto + ornament + eyebrow "Spettacolo in corso" + titolo "Entra nella Stanza" in champagne, codice come "brass plate" (mono font, letter-spacing 14, bordo oro, focus state piu' chiaro), CTA "Entra in scena" con glow ring pulsante, logout link discreto. Logica Supabase / validazione / `resolvePlayerResumeRoute` invariata. Stili velluto centralizzati in `styles/player.js` → `joinRoomStyles` (stessa struttura di `loginStyles`/`registerStyles`)
 - [ ] **Restyle schermata `DirectriceScreen`**: il finale del gioco merita una grafica più curata
 - [ ] Raffinare mappa e coordinate dei nodi dopo test su dispositivi reali
 - [x] Sistema `AutoHintEffect` per-scena implementato (componente, `getHintAsset`, `HINT_POSITIONS`) — asset Acrobata (`acrobata_hint.png`) da posizionare in `assets/hints/`; coordinate calibrate: `top: 8.9%, left: 38.1%, width: 30%, height: 49.2%`

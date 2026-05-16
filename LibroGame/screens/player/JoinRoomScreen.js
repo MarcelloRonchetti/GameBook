@@ -1,38 +1,47 @@
 // JoinRoomScreen.js
 // Schermata del giocatore per unirsi a una stanza tramite codice.
+// Stile "Velluto teatrale" allineato a Login/Register.
 //
-// 🔧 FIX BUG (premuto Entra ma non succede nulla):
-//    Il vecchio codice usava `Alert.alert` che NON funziona sul web di Expo,
-//    quindi tutti gli errori (codice invalido, stanza non trovata, ecc.)
-//    erano invisibili e il tasto sembrava "morto".
-//    Soluzione: banner di errore inline + notify() cross-platform per i
-//    casi in cui serve un popup (es. registrazione completata).
+// Gli errori sono mostrati via banner inline (Alert.alert non funziona su web).
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Platform
+  ScrollView, KeyboardAvoidingView, Platform, Animated, Easing,
 } from 'react-native';
 
 import { supabase } from '../../lib/supabase';
 import { resolvePlayerResumeRoute, confirmLogout } from '../../lib/session';
+import VelvetBackdrop from '../../components/VelvetBackdrop';
 import { joinRoomStyles as styles } from '../../styles/player';
+
+function CtaGlow() {
+  const opacity = useRef(new Animated.Value(0.4)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 0.85, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.4,  duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [opacity]);
+  return <Animated.View pointerEvents="none" style={[styles.ctaGlow, { opacity }]} />;
+}
 
 export default function JoinRoomScreen({ navigation }) {
 
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
-  // errorMsg — banner errore inline (cross-platform: visibile sia su web che mobile)
   const [errorMsg, setErrorMsg] = useState('');
+  const [focused, setFocused] = useState(false);
 
   const handleJoinRoom = async () => {
-    // Reset banner
     setErrorMsg('');
 
-    // Sanitizzazione
     const sanitizedCode = code.trim();
 
-    // Validazioni
     if (!sanitizedCode) {
       setErrorMsg('Inserisci il codice stanza');
       return;
@@ -44,10 +53,6 @@ export default function JoinRoomScreen({ navigation }) {
 
     setLoading(true);
 
-    // Cerca la stanza con quel codice
-    // ⚠️ Non usiamo .single() perché se non trova nulla genera errore;
-    //    .maybeSingle() ritorna null senza esplodere e ci permette di
-    //    mostrare un messaggio user-friendly.
     const { data: room, error: roomError } = await supabase
       .from('rooms')
       .select('id, code, name, status, story_id, auto_hint_minutes')
@@ -66,14 +71,12 @@ export default function JoinRoomScreen({ navigation }) {
       return;
     }
 
-    // Verifica che la stanza sia aperta
     if (room.status !== 'open') {
       setLoading(false);
       setErrorMsg('Questa stanza è stata chiusa dal GM.');
       return;
     }
 
-    // Recupera l'utente loggato
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -82,11 +85,6 @@ export default function JoinRoomScreen({ navigation }) {
       return;
     }
 
-    // Controlla se il giocatore è già nella stanza (es. riapre il browser)
-    // ⚠️ Il vecchio codice usava upsert, che fallisce con RLS perché la policy
-    //    copre solo INSERT ma non l'UPDATE/SELECT implicito dell'upsert.
-    //    Soluzione: verifichiamo prima se la riga esiste già, e se sì saltiamo
-    //    l'insert. Il giocatore viene semplicemente riportato alla scena giusta.
     const { data: existing, error: existingError } = await supabase
       .from('room_players')
       .select('player_id')
@@ -100,7 +98,6 @@ export default function JoinRoomScreen({ navigation }) {
       return;
     }
 
-    // Se il giocatore NON è ancora nella stanza, lo aggiungiamo
     if (!existing) {
       const { error: joinError } = await supabase
         .from('room_players')
@@ -116,14 +113,10 @@ export default function JoinRoomScreen({ navigation }) {
       }
     }
 
-    // RIPRESA: decidi dove mandare il giocatore
-    // - Se ha già progressi -> ultima scena visitata
-    // - Altrimenti -> Intro
     const resume = await resolvePlayerResumeRoute(room, user.id);
 
     setLoading(false);
 
-    // navigation.reset così JoinRoom non resta nello stack
     navigation.reset({
       index: 0,
       routes: [{ name: resume.screen, params: resume.params }],
@@ -135,54 +128,71 @@ export default function JoinRoomScreen({ navigation }) {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      <VelvetBackdrop />
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>Entra nella Stanza</Text>
-        <Text style={styles.subtitle}>
-          Inserisci il codice a 6 cifre fornito dal GM
-        </Text>
-
-        {/* Banner errore inline — funziona ovunque, niente Alert silenti */}
-        {errorMsg ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>⚠️ {errorMsg}</Text>
+        <View style={styles.stage}>
+          <View style={styles.ornamentTop}>
+            <View style={styles.ornamentLine} />
+            <View style={styles.ornamentDot} />
+            <View style={styles.ornamentLine} />
           </View>
-        ) : null}
+          <Text style={styles.eyebrow}>Spettacolo in corso</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="000000"
-          placeholderTextColor="#555"
-          value={code}
-          onChangeText={(text) => {
-            setCode(text);
-            if (errorMsg) setErrorMsg('');
-          }}
-          keyboardType="numeric"
-          maxLength={6}
-          textAlign="center"
-        />
+          <View style={styles.card}>
+            <Text style={styles.title}>Entra nella Stanza</Text>
+            <Text style={styles.subtitle}>
+              Il direttore vi attende — annunciate il codice a 6 cifre
+            </Text>
 
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleJoinRoom}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? 'Connessione...' : 'Entra'}
-          </Text>
-        </TouchableOpacity>
+            {errorMsg ? (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorBannerText}>{errorMsg}</Text>
+              </View>
+            ) : null}
 
-        {/* Bottone logout discreto in basso */}
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => confirmLogout(navigation)}
-        >
-          <Text style={styles.logoutText}>Esci dall'account</Text>
-        </TouchableOpacity>
+            <Text style={styles.fieldLabel}>Codice stanza</Text>
+            <TextInput
+              style={[styles.input, focused && styles.inputFocused]}
+              placeholder="000000"
+              placeholderTextColor="rgba(184,162,133,0.35)"
+              value={code}
+              onChangeText={(text) => {
+                setCode(text);
+                if (errorMsg) setErrorMsg('');
+              }}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              keyboardType="numeric"
+              maxLength={6}
+              textAlign="center"
+            />
+
+            <View style={styles.ctaWrapper}>
+              <CtaGlow />
+              <TouchableOpacity
+                style={[styles.button, loading && styles.buttonDisabled]}
+                onPress={handleJoinRoom}
+                disabled={loading}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.buttonText}>
+                  {loading ? 'In corso…' : 'Entra in scena'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={() => confirmLogout(navigation)}
+            >
+              <Text style={styles.logoutText}>Esci dall'account</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

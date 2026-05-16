@@ -3,85 +3,193 @@
 // JoinRoomScreen, IntroScreen, SceneScreen, AnagramScreen, DirectriceScreen.
 // Include anche gli stili del placeholder grafico NPC.
 
-import { StyleSheet } from 'react-native';
-import { colors, spacing, radius, fontSize, fonts } from './theme';
+import { StyleSheet, Platform } from 'react-native';
+import { colors, spacing, radius, fontSize, fonts, shadows, fontFamilies } from './theme';
+
+const v = colors.velvet;
+
+const brassShadowJoin = Platform.select({
+  web: {
+    shadowColor: v.gold,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.45,
+    shadowRadius: 18,
+  },
+  default: {
+    shadowColor: v.gold,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+});
 
 // ---------------------------------------------------------------------------
-// JoinRoomScreen
+// JoinRoomScreen — "Velluto teatrale" (allineata a Login/Register)
 // ---------------------------------------------------------------------------
 export const joinRoomStyles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.bgDark },
+  flex: { flex: 1, backgroundColor: v.bgDeep },
   container: {
     flexGrow: 1,
-    padding: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.huge,
+  },
+  stage: {
+    flex: 1,
+    minHeight: 600,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.bgDark,
+    paddingHorizontal: spacing.lg,
+    zIndex: 1,
+  },
+  ornamentTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+    opacity: 0.85,
+  },
+  ornamentLine: { width: 64, height: 1, backgroundColor: v.goldFaintStrong },
+  ornamentDot: {
+    width: 6, height: 6, borderRadius: 3,
+    backgroundColor: v.gold,
+    transform: [{ rotate: '45deg' }],
+  },
+  eyebrow: {
+    color: v.gold,
+    fontSize: fontSize.xs,
+    letterSpacing: 4,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    marginBottom: spacing.md,
+    fontFamily: fontFamilies.body,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 460,
+    backgroundColor: 'rgba(61,30,37,0.92)',
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: v.goldFaint,
+    paddingHorizontal: 28,
+    paddingTop: 32,
+    paddingBottom: 28,
+    ...shadows.lg,
   },
   title: {
-    fontSize: fontSize.huge,
-    fontWeight: 'bold',
-    marginBottom: spacing.md,
-    color: colors.primary,
+    fontFamily: fontFamilies.serif,
+    fontSize: 30,
+    fontWeight: '700',
+    color: v.champagne,
+    textAlign: 'center',
+    letterSpacing: 1.5,
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: fontSize.base,
-    color: colors.textMuted,
-    marginBottom: spacing.huge,
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+    color: v.champagneMuted,
+    fontSize: fontSize.md,
     textAlign: 'center',
-  },
-  input: {
-    width: '60%',
-    minWidth: 240,
-    backgroundColor: colors.surfaceDark,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    fontSize: fontSize.huge,
-    fontWeight: 'bold',
-    color: colors.textPrimary,
     marginBottom: spacing.xxl,
-    letterSpacing: 8,
+    letterSpacing: 0.3,
+  },
+  fieldLabel: {
+    color: v.champagneMuted,
+    fontSize: fontSize.xs,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
     textAlign: 'center',
+    marginBottom: 8,
+    fontFamily: fontFamilies.body,
+  },
+  // Input codice come "brass plate" — letter-spacing forte, bordo oro
+  input: {
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: v.bgRaised,
+    borderWidth: 1.5,
+    borderColor: v.goldFaint,
+    borderRadius: radius.md,
+    paddingVertical: 18,
+    paddingHorizontal: spacing.md,
+    fontSize: 32,
+    fontWeight: '700',
+    color: v.gold,
+    letterSpacing: 14,
+    textAlign: 'center',
+    marginBottom: spacing.xxl,
+    fontFamily: fonts.mono,
+  },
+  inputFocused: {
+    borderColor: v.goldSoft,
+    backgroundColor: '#552a37',
+  },
+  // CTA primario "brass"
+  ctaWrapper: {
+    width: '100%',
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  ctaGlow: {
+    position: 'absolute',
+    top: -3, left: -3, right: -3, bottom: -3,
+    borderRadius: radius.md + 3,
+    borderWidth: 1,
+    borderColor: v.gold,
+    ...brassShadowJoin,
   },
   button: {
     width: '100%',
-    backgroundColor: colors.primary,
-    padding: spacing.lg,
+    backgroundColor: v.gold,
+    paddingVertical: 16,
+    paddingHorizontal: spacing.lg,
     borderRadius: radius.md,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: v.goldSoft,
   },
   buttonDisabled: {
-    backgroundColor: colors.textFaint,
+    backgroundColor: v.taupe,
+    borderColor: v.taupe,
   },
   buttonText: {
-    color: colors.bgDark,
+    color: v.ink,
     fontSize: fontSize.lg,
-    fontWeight: 'bold',
+    fontFamily: fontFamilies.serif,
+    fontWeight: '700',
+    letterSpacing: 3,
+    textTransform: 'uppercase',
   },
+  // Logout link discreto
   logoutButton: {
-    marginTop: spacing.xxxl,
-    padding: spacing.sm + 2,
+    marginTop: spacing.lg,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
   },
   logoutText: {
-    color: colors.textMuted,
-    fontSize: fontSize.md,
-    textDecorationLine: 'underline',
+    color: v.champagneMuted,
+    fontSize: fontSize.sm,
+    fontFamily: fontFamilies.body,
+    letterSpacing: 0.5,
   },
-  // Banner errore inline (cross-platform)
+  // Banner errore (stesso pattern di Login)
   errorBanner: {
     width: '100%',
-    backgroundColor: colors.errorBg,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.error,
-    padding: spacing.md,
+    backgroundColor: 'rgba(168,89,89,0.18)',
+    borderLeftWidth: 3,
+    borderLeftColor: v.gold,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     borderRadius: radius.sm,
     marginBottom: spacing.lg,
   },
   errorBannerText: {
-    color: colors.error,
-    fontSize: fontSize.md,
+    color: '#f1c8c8',
+    fontSize: fontSize.sm,
+    fontFamily: fontFamilies.body,
+    letterSpacing: 0.3,
   },
 });
 
