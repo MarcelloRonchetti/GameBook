@@ -59,6 +59,7 @@ export default function DirectriceScreen({ route, navigation }) {
   const [errors, setErrors] = useState(finalAnagrams.map(() => false));
   const [allSolved, setAllSolved] = useState(false);
   const [completionSaved, setCompletionSaved] = useState(false);
+  const [panelVisible, setPanelVisible] = useState(true);
 
   const solvedCount = solvedStatus.filter(Boolean).length;
 
@@ -80,8 +81,8 @@ export default function DirectriceScreen({ route, navigation }) {
       .maybeSingle();
 
     if (data && data.solved) {
-      // Già completato in precedenza -> salta la narrazione e mostra subito il finale
-      setMode('anagrams');
+      // Già completato in precedenza -> mostra subito la schermata di vittoria
+      setMode('victory');
       setAllSolved(true);
       setCompletionSaved(true);
       // Segna tutti come risolti visivamente
@@ -90,10 +91,11 @@ export default function DirectriceScreen({ route, navigation }) {
   };
 
   // Quando tutti i 12 anagrammi vengono risolti in questa sessione,
-  // salva il completamento su Supabase (una sola volta)
+  // salva il completamento su Supabase e passa alla schermata di vittoria
   useEffect(() => {
     if (solvedCount === finalAnagrams.length && !allSolved) {
       setAllSolved(true);
+      setMode('victory');
       if (!completionSaved) {
         saveCompletion();
       }
@@ -178,6 +180,60 @@ export default function DirectriceScreen({ route, navigation }) {
   };
 
   const currentAnagram = finalAnagrams[currentIndex];
+
+  // --- Modalità vittoria: schermata finale del gioco ---
+  // Sequenza:
+  //   1. Pannello "Complimenti!" visibile per 5s sopra lo sfondo del circo
+  //   2. Pannello sparisce, resta solo lo sfondo del circo per 5s
+  //   3. Reset automatico a JoinRoom (player resta loggato)
+  useEffect(() => {
+    if (mode !== 'victory') return;
+    const hidePanel = setTimeout(() => setPanelVisible(false), 5000);
+    const goToJoin = setTimeout(() => {
+      navigation.reset({ index: 0, routes: [{ name: 'JoinRoom' }] });
+    }, 10000);
+    return () => {
+      clearTimeout(hidePanel);
+      clearTimeout(goToJoin);
+    };
+  }, [mode]);
+
+  if (mode === 'victory') {
+    let victoryBg = null;
+    try {
+      victoryBg = getBackgroundAsset('victory');
+    } catch (e) {
+      victoryBg = null;
+    }
+
+    return (
+      <View style={victoryStyles.container}>
+        <StatusBar hidden />
+        {victoryBg ? (
+          <Image
+            source={victoryBg}
+            style={victoryStyles.bgImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={victoryStyles.bgFallback} />
+        )}
+
+        {panelVisible && (
+          <View style={victoryStyles.panel}>
+            <Text style={victoryStyles.title}>Complimenti!</Text>
+            <Text style={victoryStyles.text}>
+              Avete rimesso in ordine tutti i costumi delle circo-stanze.{'\n'}
+              Il vostro viaggio nel Circo delle Circostanze è completo.
+            </Text>
+            <Text style={victoryStyles.subtext}>
+              Sia fatta la vostra volontà.
+            </Text>
+          </View>
+        )}
+      </View>
+    );
+  }
 
   // --- Modalità narrazione: schermata di benvenuto della Direttrice ---
   if (mode === 'narration') {
@@ -533,6 +589,63 @@ const styles = StyleSheet.create({
   completionSubtext: {
     fontSize: 15,
     color: '#999',
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+});
+
+// --- Schermata finale di vittoria ---
+const victoryStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#1a0d05',
+  },
+  bgImage: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    width: '100%', height: '100%',
+  },
+  bgFallback: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: '#1a0d05',
+  },
+  panel: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -250 }, { translateY: -120 }],
+    width: 500,
+    maxWidth: '90%',
+    backgroundColor: 'rgba(50,35,20,0.78)',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#e8c46a',
+    padding: 28,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 12,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ffd87a',
+    marginBottom: 14,
+    textAlign: 'center',
+  },
+  text: {
+    fontSize: 16,
+    color: '#fff8e0',
+    lineHeight: 24,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  subtext: {
+    fontSize: 15,
+    color: '#ffd87a',
     fontStyle: 'italic',
     textAlign: 'center',
   },
