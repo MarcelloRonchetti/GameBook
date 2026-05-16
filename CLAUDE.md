@@ -140,7 +140,7 @@ LibroGame/
 `styles/player.js`: `joinRoomStyles` (velluto teatrale: `stage` / `ornament*` / `card` / `eyebrow` / `ctaWrapper` / `ctaGlow` / `errorBanner` — stesso pattern di `loginStyles`/`registerStyles`), `introStyles` (cipher grid), `sceneStyles` (NPC placeholder styles), `anagramScreenStyles` (`npcMini` + choice buttons), `directriceStyles` (gold placeholder, progress bar, navDot grid, completionBox).
 
 Existing bitmap assets:
-- `assets/app-icons/icon.png`, `adaptive-icon.png`, `splash-icon.png`, `favicon.png` — icone APK/web (placeholder 1024×1024 colore `#1a1a1a`, da sostituire con grafica definitiva)
+- `assets/app-icons/icon.png`, `adaptive-icon.png`, `splash-icon.png` (1254×1254 definitive) + `favicon.png` (64×64, downscaled da `icon.png` con bicubico) — icone APK/web
 - `assets/map/circus_map.png`
 - `assets/characters/` — `acrobata.png`, `giocoliere.png`, `funambolo.png`, `pagliaccio.png`, `trapezista.png`, `cavallerizza.png`, `contorsionista.png`, `controfigura.png`, `domatore.png`, `equilibrista.png`, `sputafuoco.png`, `illusionista.png`, `direttrice.png`
 - `assets/backgrounds/` — `intro_bg.png`, `acrobata_bg.png`, `giocoliere_bg.png`, `funambolo_bg.png`, `pagliaccio_bg.png`, `trapezista_bg.png`, `cavallerizza_bg.png`, `contorsionista_bg.png`, `controfigura_bg.png`, `domatore_bg.png`, `equilibrista_bg.png`, `sputafuoco_bg.png`, `illusionista_bg.png`, `direttrice_bg.png`
@@ -497,7 +497,7 @@ Configurazione attuale che produce APK installabile su telefono fisico:
   - `plugins: ["./gradle-memory-plugin"]`
 - **`gradle-memory-plugin.js`** — Expo config plugin custom che modifica `gradle.properties` al prebuild aggiungendo `org.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=512m` e `org.gradle.daemon=false`. Senza questo le build crashano con "Gradle build failed with unknown error" durante la compilazione native multi-architettura.
 - **`.easignore`** esclude `node_modules`, `.git`, `*.log` per ridurre size archivio upload (da 295 MB a pochi MB).
-- **App icons** (`assets/icon.png`, `adaptive-icon.png`, `splash-icon.png`, `favicon.png`) DEVONO essere quadrate, altrimenti `expo doctor` blocca la build. Attualmente sono placeholder 1024×1024 colore `#1a1a1a` da sostituire con grafica definitiva.
+- **App icons** (`assets/app-icons/icon.png`, `adaptive-icon.png`, `splash-icon.png`, `favicon.png`) DEVONO essere quadrate, altrimenti `expo doctor` blocca la build. Attualmente icon/adaptive-icon/splash-icon sono 1254×1254 definitive; `favicon.png` è 64×64 rigenerato da `icon.png` (downscale bicubico) per non spedire 1.7 MB al browser.
 - **PNG cleanliness** — AAPT (Android Asset Packaging Tool) fallisce su PNG con metadata/profili colore non standard. Soluzione automatizzata: `npm run clean-pngs` (script `scripts/clean-pngs.ps1`) ri-salva tutti i PNG di `assets/` con `System.Drawing.Bitmap` PowerShell, strippando i metadata. Idempotente — lanciare prima di ogni build APK quando si aggiungono nuove immagini.
 
 ### Comandi build

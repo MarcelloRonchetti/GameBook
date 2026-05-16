@@ -46,11 +46,6 @@ const LABEL_POSITION_OVERRIDES = {
 const ARCH_SCALE    = 3;  // moltiplicatore dimensione archi normali
 const TENT_SCALE    = 3.8;  // moltiplicatore dimensione tende speciali
 
-// Larghezza di riferimento per cui sono state calibrate dimensioni e font.
-// A questa larghezza responsiveScale = 1; sopra cresce, sotto si rimpicciolisce.
-// Cosi' le proporzioni della mappa restano identiche su desktop, web, telefono.
-const REFERENCE_WIDTH = 1920;
-
 // DEBUG: forza tutti i nodi a 'available' per controllare l'overflow dei nomi
 // degli NPC sul banner. RIMETTERE A false PRIMA DEL COMMIT/BUILD.
 const DEBUG_SHOW_ALL = false;
@@ -119,10 +114,9 @@ function TentNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
   const isAvail   = state === 'available';
   const tentAsset = isFinal ? ASSETS.map.nodeTentFinal : ASSETS.map.nodeTentEntry;
 
-  const responsiveScale = screenW / REFERENCE_WIDTH;
   const cx      = (nodeConf.x / 100) * screenW;
   const cy      = (nodeConf.y / 100) * screenH;
-  const tentW   = nodeConf.size * TENT_SCALE * responsiveScale;
+  const tentW   = nodeConf.size * TENT_SCALE;
   const tentH   = tentW;
   const bc = BANNER_CONFIG[sceneId] || {};
   const bannerW      = tentW  * (bc.bannerScale   ?? 0.4);
@@ -201,10 +195,9 @@ function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
   const npc           = getNpcTheme(sceneId);
   const characterAsset = getCharacterAsset(sceneId);
 
-  const responsiveScale = screenW / REFERENCE_WIDTH;
   const cx       = (nodeConf.x / 100) * screenW;
   const cy       = (nodeConf.y / 100) * screenH;
-  const frameW   = nodeConf.size * ARCH_SCALE * responsiveScale;
+  const frameW   = nodeConf.size * ARCH_SCALE;
   const frameH   = frameW * FRAME_RATIO;
   const intSize   = frameW * INTERIOR_SIZE;
   const spriteSize = intSize * SPRITE_SCALE;
@@ -293,8 +286,6 @@ export default function MapScreen({ route, navigation }) {
   // i nodi disponibili appaiono subito come 'available', il resto come 'fog'.
   // Quando arriva la risposta Supabase, le scene gia' risolte passano a 'visited'.
   // Cosi' la mappa e' visibile immediatamente senza attendere la query.
-  const responsiveScale = screenW / REFERENCE_WIDTH;
-
   const initialStates = useMemo(
     () => computeNodeStates([], allChoices),
     [allChoices],
@@ -357,13 +348,13 @@ export default function MapScreen({ route, navigation }) {
               <Path
                 d={`M ${x1} ${y1} Q ${cpx} ${cpy} ${x2} ${y2}`}
                 stroke={active ? '#C8A45A' : 'rgba(120,100,60,0.35)'}
-                strokeWidth={(active ? 4.5 : 2) * responsiveScale}
+                strokeWidth={active ? 4.5 : 2}
                 strokeLinecap="round"
                 fill="none"
                 opacity={active ? 0.92 : 0.4}
               />
               {active && (
-                <Circle cx={mx} cy={my} r={3.5 * responsiveScale} fill="#C8A45A" opacity={0.85} />
+                <Circle cx={mx} cy={my} r={3.5} fill="#C8A45A" opacity={0.85} />
               )}
             </React.Fragment>
           );
@@ -401,10 +392,10 @@ export default function MapScreen({ route, navigation }) {
         );
       })}
 
-      {/* HEADER — font e padding scalati responsivamente */}
-      <View style={[styles.header, { paddingVertical: 10 * responsiveScale, paddingHorizontal: 18 * responsiveScale }]}>
-        <Text style={[styles.headerTitle, { fontSize: 15 * responsiveScale }]}>🎪 Il Circo delle Circostanze</Text>
-        <Text style={[styles.headerHint, { fontSize: 11 * responsiveScale }]}>Scegli la prossima circo-stanza</Text>
+      {/* HEADER */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>🎪 Il Circo delle Circostanze</Text>
+        <Text style={styles.headerHint}>Scegli la prossima circo-stanza</Text>
       </View>
     </View>
   );
