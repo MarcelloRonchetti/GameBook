@@ -43,6 +43,46 @@ export const colors = {
   mapNodeSolved: '#4caf50',
   mapPathColor: '#c8a45a',
   mapPathInactive: 'rgba(200,164,90,0.2)',
+  // ---------------------------------------------------------------------------
+  // VELVET — palette "Velluto teatrale" usata da Auth e GM screens
+  // ---------------------------------------------------------------------------
+  velvet: {
+    bgDeep: '#2a1418',
+    bgDeeper: '#1a0c0f',
+    bgPanel: '#3d1e25',
+    bgRaised: '#4a2530',
+    gold: '#c8a45a',
+    goldSoft: '#e0c485',
+    goldFaint: 'rgba(200,164,90,0.25)',
+    goldFaintStrong: 'rgba(200,164,90,0.5)',
+    goldGlow: 'rgba(224,196,133,0.35)',
+    champagne: '#f5ead1',
+    champagneMuted: '#b8a285',
+    taupe: '#8a6d4b',
+    success: '#7aa37a',
+    successBg: 'rgba(122,163,122,0.15)',
+    danger: '#a85959',
+    dangerBg: 'rgba(168,89,89,0.15)',
+    ink: '#1a0c0f',
+  },
+};
+
+// ---------------------------------------------------------------------------
+// FONT FAMILIES — typography "Velluto teatrale"
+// ---------------------------------------------------------------------------
+// Usa stack di sistema cross-platform. Serif per heading (foyer di teatro),
+// system-ui per body.
+export const fontFamilies = {
+  serif: Platform.select({
+    ios: 'Georgia',
+    android: 'serif',
+    default: 'Georgia, "Times New Roman", serif',
+  }),
+  body: Platform.select({
+    ios: 'System',
+    android: 'sans-serif',
+    default: 'system-ui, -apple-system, "Helvetica Neue", sans-serif',
+  }),
 };
 
 export const spacing = {

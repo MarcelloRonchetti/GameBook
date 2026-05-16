@@ -4,38 +4,50 @@
 // Dopo il login, in base al ruolo (gm o player), l'utente viene
 // reindirizzato alla schermata corretta.
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Platform
+  ScrollView, KeyboardAvoidingView, Platform, Animated, Easing,
 } from 'react-native';
 
 import { supabase } from '../../lib/supabase';
-import { notify } from '../../lib/helpers';
+import VelvetBackdrop from '../../components/VelvetBackdrop';
 import { loginStyles as styles } from '../../styles/auth';
+
+function CtaGlow() {
+  const opacity = useRef(new Animated.Value(0.4)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 0.85, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.4, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [opacity]);
+  return <Animated.View pointerEvents="none" style={[styles.ctaGlow, { opacity }]} />;
+}
 
 export default function LoginScreen({ navigation }) {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  // errorMsg — banner di errore inline (cross-platform, sempre visibile)
   const [errorMsg, setErrorMsg] = useState('');
+  const [focused, setFocused] = useState(null);
 
   const handleLogin = async () => {
-    setErrorMsg(''); // reset banner
+    setErrorMsg('');
 
-    // Sanitizzazione input
     const sanitizedEmail = email.trim().toLowerCase();
     const sanitizedPassword = password.trim();
 
-    // Validazione base
     if (!sanitizedEmail || !sanitizedPassword) {
       setErrorMsg('Inserisci email e password');
       return;
     }
 
-    // Validazione formato email con regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(sanitizedEmail)) {
       setErrorMsg('Inserisci un indirizzo email valido');
@@ -44,7 +56,6 @@ export default function LoginScreen({ navigation }) {
 
     setLoading(true);
 
-    // Chiamata a Supabase per autenticare l'utente
     const { data, error } = await supabase.auth.signInWithPassword({
       email: sanitizedEmail,
       password: sanitizedPassword,
@@ -56,7 +67,6 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    // Recupera il ruolo dell'utente dalla tabella users
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('role')
@@ -70,7 +80,6 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    // Reindirizza in base al ruolo — reset dello stack
     if (userData.role === 'gm') {
       navigation.reset({ index: 0, routes: [{ name: 'RoomList' }] });
     } else {
@@ -83,59 +92,85 @@ export default function LoginScreen({ navigation }) {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      <VelvetBackdrop />
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>LibroGame</Text>
-
-        {/* Banner errore inline — visibile sia su web che su mobile */}
-        {errorMsg ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>⚠️ {errorMsg}</Text>
+        <View style={styles.stage}>
+          <View style={styles.ornamentTop}>
+            <View style={styles.ornamentLine} />
+            <View style={styles.ornamentDot} />
+            <View style={styles.ornamentLine} />
           </View>
-        ) : null}
+          <Text style={styles.eyebrow}>Gran Soirée</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#666"
-          value={email}
-          onChangeText={(t) => { setEmail(t); setErrorMsg(''); }}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+          <View style={styles.card}>
+            <Text style={styles.title}>Il Circo delle Circostanze</Text>
+            <Text style={styles.subtitle}>Accedi al tuo posto in platea</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#666"
-          value={password}
-          onChangeText={(t) => { setPassword(t); setErrorMsg(''); }}
-          secureTextEntry
-        />
+            {errorMsg ? (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorBannerText}>{errorMsg}</Text>
+              </View>
+            ) : null}
 
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? 'Accesso in corso...' : 'Accedi'}
-          </Text>
-        </TouchableOpacity>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.fieldLabel}>Email</Text>
+              <TextInput
+                style={[styles.input, focused === 'email' && styles.inputFocused]}
+                placeholder="nome@dominio.it"
+                placeholderTextColor="rgba(184,162,133,0.45)"
+                value={email}
+                onChangeText={(t) => { setEmail(t); setErrorMsg(''); }}
+                onFocus={() => setFocused('email')}
+                onBlur={() => setFocused(null)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
 
-        <TouchableOpacity
-          onPress={() => navigation.navigate('ForgotPassword')}
-          style={{ marginBottom: 12 }}
-        >
-          <Text style={styles.link}>Password dimenticata?</Text>
-        </TouchableOpacity>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.fieldLabel}>Password</Text>
+              <TextInput
+                style={[styles.input, focused === 'password' && styles.inputFocused]}
+                placeholder="••••••••"
+                placeholderTextColor="rgba(184,162,133,0.45)"
+                value={password}
+                onChangeText={(t) => { setPassword(t); setErrorMsg(''); }}
+                onFocus={() => setFocused('password')}
+                onBlur={() => setFocused(null)}
+                secureTextEntry
+              />
+            </View>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.link}>Non hai un account? Registrati</Text>
-        </TouchableOpacity>
+            <View style={styles.ctaWrapper}>
+              <CtaGlow />
+              <TouchableOpacity
+                style={[styles.button, loading && styles.buttonDisabled]}
+                onPress={handleLogin}
+                disabled={loading}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.buttonText}>
+                  {loading ? 'In corso…' : 'Accedi'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.linkRow}>
+              <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                <Text style={styles.link}>Password dimenticata?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                <Text style={styles.linkMuted}>
+                  Non hai un biglietto? <Text style={styles.link}>Registrati</Text>
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

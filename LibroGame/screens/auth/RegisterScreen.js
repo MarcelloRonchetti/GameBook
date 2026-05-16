@@ -4,12 +4,31 @@
 // viene creato manualmente su Supabase.
 // Campi richiesti: username, email, password, conferma password.
 
-import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  Text, TextInput, TouchableOpacity, View, ScrollView,
+  KeyboardAvoidingView, Platform, Animated, Easing,
+} from 'react-native';
 
 import { supabase } from '../../lib/supabase';
 import { notify } from '../../lib/helpers';
+import VelvetBackdrop from '../../components/VelvetBackdrop';
 import { registerStyles as styles } from '../../styles/auth';
+
+function CtaGlow() {
+  const opacity = useRef(new Animated.Value(0.4)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 0.85, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.4, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [opacity]);
+  return <Animated.View pointerEvents="none" style={[styles.ctaGlow, { opacity }]} />;
+}
 
 export default function RegisterScreen({ navigation }) {
 
@@ -19,17 +38,16 @@ export default function RegisterScreen({ navigation }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [focused, setFocused] = useState(null);
 
   const handleRegister = async () => {
     setErrorMsg('');
 
-    // Sanitizzazione input
     const sanitizedUsername = username.trim();
     const sanitizedEmail = email.trim().toLowerCase();
     const sanitizedPassword = password.trim();
     const sanitizedConfirmPassword = confirmPassword.trim();
 
-    // Validazioni
     if (!sanitizedUsername || !sanitizedEmail || !sanitizedPassword || !sanitizedConfirmPassword) {
       setErrorMsg('Compila tutti i campi');
       return;
@@ -54,7 +72,6 @@ export default function RegisterScreen({ navigation }) {
 
     setLoading(true);
 
-    // Step 1 — Crea account su Supabase Auth
     const { data, error } = await supabase.auth.signUp({
       email: sanitizedEmail,
       password: sanitizedPassword,
@@ -66,7 +83,6 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
-    // Step 2 — Salva il profilo nella tabella users con role = player
     const { error: profileError } = await supabase
       .from('users')
       .insert({
@@ -88,66 +104,115 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Text style={styles.title}>Crea il tuo account</Text>
-
-      {errorMsg ? (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorBannerText}>⚠️ {errorMsg}</Text>
-        </View>
-      ) : null}
-
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        placeholderTextColor="#666"
-        value={username}
-        onChangeText={(t) => { setUsername(t); setErrorMsg(''); }}
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#666"
-        value={email}
-        onChangeText={(t) => { setEmail(t); setErrorMsg(''); }}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password (min 6 caratteri)"
-        placeholderTextColor="#666"
-        value={password}
-        onChangeText={(t) => { setPassword(t); setErrorMsg(''); }}
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Conferma password"
-        placeholderTextColor="#666"
-        value={confirmPassword}
-        onChangeText={(t) => { setConfirmPassword(t); setErrorMsg(''); }}
-        secureTextEntry
-      />
-
-      <TouchableOpacity
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={handleRegister}
-        disabled={loading}
+      <VelvetBackdrop />
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.buttonText}>
-          {loading ? 'Registrazione...' : 'Registrati'}
-        </Text>
-      </TouchableOpacity>
+        <View style={styles.stage}>
+          <View style={styles.ornamentTop}>
+            <View style={styles.ornamentLine} />
+            <View style={styles.ornamentDot} />
+            <View style={styles.ornamentLine} />
+          </View>
+          <Text style={styles.eyebrow}>Nuovo Spettatore</Text>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.link}>Hai già un account? Accedi</Text>
-      </TouchableOpacity>
-    </ScrollView>
+          <View style={styles.card}>
+            <Text style={styles.title}>Unisciti al pubblico</Text>
+            <Text style={styles.subtitle}>Il sipario si alzerà solo per chi ha un biglietto</Text>
+
+            {errorMsg ? (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorBannerText}>{errorMsg}</Text>
+              </View>
+            ) : null}
+
+            <View style={styles.inputWrapper}>
+              <Text style={styles.fieldLabel}>Username</Text>
+              <TextInput
+                style={[styles.input, focused === 'username' && styles.inputFocused]}
+                placeholder="il tuo nome d'arte"
+                placeholderTextColor="rgba(184,162,133,0.45)"
+                value={username}
+                onChangeText={(t) => { setUsername(t); setErrorMsg(''); }}
+                onFocus={() => setFocused('username')}
+                onBlur={() => setFocused(null)}
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputWrapper}>
+              <Text style={styles.fieldLabel}>Email</Text>
+              <TextInput
+                style={[styles.input, focused === 'email' && styles.inputFocused]}
+                placeholder="nome@dominio.it"
+                placeholderTextColor="rgba(184,162,133,0.45)"
+                value={email}
+                onChangeText={(t) => { setEmail(t); setErrorMsg(''); }}
+                onFocus={() => setFocused('email')}
+                onBlur={() => setFocused(null)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputWrapper}>
+              <Text style={styles.fieldLabel}>Password</Text>
+              <TextInput
+                style={[styles.input, focused === 'password' && styles.inputFocused]}
+                placeholder="minimo 6 caratteri"
+                placeholderTextColor="rgba(184,162,133,0.45)"
+                value={password}
+                onChangeText={(t) => { setPassword(t); setErrorMsg(''); }}
+                onFocus={() => setFocused('password')}
+                onBlur={() => setFocused(null)}
+                secureTextEntry
+              />
+            </View>
+
+            <View style={styles.inputWrapper}>
+              <Text style={styles.fieldLabel}>Conferma Password</Text>
+              <TextInput
+                style={[styles.input, focused === 'confirm' && styles.inputFocused]}
+                placeholder="ripeti la password"
+                placeholderTextColor="rgba(184,162,133,0.45)"
+                value={confirmPassword}
+                onChangeText={(t) => { setConfirmPassword(t); setErrorMsg(''); }}
+                onFocus={() => setFocused('confirm')}
+                onBlur={() => setFocused(null)}
+                secureTextEntry
+              />
+            </View>
+
+            <View style={styles.ctaWrapper}>
+              <CtaGlow />
+              <TouchableOpacity
+                style={[styles.button, loading && styles.buttonDisabled]}
+                onPress={handleRegister}
+                disabled={loading}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.buttonText}>
+                  {loading ? 'In corso…' : 'Registrati'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => navigation.navigate('Login')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.secondaryButtonText}>Torna al login</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

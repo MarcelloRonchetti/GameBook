@@ -45,18 +45,18 @@ Ignore node_modules folder when scanning the project files
   - `LibroGame/index.js` registers the Expo root component.
   - `LibroGame/navigation/AppNavigator.js` defines auth, GM, current player, and legacy player stack routes. Initial route is `AuthLoading`. Critical screens use `headerLeft: () => null` and `gestureEnabled: false`. The `NavigationContainer` has a `linking` config so the URL `/reset-password` resolves to `ResetPasswordScreen` on web; deep-link prefix `librogame://` is registered as placeholder for future mobile builds.
 
-- Auth screens:
+- Auth screens (visual style: "velluto teatrale" — `VelvetBackdrop` ambient layer + `colors.velvet` palette + `Animated` glow rings sui CTA primari):
   - `AuthLoadingScreen` restores Supabase sessions and redirects by role. Also subscribes to `onAuthStateChange` and handles the `PASSWORD_RECOVERY` event by routing to `ResetPassword` instead of the role home (a `recoveryFired` guard prevents the async `getSession()` branch from racing back to the home).
-  - `LoginScreen` authenticates GM/player accounts and uses inline error banners. Includes a "Password dimenticata?" link to `ForgotPassword`.
-  - `RegisterScreen` creates player accounts only (validations: username min 3, email regex, password min 6, confirm). GM accounts are created manually in Supabase.
+  - `LoginScreen` authenticates GM/player accounts and uses inline error banners. Includes a "Password dimenticata?" link to `ForgotPassword`. Redesign velluto teatrale: card bordeaux con bordo oro hairline, heading serif champagne, input con gold focus underline, CTA "Accedi" con glow ring pulsante.
+  - `RegisterScreen` creates player accounts only (validations: username min 3, email regex, password min 6, confirm). GM accounts are created manually in Supabase. Stessa identita visiva di `LoginScreen` (card velluto + glow ring sul CTA).
   - `ForgotPasswordScreen` requests a Supabase password-recovery email via Brevo SMTP. Inline error banner; success state replaces the form with "Controlla la tua email." + "Torna al login".
   - `ResetPasswordScreen` is reached by clicking the recovery link. Direct-visit guard ("Link non valido o scaduto") fires when no recovery session is present (also subscribes to `onAuthStateChange` so it handles the async URL-fragment parse robustly with a 2 s safety timeout). On success, calls `supabase.auth.updateUser({ password })`, signs out, and resets to `Login`.
 
-- GM screens:
-  - `RoomListScreen` lists rooms, supports enter/close/reopen/delete (with `confirm()` for destructive actions), and exposes logout in the header. The `FlatList` is the screen root (no wrapper `<View>`) so it scrolls correctly on web; "Entra" uses `navigation.push('Dashboard', …)` to force a fresh Dashboard instance every time (avoids the white-screen on re-enter bug).
-  - `CreateRoomScreen` creates named rooms with story selection and auto-hint timing. Inline error banner.
-  - `DashboardScreen` shows room code, status, connected players in realtime, current scene, close-room action, and player removal. Header back button uses `navigation.goBack()` (RoomList is always below in the stack) so Dashboard unmounts cleanly. The `FlatList` is the screen root (no wrapper `<View>`) so it scrolls correctly on web.
-  - `PlayerDetailScreen` shows player progress (vertical timeline with colored dots: green=solved, orange=pending) and sends manual text hints; `notify()` for validation/send errors. The `FlatList` is the direct child of `KeyboardAvoidingView` (no wrapper `<View>`) so it scrolls correctly on web.
+- GM screens (visual style: "velluto teatrale" — stessa identita di Auth, palette `colors.velvet`, header bar bordeaux/oro via `navigation.setOptions` screen-local; `VelvetBackdrop` come strato di sfondo absolutely-positioned):
+  - `RoomListScreen` lists rooms, supports enter/close/reopen/delete (with `confirm()` for destructive actions), and exposes logout in the header. La `FlatList` rimane root della schermata (wrapper `<View flex:1>` ammesso senza padding per ospitare il `VelvetBackdrop` absolute — il vincolo CLAUDE.md vieta il wrapper `flex:1 + padding`, non un wrapper flex puro); "Entra" uses `navigation.push('Dashboard', …)` to force a fresh Dashboard instance every time (avoids the white-screen on re-enter bug). FAB "+ Nuova stanza" spostata in `ListFooterComponent` per restare nel contratto `FlatList`-as-root.
+  - `CreateRoomScreen` creates named rooms with story selection and auto-hint timing. Inline error banner. Auto-hint timer renderizzato come segmented control (gold-on-bordeaux) invece di Picker.
+  - `DashboardScreen` shows room code, status, connected players in realtime, current scene, close-room action, and player removal. Header back button uses `navigation.goBack()` (RoomList is always below in the stack) so Dashboard unmounts cleanly. La `FlatList` resta root (con wrapper `flex:1` no-padding per il backdrop). Hero strip in testa: codice stanza renderizzato come "brass plate" oro con letter-spacing 6-8 px (mock engraving).
+  - `PlayerDetailScreen` shows player progress (vertical timeline con dot oro: `velvet.gold` filled = solved, `velvet.gold` ring outline = pending — sostituiscono i precedenti green/orange) and sends manual text hints; `notify()` for validation/send errors. The `FlatList` is the direct child of `KeyboardAvoidingView` (no wrapper `<View>`) so it scrolls correctly on web.
 
 - Player screens:
   - `JoinRoomScreen` validates a 6-digit code, joins open rooms, and resumes progress. The code input is trimmed and then `.padStart(6, '0')` is applied so that codes with leading zeros (e.g. `001234`) are preserved before the Supabase lookup. Uses `maybeSingle()` to avoid errors on missing rooms. Calls `resolvePlayerResumeRoute` and `navigation.reset` to the right scene. Logout link via `confirmLogout`.
@@ -68,6 +68,7 @@ Ignore node_modules folder when scanning the project files
 
 - Components:
   - Current flow: `NarratorView` (typewriter dialog box; legge dialoghi strutturati `scene.dialogue` (array di `{speaker, text}`) con fallback `scene.narratorBlocks` (legacy) o `scene.text`. Header del dialog box mostra dinamicamente "NARRATORE" o il nome del personaggio in base allo speaker del blocco corrente. Dialog box altezza max 22% schermo (`useWindowDimensions`) con ScrollView interno per testi lunghi, alpha background 0.7 per maggiore trasparenza. Props: `anagramButtonLabel`, `hideCharacter`, `characterPosition`, `hintActive`, `hintAsset`, `hintPosition`), `AnagramOverlay` (anagram panel, GM hints, Illusionista cipher con non-breaking hyphen al render, next-scene choices), `AutoHintEffect`, `GmHint` (shows only the latest hint), `AnagramInput`.
+  - `VelvetBackdrop` (`components/VelvetBackdrop.js`): sfondo "velluto teatrale" condiviso da tutte le schermate Auth + GM ridisegnate. Strati: gradient SVG bordeaux scuro full-bleed + due tende SVG ancorate ai bordi con sway sinusoidale (loop 6s, skew 1-2°) + 8 particelle dorate fluttuanti in loop verticale (Animated.timing + interpolate). Solo `Animated` built-in + `react-native-svg` (nessuna nuova dipendenza). Va renderizzato a `position: absolute, inset: 0, zIndex: 0` con i figli sopra.
   - Reusable/legacy support: `PlayerCard`, `SceneCard`.
   - `ErrorBoundary` (class component, file dedicato): cattura crash React e li mostra a schermo invece di chiudere l'app. Wrappa `AppNavigator` in `App.js`. Tenere in file separato per non rompere Fast Refresh.
 
@@ -100,7 +101,9 @@ LibroGame/
 │   ├── GmHint.js
 │   ├── PlayerCard.js
 │   ├── NarratorView.js
-│   └── AnagramOverlay.js
+│   ├── AnagramOverlay.js
+│   ├── VelvetBackdrop.js     (sfondo velluto + tende SVG + particelle, shared Auth+GM)
+│   └── ErrorBoundary.js
 ├── screens/
 │   ├── auth/                 (AuthLoading, Login, Register, ForgotPassword, ResetPassword)
 │   ├── gm/                   (CreateRoom, RoomList, Dashboard, PlayerDetail)
@@ -115,7 +118,7 @@ LibroGame/
 ## Styling system
 
 `styles/theme.js`:
-- `colors` (dark/light backgrounds, gold accent `primary`, semantic states, GM badge colors)
+- `colors` (dark/light backgrounds, gold accent `primary`, semantic states, GM badge colors). Sub-namespace `colors.velvet` aggiunto per il restyle Auth+GM: `bgDeep` (#2a1418), `bgPanel` (#3d1e25), `bgRaised` (#4a2530), `gold` (#c8a45a — alias di `primary`), `goldSoft` (#e0c485), `goldFaint` (rgba(200,164,90,0.25)), `champagne` (#f5ead1), `champagneMuted` (#b8a285), `taupe` (#8a6d4b), `success` (#7aa37a), `danger` (#a85959). Da NON usare nelle schermate player — quelle hanno il loro tema circo/scena.
 - `spacing` (xs=4 … huge=40)
 - `radius` (sm=6 … pill=20 … round=999)
 - `fontSize` (xs=12 … display=40)
@@ -128,7 +131,7 @@ LibroGame/
 - `MAP_NODES` supporta `pathAnchorX/Y` per offset endpoint percorsi SVG
 - `CHARACTER_POSITIONS` + `DEFAULT_CHARACTER_POSITION` — override posizione/dimensione sprite NPC per-scena. Helper `getCharacterPosition(sceneId)`. Usato in `CircoStanzaScreen` e `NarratorView` come prop `characterPosition` per applicare style override sul `characterContainer`
 
-`styles/components.js`: `anagramInputStyles`, `autoHintEffectStyles` (gold border 4px overlay, zIndex 1000), `gmHintStyles` (yellow banner with left border), `playerCardStyles`, `sceneCardStyles`.
+`styles/components.js`: `anagramInputStyles`, `autoHintEffectStyles` (gold border 4px overlay, zIndex 1000), `gmHintStyles` (yellow banner with left border), `playerCardStyles`, `sceneCardStyles`, `velvetBackdropStyles` (curtain + particles container; consumato da `VelvetBackdrop`).
 
 `styles/auth.js`: `authLoadingStyles`, `loginStyles` (+ `errorBanner`), `registerStyles` (+ `errorBanner`).
 

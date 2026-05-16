@@ -120,6 +120,10 @@
 - [x] **Ridimensionamento massivo asset PNG** (`scripts/resize-assets.py` + `npm run resize-assets`): tutti i PNG di `assets/{map,characters,backgrounds,hints}` portati a dimensioni reali di rendering (1024 px lato lungo per map/characters/hints, 2048 per backgrounds). Risparmio totale 358 MB → 51 MB (−86%). Caso peggiore: `node_tent_final.png` da 6921×9369 (45 MB) a 756×1024 (810 KB). Idempotente: salta i file gia' sotto soglia
 - [x] **`ImagePreloader` esteso a tutti gli asset mappa**: `App.js` ora preload anche `node_frame`, `node_tent_entry`, `node_tent_final`, `node_banner` (prima solo `map.background`). I 5 asset della mappa sono pronti al primo ingresso in `MapScreen`
 - [x] **`MapScreen` render non-bloccante**: rimosso `if (loading) return <View />` che mostrava uno schermo nero finche' Supabase non rispondeva. Ora `nodeStates` si inizializza sincronicamente via `useMemo(computeNodeStates([], allChoices))` da `route.params`: i nodi disponibili appaiono subito come `available`, e la risposta Supabase aggiorna le scene gia' risolte a `visited`
+- [x] **Restyle "Velluto teatrale" Auth + GM**: nuova palette `colors.velvet` in `theme.js` (bgDeep #2a1418, bgPanel #3d1e25, bgRaised #4a2530, gold #c8a45a, goldSoft #e0c485, goldFaint rgba(200,164,90,0.25), champagne #f5ead1, champagneMuted #b8a285, taupe #8a6d4b, success #7aa37a, danger #a85959). Aggiunte additive, niente token esistente rimosso (player screens non toccate). Rifatte 6 schermate: `LoginScreen`, `RegisterScreen`, `RoomListScreen`, `CreateRoomScreen`, `DashboardScreen`, `PlayerDetailScreen`. Logica Supabase/navigation/validazione invariata. Nessuna nuova dipendenza (solo `Animated` built-in + `react-native-svg` gia' presente)
+- [x] **`components/VelvetBackdrop.js`** — nuovo componente: sfondo full-bleed `position: absolute, inset: 0, zIndex: 0` con (1) gradient SVG bordeaux scuro, (2) due tende SVG ancorate ai bordi con sway sinusoidale (loop 6s, skew 1-2°), (3) 8 particelle dorate fluttuanti in loop verticale 9-15s. Solo `Animated` nativo. Renderizzato come primo figlio in tutte le schermate ridisegnate
+- [x] **CTA glow ring riusabile**: componente animato locale alle schermate auth/gm (wrapper `Animated.View` con shadow oro pulsante 0.4→0.8→0.4 in 2400ms). Applicato ai CTA primari "Accedi", "Registrati", "Crea stanza", "Entra" (RoomList), "Invia suggerimento"
+- [x] **Header bar palette via `navigation.setOptions`** screen-local (NON in `AppNavigator.js`): `RoomList`, `CreateRoom`, `Dashboard`, `PlayerDetail` impostano `headerStyle/Tint/Title` velluto al mount, cosi' la barra di sistema React Navigation non rompe la continuita visiva. `AppNavigator` resta intoccato
 
 ---
 
@@ -165,8 +169,8 @@
 
 ### Stili
 
-- [ ] Centralizzare gli stili ancora locali in `DashboardScreen`
-- [ ] Centralizzare gli stili ancora locali in `RoomListScreen`
+- [x] Centralizzare gli stili ancora locali in `DashboardScreen` (assorbiti nel restyle velluto)
+- [x] Centralizzare gli stili ancora locali in `RoomListScreen` (assorbiti nel restyle velluto)
 - [ ] Centralizzare o rimuovere gli stili locali della route legacy `AnagramScreen`
 - [ ] Collegare `DirectriceScreen` a `directriceStyles` in `styles/player.js`
 - [ ] Rivedere `styles/player.js`: `directriceStyles` e `anagramScreenStyles` esistono ma non sono pienamente usati
@@ -197,9 +201,10 @@
 - [x] **Circo-stanza di partenza (intro)**: sfondo `intro_bg.png` aggiunto, integrato in `IntroScreen` con modalità narrazione + cifrario
 - [x] **Splitting testi narratore vs personaggio**: implementato. `scenes.json` ora ha campo `dialogue` con array di `{speaker, text}`. `NarratorView` legge speaker e cambia etichetta header dinamicamente ("NARRATORE" / nome personaggio)
 - [ ] **Grafica testi narrazione**: rifinire tipografia del `NarratorView` (font, dimensioni, spaziature, animazioni typewriter)
-- [ ] **Restyle schermate auth**: `LoginScreen`, `RegisterScreen`, `ForgotPasswordScreen`, `ResetPasswordScreen` — adeguarle al tema visivo del gioco (attualmente molto basiche)
-- [ ] **Restyle schermate GM**: `RoomListScreen`, `CreateRoomScreen`, `DashboardScreen`, `PlayerDetailScreen`
-- [ ] **Restyle schermata `JoinRoomScreen`** (lato player): primo touchpoint, deve essere accogliente
+- [x] **Restyle schermate auth (parziale)**: `LoginScreen` e `RegisterScreen` rifatte con palette "velluto teatrale" + `VelvetBackdrop` + glow ring CTA. `ForgotPasswordScreen` e `ResetPasswordScreen` sono rimaste alla resa minimal originale (saranno propagate quando il design e' validato)
+- [x] **Restyle schermate GM**: `RoomListScreen`, `CreateRoomScreen`, `DashboardScreen`, `PlayerDetailScreen` rifatte con identita "velluto teatrale" coerente con auth
+- [ ] **Propagare lo stile "velluto teatrale" alle schermate auth restanti**: `ForgotPasswordScreen`, `ResetPasswordScreen`, `JoinRoomScreen`. Mantenere il `VelvetBackdrop` e la palette `colors.velvet` per coerenza
+- [ ] **Restyle schermata `JoinRoomScreen`** (lato player): primo touchpoint, deve essere accogliente — adeguare al tema velluto teatrale
 - [ ] **Restyle schermata `DirectriceScreen`**: il finale del gioco merita una grafica più curata
 - [ ] Raffinare mappa e coordinate dei nodi dopo test su dispositivi reali
 - [x] Sistema `AutoHintEffect` per-scena implementato (componente, `getHintAsset`, `HINT_POSITIONS`) — asset Acrobata (`acrobata_hint.png`) da posizionare in `assets/hints/`; coordinate calibrate: `top: 8.9%, left: 38.1%, width: 30%, height: 49.2%`
@@ -283,6 +288,12 @@
     - **PNG sorgente sproporzionati**: `node_frame.png` era 6768×12528 (84 MP) renderizzato a ~150×300 px; `node_tent_final.png` 6921×9369 (45 MB) renderizzato a ~420×420 px. Decodificare un 84 MP PNG alloca ~340 MB di bitmap raw in RAM solo per scalarlo. Risolto con `scripts/resize-assets.py` (Pillow `Image.resize(LANCZOS) + optimize=True`) che porta i PNG a 1024 px lato lungo (2x abbondante per retina). Comando `npm run resize-assets`. Da rilanciare ogni volta che si aggiungono nuovi asset, prima di build APK e commit. Idempotente — salta i PNG gia' sotto soglia.
     - **Render bloccante**: `MapScreen` mostrava uno schermo nero (`if (loading) return <View ... />`) per tutta la durata della query Supabase `progress`. Risolto inizializzando `nodeStates` sincronicamente da `allChoices` (passato via `route.params`) con `useMemo(computeNodeStates([], allChoices))`. La query Supabase aggiorna solo le scene gia' risolte a `visited` quando arriva.
     - Target dimensioni `npm run resize-assets`: 1024 px per `map/`, `characters/`, `hints/`; 2048 px per `backgrounds/` (mostrati a tutto schermo). Risparmio misurato 358 MB → 51 MB (−86%).
+34. **Restyle "Velluto teatrale" Auth+GM — decisioni**:
+    - **Palette**: bordeaux profondi (`#2a1418` page, `#3d1e25` panel, `#4a2530` raised) + oro vecchio (`#c8a45a`, alias del `colors.primary` esistente) + champagne (`#f5ead1` testo). Tutte additive sotto `colors.velvet` per non rompere le schermate player che hanno il loro tema circo/scena.
+    - **Ambient layer condiviso**: `VelvetBackdrop` come componente unico riusato su tutte le 6 schermate, invece di duplicare lo sfondo in ciascuna. SVG `<LinearGradient>` per il base + due tende `<Path>` con sway lento (skew 1-2°, loop 6s) + 8 particelle `Animated.View` floating up (durate randomizzate ma deterministiche via seed `i * 1117 % 6000`). Solo `Animated` built-in + `react-native-svg` gia' in deps — niente reanimated/lottie/moti.
+    - **Header bar local-override**: `navigation.setOptions({ headerStyle, headerTintColor, headerTitleStyle })` chiamato dentro ciascuna schermata GM al mount invece di toccare `AppNavigator.js`. Cosi' la barra di sistema React Navigation eredita lo stile velluto senza che AppNavigator diventi tema-aware (le schermate player vogliono la barra di default).
+    - **FAB in `ListFooterComponent`** invece di `position: absolute` per restare nel contratto `FlatList`-as-root (vedi decisione #16). Trade-off: la FAB scrolla con la lista invece di stare flottante. Accettabile perche' lista corta e padding bottom genera lo spazio voluto.
+    - **Timeline `PlayerDetailScreen`**: il vecchio green/orange diventa `velvet.gold` filled (solved) vs `velvet.gold` ring outline (pending). La success semantica viene comunicata dalla *forma* (pieno vs cerchio) invece che dal colore.
 
 
 ## Bugs

@@ -6,6 +6,40 @@ import { StyleSheet } from 'react-native';
 import { colors, spacing, radius, fontSize } from './theme';
 
 // ---------------------------------------------------------------------------
+// VelvetBackdrop — sfondo teatrale condiviso
+// ---------------------------------------------------------------------------
+export const velvetBackdropStyles = StyleSheet.create({
+  root: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    zIndex: 0,
+    overflow: 'hidden',
+  },
+  layerFill: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+  },
+  curtain: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+  },
+  particleLayer: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+  },
+  particle: {
+    position: 'absolute',
+    borderRadius: 999,
+    backgroundColor: 'rgba(224,196,133,0.5)',
+    shadowColor: '#e0c485',
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 0 },
+  },
+});
+
+// ---------------------------------------------------------------------------
 // AnagramInput
 // ---------------------------------------------------------------------------
 export const anagramInputStyles = StyleSheet.create({

@@ -3,25 +3,48 @@
 // Mostra tutte le stanze con nome, codice, stato.
 // Permette di entrare, riaprire, chiudere ed eliminare le stanze.
 
-import React, { useState, useCallback, useLayoutEffect } from 'react';
+import React, { useState, useCallback, useLayoutEffect, useRef, useEffect } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity,
-  StyleSheet, Alert, ActivityIndicator
+  View, Text, FlatList, TouchableOpacity, ActivityIndicator, Animated, Easing,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 import { confirmLogout, confirm } from '../../lib/session';
+import { notify } from '../../lib/helpers';
+import VelvetBackdrop from '../../components/VelvetBackdrop';
+import { roomListStyles as styles } from '../../styles/gm';
+import { colors } from '../../styles/theme';
 
+function FabGlow() {
+  const opacity = useRef(new Animated.Value(0.4)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 0.85, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0.4, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [opacity]);
+  return <Animated.View pointerEvents="none" style={[styles.fabGlow, { opacity }]} />;
+}
 
 export default function RoomListScreen({ navigation }) {
 
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
-  // actionLoading — id della stanza su cui si sta eseguendo un'azione
 
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerStyle: { backgroundColor: colors.velvet.bgDeeper, shadowOpacity: 0, elevation: 0, borderBottomWidth: 1, borderBottomColor: colors.velvet.goldFaint },
+      headerTintColor: colors.velvet.goldSoft,
+      headerTitleStyle: {
+        color: colors.velvet.champagne,
+        letterSpacing: 2,
+        fontWeight: '700',
+      },
       headerRight: () => (
         <TouchableOpacity
           onPress={() => confirmLogout(navigation)}
@@ -52,7 +75,7 @@ export default function RoomListScreen({ navigation }) {
     setLoading(false);
 
     if (error) {
-      Alert.alert('Errore', 'Impossibile caricare le stanze');
+      notify('Errore', 'Impossibile caricare le stanze');
       return;
     }
 
@@ -60,60 +83,57 @@ export default function RoomListScreen({ navigation }) {
   };
 
   const handleEnterRoom = (room) => {
-    // navigation.push (non navigate) per garantire una nuova istanza di
-    // Dashboard ad ogni "Entra". Su web, navigate con stesse params può
-    // riusare l'istanza precedente in fase di unmount → schermo bianco.
     navigation.push('Dashboard', { room });
   };
 
   const handleReopenRoom = (room) => {
-  confirm(
-    'Riapri stanza',
-    `Vuoi riaprire "${room.name || room.code}"?`,
-    async () => {
-      setActionLoading(room.id);
-      const { error } = await supabase.from('rooms').update({ status: 'open' }).eq('id', room.id);
-      setActionLoading(null);
-      if (error) { Alert.alert('Errore', 'Impossibile riaprire la stanza'); return; }
-      const updatedRoom = { ...room, status: 'open' };
-      setRooms(prev => prev.map(r => r.id === room.id ? updatedRoom : r));
-      navigation.navigate('Dashboard', { room: updatedRoom });
-    }
-  );
-};
+    confirm(
+      'Riapri stanza',
+      `Vuoi riaprire "${room.name || room.code}"?`,
+      async () => {
+        setActionLoading(room.id);
+        const { error } = await supabase.from('rooms').update({ status: 'open' }).eq('id', room.id);
+        setActionLoading(null);
+        if (error) { notify('Errore', 'Impossibile riaprire la stanza'); return; }
+        const updatedRoom = { ...room, status: 'open' };
+        setRooms(prev => prev.map(r => r.id === room.id ? updatedRoom : r));
+        navigation.navigate('Dashboard', { room: updatedRoom });
+      }
+    );
+  };
 
   const handleCloseRoom = (room) => {
-  confirm(
-    'Chiudi stanza',
-    `Vuoi chiudere "${room.name || room.code}"? I giocatori non potranno più accedere.`,
-    async () => {
-      setActionLoading(room.id);
-      const { error } = await supabase.from('rooms').update({ status: 'closed' }).eq('id', room.id);
-      setActionLoading(null);
-      if (error) { Alert.alert('Errore', 'Impossibile chiudere la stanza'); return; }
-      setRooms(prev => prev.map(r => r.id === room.id ? { ...r, status: 'closed' } : r));
-    },
-    true
-  );
-};
+    confirm(
+      'Chiudi stanza',
+      `Vuoi chiudere "${room.name || room.code}"? I giocatori non potranno più accedere.`,
+      async () => {
+        setActionLoading(room.id);
+        const { error } = await supabase.from('rooms').update({ status: 'closed' }).eq('id', room.id);
+        setActionLoading(null);
+        if (error) { notify('Errore', 'Impossibile chiudere la stanza'); return; }
+        setRooms(prev => prev.map(r => r.id === room.id ? { ...r, status: 'closed' } : r));
+      },
+      true
+    );
+  };
 
   const handleDeleteRoom = (room) => {
-  confirm(
-    'Elimina stanza',
-    `Sei sicuro di voler eliminare "${room.name || room.code}"? Questa azione è irreversibile.`,
-    async () => {
-      setActionLoading(room.id);
-      await supabase.from('progress').delete().eq('room_id', room.id);
-      await supabase.from('hints').delete().eq('room_id', room.id);
-      await supabase.from('room_players').delete().eq('room_id', room.id);
-      const { error } = await supabase.from('rooms').delete().eq('id', room.id);
-      setActionLoading(null);
-      if (error) { Alert.alert('Errore', 'Impossibile eliminare la stanza'); return; }
-      setRooms(prev => prev.filter(r => r.id !== room.id));
-    },
-    true
-  );
-};
+    confirm(
+      'Elimina stanza',
+      `Sei sicuro di voler eliminare "${room.name || room.code}"? Questa azione è irreversibile.`,
+      async () => {
+        setActionLoading(room.id);
+        await supabase.from('progress').delete().eq('room_id', room.id);
+        await supabase.from('hints').delete().eq('room_id', room.id);
+        await supabase.from('room_players').delete().eq('room_id', room.id);
+        const { error } = await supabase.from('rooms').delete().eq('id', room.id);
+        setActionLoading(null);
+        if (error) { notify('Errore', 'Impossibile eliminare la stanza'); return; }
+        setRooms(prev => prev.filter(r => r.id !== room.id));
+      },
+      true
+    );
+  };
 
   const formatDate = (isoString) => {
     return new Date(isoString).toLocaleDateString('it-IT', {
@@ -128,22 +148,33 @@ export default function RoomListScreen({ navigation }) {
 
     return (
       <View style={[styles.card, isOpen ? styles.cardOpen : styles.cardClosed]}>
-
-        {/* Intestazione: nome + badge stato */}
         <View style={styles.cardHeader}>
           <Text style={styles.cardName}>{item.name || '—'}</Text>
-          <View style={[styles.badge, isOpen ? styles.badgeOpen : styles.badgeClosed]}>
-            <Text style={styles.badgeText}>{isOpen ? '🟢 Aperta' : '🔴 Chiusa'}</Text>
+          <View style={styles.brassPlate}>
+            <Text style={styles.brassPlateText}>{item.code}</Text>
           </View>
         </View>
 
-        {/* Info */}
-        <Text style={styles.cardCode}>Codice: {item.code}</Text>
-        <Text style={styles.cardInfo}>📖 {item.stories?.title || '—'}</Text>
-        <Text style={styles.cardInfo}>⏱ Aiuto automatico: {item.auto_hint_minutes} min</Text>
-        <Text style={styles.cardInfo}>🕐 {formatDate(item.created_at)}</Text>
+        <View style={styles.statusRow}>
+          <View style={[styles.statusDot, isOpen ? styles.statusDotOpen : styles.statusDotClosed]} />
+          <Text style={styles.statusText}>{isOpen ? 'Aperta' : 'Chiusa'}</Text>
+        </View>
 
-        {/* Azioni principali */}
+        <View style={styles.infoGrid}>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoIcon}>◈</Text>
+            <Text style={styles.infoText}>{item.stories?.title || '—'}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoIcon}>◷</Text>
+            <Text style={styles.infoText}>Aiuto auto: {item.auto_hint_minutes} min</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoIcon}>◌</Text>
+            <Text style={styles.infoText}>{formatDate(item.created_at)}</Text>
+          </View>
+        </View>
+
         <View style={styles.actionsRow}>
           {isOpen ? (
             <>
@@ -151,40 +182,42 @@ export default function RoomListScreen({ navigation }) {
                 style={[styles.actionButton, styles.enterButton, isActing && styles.buttonDisabled]}
                 onPress={() => handleEnterRoom(item)}
                 disabled={isActing}
+                activeOpacity={0.85}
               >
-                <Text style={styles.actionButtonText}>Entra →</Text>
+                <Text style={styles.enterButtonText}>Entra →</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.actionButton, styles.closeButton, isActing && styles.buttonDisabled]}
+                style={[styles.actionButton, styles.ghostButton, isActing && styles.buttonDisabled]}
                 onPress={() => handleCloseRoom(item)}
                 disabled={isActing}
+                activeOpacity={0.7}
               >
-                <Text style={styles.actionButtonText}>Chiudi</Text>
+                <Text style={styles.ghostButtonText}>Chiudi</Text>
               </TouchableOpacity>
             </>
           ) : (
             <TouchableOpacity
-              style={[styles.actionButton, styles.reopenButton, isActing && styles.buttonDisabled]}
+              style={[styles.actionButton, styles.ghostButton, isActing && styles.buttonDisabled]}
               onPress={() => handleReopenRoom(item)}
               disabled={isActing}
+              activeOpacity={0.7}
             >
-              <Text style={styles.actionButtonText}>
-                {isActing ? 'Attendere...' : 'Riapri'}
+              <Text style={styles.ghostButtonText}>
+                {isActing ? 'Attendere…' : 'Riapri'}
               </Text>
             </TouchableOpacity>
           )}
 
-          {/* Elimina — sempre visibile */}
           <TouchableOpacity
-            style={[styles.actionButton, styles.deleteButton, isActing && styles.buttonDisabled]}
+            style={[styles.actionButton, styles.dangerGhost, isActing && styles.buttonDisabled]}
             onPress={() => handleDeleteRoom(item)}
             disabled={isActing}
+            activeOpacity={0.7}
           >
-            <Text style={styles.actionButtonText}>🗑 Elimina</Text>
+            <Text style={styles.dangerGhostText}>Elimina</Text>
           </TouchableOpacity>
         </View>
-
       </View>
     );
   };
@@ -192,148 +225,51 @@ export default function RoomListScreen({ navigation }) {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#000" />
-        <Text style={styles.loadingText}>Caricamento stanze...</Text>
+        <VelvetBackdrop />
+        <ActivityIndicator size="large" color={colors.velvet.gold} />
+        <Text style={styles.loadingText}>Apertura del foyer…</Text>
       </View>
     );
   }
 
   return (
-    // FlatList come root: il wrapper View con flex:1+padding interferiva
-    // con lo scroll della lista su web quando il contenuto eccedeva la
-    // viewport. Padding e bg vivono ora nello style/contentContainerStyle.
-    <FlatList
-      data={rooms}
-      keyExtractor={item => item.id}
-      renderItem={renderRoom}
-      style={styles.listFrame}
-      contentContainerStyle={styles.list}
-      ListHeaderComponent={
-        <Text style={styles.title}>Le mie stanze</Text>
-      }
-      ListEmptyComponent={
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Nessuna stanza ancora creata</Text>
-          <Text style={styles.emptySubtext}>Crea la tua prima stanza per iniziare!</Text>
-        </View>
-      }
-      ListFooterComponent={
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={() => navigation.navigate('CreateRoom')}
-        >
-          <Text style={styles.createButtonText}>+ Crea nuova stanza</Text>
-        </TouchableOpacity>
-      }
-    />
+    <View style={{ flex: 1 }}>
+      <VelvetBackdrop />
+      <FlatList
+        data={rooms}
+        keyExtractor={item => item.id}
+        renderItem={renderRoom}
+        style={styles.listFrame}
+        contentContainerStyle={styles.list}
+        ListHeaderComponent={
+          <View style={styles.headerBlock}>
+            <Text style={styles.eyebrow}>Quartier Generale</Text>
+            <Text style={styles.title}>Le mie stanze</Text>
+            <View style={styles.titleRule} />
+          </View>
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyOrnament}>✦</Text>
+            <Text style={styles.emptyText}>Il sipario non si è ancora alzato</Text>
+            <Text style={styles.emptySubtext}>Crea la tua prima stanza per dare inizio allo spettacolo</Text>
+          </View>
+        }
+        ListFooterComponent={
+          <View style={{ marginTop: 24, alignItems: 'center' }}>
+            <View style={{ position: 'relative' }}>
+              <FabGlow />
+              <TouchableOpacity
+                style={styles.fab}
+                onPress={() => navigation.navigate('CreateRoom')}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.fabText}>+ Nuova stanza</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        }
+      />
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#f5f5f5',
-  },
-  loadingText: { color: '#666', fontSize: 15 },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#111',
-  },
-  listFrame: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  list: {
-    padding: 20,
-    paddingBottom: 20,
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 14,
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  cardOpen: { borderLeftColor: '#22c55e' },
-  cardClosed: { borderLeftColor: '#ef4444' },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  cardName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111',
-    flex: 1,
-    marginRight: 8,
-  },
-  cardCode: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#555',
-    marginBottom: 4,
-    letterSpacing: 2,
-  },
-  cardInfo: { fontSize: 13, color: '#888', marginBottom: 3 },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  badgeOpen: { backgroundColor: '#dcfce7' },
-  badgeClosed: { backgroundColor: '#fee2e2' },
-  badgeText: { fontSize: 12, fontWeight: '600' },
-  actionsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 14,
-    flexWrap: 'wrap',
-  },
-  actionButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  enterButton: { backgroundColor: '#111' },
-  closeButton: { backgroundColor: '#f97316' },
-  reopenButton: { backgroundColor: '#3b82f6' },
-  deleteButton: { backgroundColor: '#ef4444' },
-  buttonDisabled: { backgroundColor: '#ccc' },
-  actionButtonText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  emptyContainer: {
-    alignItems: 'center',
-    marginTop: 60,
-    gap: 8,
-  },
-  emptyText: { fontSize: 16, fontWeight: '600', color: '#555' },
-  emptySubtext: { fontSize: 14, color: '#999' },
-  createButton: {
-    backgroundColor: '#111',
-    padding: 18,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-  createButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  headerButton: { paddingHorizontal: 14, paddingVertical: 6 },
-  headerButtonText: { color: '#fff', fontSize: 15, fontWeight: '600' },
-});
