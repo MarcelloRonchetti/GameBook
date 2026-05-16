@@ -20,8 +20,40 @@ const INTERIOR_OFFSET_Y = 0.23;  // scostamento verticale   sprite/? dentro l'ar
 const SPRITE_SCALE      = 0.9;  // dimensione sprite/? (moltiplicatore su intSize, es. 0.8 = più piccolo)
 const BANNER_BOTTOM     = 0.31; // posizione verticale label dal fondo (% di frameH)
 const LABEL_FONT_SCALE  = 0.084; // dimensione testo label (% di frameW)
+// Override per-scena del font label — utile per nomi lunghi (CONTORSIONISTA,
+// CAVALLERIZZA...) che sforerebbero il banner di legno.
+const LABEL_FONT_OVERRIDES = {
+  funambolo:      0.07,
+  cavallerizza:   0.069,
+  contorsionista: 0.055,
+  controfigura:   0.06,
+  equilibrista:   0.07,
+  sputafuoco:     0.07,
+  illusionista:   0.069,
+};
+// Override per-scena della POSIZIONE del nome sul banner.
+//   bottom → % di frameH dal fondo dell'arco (default BANNER_BOTTOM = 0.31).
+//            Aumenta per salire, diminuisci per scendere.
+//   left   → % di frameW da sinistra (default 0.1).
+//            Aumenta per spostare a destra, diminuisci per sinistra.
+// Aggiungi qui solo le scene che vuoi spostare, le altre usano i default.
+const LABEL_POSITION_OVERRIDES = {
+  contorsionista: { bottom: 0.32, left: 0.1 },
+  cavallerizza:   { bottom: 0.32, left: 0.1 },
+  controfigura:   { bottom: 0.319, left: 0.11 },
+  illusionista:   { bottom: 0.318, left: 0.11 },
+};
 const ARCH_SCALE    = 3;  // moltiplicatore dimensione archi normali
 const TENT_SCALE    = 3.8;  // moltiplicatore dimensione tende speciali
+
+// Larghezza di riferimento per cui sono state calibrate dimensioni e font.
+// A questa larghezza responsiveScale = 1; sopra cresce, sotto si rimpicciolisce.
+// Cosi' le proporzioni della mappa restano identiche su desktop, web, telefono.
+const REFERENCE_WIDTH = 1920;
+
+// DEBUG: forza tutti i nodi a 'available' per controllare l'overflow dei nomi
+// degli NPC sul banner. RIMETTERE A false PRIMA DEL COMMIT/BUILD.
+const DEBUG_SHOW_ALL = false;
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
@@ -48,6 +80,10 @@ import {
 function computeNodeStates(visitedScenes, allChoices) {
   const states = {};
   Object.keys(MAP_NODES).forEach((id) => {
+    if (DEBUG_SHOW_ALL) {
+      states[id] = id === 'intro' ? 'entry' : 'available';
+      return;
+    }
     if (id === 'intro') { states[id] = 'entry'; return; }
     if (visitedScenes.includes(id)) { states[id] = 'visited'; return; }
     if (allChoices && allChoices.includes(id)) { states[id] = 'available'; return; }
@@ -83,9 +119,10 @@ function TentNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
   const isAvail   = state === 'available';
   const tentAsset = isFinal ? ASSETS.map.nodeTentFinal : ASSETS.map.nodeTentEntry;
 
+  const responsiveScale = screenW / REFERENCE_WIDTH;
   const cx      = (nodeConf.x / 100) * screenW;
   const cy      = (nodeConf.y / 100) * screenH;
-  const tentW   = nodeConf.size * TENT_SCALE;
+  const tentW   = nodeConf.size * TENT_SCALE * responsiveScale;
   const tentH   = tentW;
   const bc = BANNER_CONFIG[sceneId] || {};
   const bannerW      = tentW  * (bc.bannerScale   ?? 0.4);
@@ -164,9 +201,10 @@ function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
   const npc           = getNpcTheme(sceneId);
   const characterAsset = getCharacterAsset(sceneId);
 
+  const responsiveScale = screenW / REFERENCE_WIDTH;
   const cx       = (nodeConf.x / 100) * screenW;
   const cy       = (nodeConf.y / 100) * screenH;
-  const frameW   = nodeConf.size * ARCH_SCALE;
+  const frameW   = nodeConf.size * ARCH_SCALE * responsiveScale;
   const frameH   = frameW * FRAME_RATIO;
   const intSize   = frameW * INTERIOR_SIZE;
   const spriteSize = intSize * SPRITE_SCALE;
@@ -225,7 +263,12 @@ function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
       <Text
         style={[
           styles.nodeLabel,
-          { bottom: frameH * BANNER_BOTTOM, width: frameW * 0.8, left: frameW * 0.1, fontSize: frameW * LABEL_FONT_SCALE },
+          {
+            bottom:   frameH * (LABEL_POSITION_OVERRIDES[sceneId]?.bottom ?? BANNER_BOTTOM),
+            left:     frameW * (LABEL_POSITION_OVERRIDES[sceneId]?.left   ?? 0.1),
+            width:    frameW * 0.8,
+            fontSize: frameW * (LABEL_FONT_OVERRIDES[sceneId] ?? LABEL_FONT_SCALE),
+          },
           isFog && styles.nodeLabelFog,
         ]}
         numberOfLines={1}
@@ -250,6 +293,8 @@ export default function MapScreen({ route, navigation }) {
   // i nodi disponibili appaiono subito come 'available', il resto come 'fog'.
   // Quando arriva la risposta Supabase, le scene gia' risolte passano a 'visited'.
   // Cosi' la mappa e' visibile immediatamente senza attendere la query.
+  const responsiveScale = screenW / REFERENCE_WIDTH;
+
   const initialStates = useMemo(
     () => computeNodeStates([], allChoices),
     [allChoices],
@@ -312,13 +357,13 @@ export default function MapScreen({ route, navigation }) {
               <Path
                 d={`M ${x1} ${y1} Q ${cpx} ${cpy} ${x2} ${y2}`}
                 stroke={active ? '#C8A45A' : 'rgba(120,100,60,0.35)'}
-                strokeWidth={active ? 4.5 : 2}
+                strokeWidth={(active ? 4.5 : 2) * responsiveScale}
                 strokeLinecap="round"
                 fill="none"
                 opacity={active ? 0.92 : 0.4}
               />
               {active && (
-                <Circle cx={mx} cy={my} r={3.5} fill="#C8A45A" opacity={0.85} />
+                <Circle cx={mx} cy={my} r={3.5 * responsiveScale} fill="#C8A45A" opacity={0.85} />
               )}
             </React.Fragment>
           );
@@ -356,10 +401,10 @@ export default function MapScreen({ route, navigation }) {
         );
       })}
 
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>🎪 Il Circo delle Circostanze</Text>
-        <Text style={styles.headerHint}>Scegli la prossima circo-stanza</Text>
+      {/* HEADER — font e padding scalati responsivamente */}
+      <View style={[styles.header, { paddingVertical: 10 * responsiveScale, paddingHorizontal: 18 * responsiveScale }]}>
+        <Text style={[styles.headerTitle, { fontSize: 15 * responsiveScale }]}>🎪 Il Circo delle Circostanze</Text>
+        <Text style={[styles.headerHint, { fontSize: 11 * responsiveScale }]}>Scegli la prossima circo-stanza</Text>
       </View>
     </View>
   );
