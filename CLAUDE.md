@@ -67,7 +67,7 @@ Ignore node_modules folder when scanning the project files
   - `SceneScreen` and `AnagramScreen` are legacy route fallbacks.
 
 - Components:
-  - Current flow: `NarratorView` (typewriter dialog with placeholder fallback; the narration body is wrapped in a `ScrollView` and the character + dialog use a flow layout — not absolute positioning — so they remain reachable via scroll on short windows; props `anagramButtonLabel` per personalizzare il testo del bottone finale, `hideCharacter` per non renderizzare lo sprite/emoji — usati da `DirectriceScreen` e `IntroScreen`), `AnagramOverlay` (anagram panel, GM hints, Illusionista cipher, next-scene choices), `AutoHintEffect`, `GmHint` (shows only the latest hint), `AnagramInput`.
+  - Current flow: `NarratorView` (typewriter dialog box; legge dialoghi strutturati `scene.dialogue` (array di `{speaker, text}`) con fallback `scene.narratorBlocks` (legacy) o `scene.text`. Header del dialog box mostra dinamicamente "NARRATORE" o il nome del personaggio in base allo speaker del blocco corrente. Dialog box altezza max 22% schermo (`useWindowDimensions`) con ScrollView interno per testi lunghi, alpha background 0.7 per maggiore trasparenza. Props: `anagramButtonLabel`, `hideCharacter`, `characterPosition`, `hintActive`, `hintAsset`, `hintPosition`), `AnagramOverlay` (anagram panel, GM hints, Illusionista cipher con non-breaking hyphen al render, next-scene choices), `AutoHintEffect`, `GmHint` (shows only the latest hint), `AnagramInput`.
   - Reusable/legacy support: `PlayerCard`, `SceneCard`.
   - `ErrorBoundary` (class component, file dedicato): cattura crash React e li mostra a schermo invece di chiudere l'app. Wrappa `AppNavigator` in `App.js`. Tenere in file separato per non rompere Fast Refresh.
 
