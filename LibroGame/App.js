@@ -52,7 +52,7 @@ function ImagePreloader() {
   if (!ready) return null;
 
   const allAssets = [
-    ASSETS.map.background,
+    ...Object.values(ASSETS.map),
     ...Object.values(ASSETS.backgrounds),
     ...Object.values(ASSETS.characters),
   ];

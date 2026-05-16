@@ -23,7 +23,7 @@ const LABEL_FONT_SCALE  = 0.084; // dimensione testo label (% di frameW)
 const ARCH_SCALE    = 3;  // moltiplicatore dimensione archi normali
 const TENT_SCALE    = 3.8;  // moltiplicatore dimensione tende speciali
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, Image, TouchableOpacity, useWindowDimensions,
 } from 'react-native';
@@ -246,9 +246,16 @@ export default function MapScreen({ route, navigation }) {
 
   useDisableAndroidBack();
 
-  const [nodeStates, setNodeStates] = useState({});
-  const [paths, setPaths]           = useState([]);
-  const [loading, setLoading]       = useState(true);
+  // Stato iniziale derivato sincronicamente da allChoices (passato in route.params):
+  // i nodi disponibili appaiono subito come 'available', il resto come 'fog'.
+  // Quando arriva la risposta Supabase, le scene gia' risolte passano a 'visited'.
+  // Cosi' la mappa e' visibile immediatamente senza attendere la query.
+  const initialStates = useMemo(
+    () => computeNodeStates([], allChoices),
+    [allChoices],
+  );
+  const [nodeStates, setNodeStates] = useState(initialStates);
+  const [paths, setPaths]           = useState(() => computePaths(initialStates));
 
   useEffect(() => {
     loadProgress();
@@ -266,14 +273,11 @@ export default function MapScreen({ route, navigation }) {
     const states  = computeNodeStates(visited, allChoices);
     setNodeStates(states);
     setPaths(computePaths(states));
-    setLoading(false);
   };
 
   const handleNodePress = useCallback((sceneId) => {
     navigation.replace('CircoStanza', { room, sceneId, initialMode: 'narration' });
   }, [navigation, room]);
-
-  if (loading) return <View style={{ flex: 1, backgroundColor: '#1a1205' }} />;
 
   return (
     <View style={styles.container}>

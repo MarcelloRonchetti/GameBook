@@ -93,7 +93,7 @@
 - [x] `CircoStanzaScreen` — `returnedFromAnagram` inizializzato a `false` (non da `initialMode`) per evitare quick view alla prima entrata
 - [x] `CircoStanzaScreen` — `handleGoToMap` aggiunto: porta alla mappa con tutti i next choices come `nextAvailable`
 - [x] `AnagramOverlay` — sezione "risolto" (non-Illusionista): rimossi pulsanti di scelta NPC, aggiunto tasto unico "🗺️ Vai alla mappa →" che chiama `onGoToMap`; mantenuta la domanda `scene.question` + sottotitolo "Sia fatta la vostra volontà."
-- [x] `ImagePreloader` persistente in `App.js`: renderizza `<Image>` nascosti (1×1 px) per mappa, backgrounds e characters dopo 100 ms dal boot — previene ri-decodifica su web ad ogni navigazione
+- [x] `ImagePreloader` persistente in `App.js`: renderizza `<Image>` nascosti (1×1 px) per mappa (tutti i 5 PNG di `ASSETS.map`, non solo il background), backgrounds e characters dopo 100 ms dal boot — previene ri-decodifica su web ad ogni navigazione
 - [x] `MapScreen` — `Asset.loadAsync` per precaricamento backgrounds e characters su native mentre il player vede la mappa
 - [x] `ForgotPasswordScreen` — input email + invio link recupero via Supabase + Brevo SMTP, banner errore inline, pannello successo "Controlla la tua email"
 - [x] `ResetPasswordScreen` — due input password (nuova + conferma), validazione (min 6, match), `supabase.auth.updateUser({ password })`, signOut + reset a Login al successo, direct-visit guard "Link non valido o scaduto" + listener `onAuthStateChange` con timeout di sicurezza 2s
@@ -117,6 +117,9 @@
 - [x] **Cartella `assets_backup/` rimossa** — non più necessaria dopo che la build APK è andata a buon fine
 - [x] **`components/ErrorBoundary.js`** estratto da `App.js` in file dedicato. Mescolare class component (ErrorBoundary) e functional components nello stesso file rompeva Fast Refresh di Metro (forzava full reload ad ogni save invece di hot reload, perdendo lo stato di navigazione). Separazione = Fast Refresh funziona di nuovo
 - [x] **Asset hint Pagliaccio ritagliato dallo sfondo dall'utente** invece di generarlo con Gemini — coerenza visiva al 100% con il background della stanza
+- [x] **Ridimensionamento massivo asset PNG** (`scripts/resize-assets.py` + `npm run resize-assets`): tutti i PNG di `assets/{map,characters,backgrounds,hints}` portati a dimensioni reali di rendering (1024 px lato lungo per map/characters/hints, 2048 per backgrounds). Risparmio totale 358 MB → 51 MB (−86%). Caso peggiore: `node_tent_final.png` da 6921×9369 (45 MB) a 756×1024 (810 KB). Idempotente: salta i file gia' sotto soglia
+- [x] **`ImagePreloader` esteso a tutti gli asset mappa**: `App.js` ora preload anche `node_frame`, `node_tent_entry`, `node_tent_final`, `node_banner` (prima solo `map.background`). I 5 asset della mappa sono pronti al primo ingresso in `MapScreen`
+- [x] **`MapScreen` render non-bloccante**: rimosso `if (loading) return <View />` che mostrava uno schermo nero finche' Supabase non rispondeva. Ora `nodeStates` si inizializza sincronicamente via `useMemo(computeNodeStates([], allChoices))` da `route.params`: i nodi disponibili appaiono subito come `available`, e la risposta Supabase aggiorna le scene gia' risolte a `visited`
 
 ---
 
@@ -227,12 +230,11 @@
 
 ## 🔧 Miglioramenti Futuri
 
-- [ ] **Performance caricamento immagini**: alcuni PNG sono molto grandi (>5 MB sprite, >10 MB sfondi). Strategie da valutare:
-  - Conversione asset a WebP (qualità simile, dimensione molto inferiore)
-  - Generazione mipmap/versioni a risoluzione multipla
+- [ ] **Performance caricamento immagini** — fase 1 completata (ridimensionamento PNG + preloader esteso). Strategie ancora aperte:
+  - Conversione asset a WebP (ulteriore ~50% di peso vs PNG ottimizzato)
+  - Generazione mipmap/versioni a risoluzione multipla per mobile vs web
   - Lazy loading per le scene non ancora visitate
   - Preload smart in background dopo che la mappa è visibile
-  - Ottimizzazione `ImagePreloader` (attualmente carica tutto dopo 100ms)
 - [ ] Aggiungere altre storie tramite struttura `story_id`
 - [ ] Multi-GM per stanza
 - [ ] Statistiche partita: tempo totale, errori, hints ricevuti
@@ -277,6 +279,10 @@
 30. **Filtri di sicurezza AI per temi delicati**: per stanze con temi sensibili (prostituzione, droghe, ecc.) Gemini blocca i prompt che usano parole esplicite. Strategia: descrivere solo gli **oggetti visivi neutri** (es. "vintage cabaret dress with fringes and feather boa" invece di "outfit suggesting prostitution"), lasciando che il significato emerga dalla composizione. Allo stesso modo, per le scarpe usate il termine "evening shoes with delicate straps" invece di "stilettos". L'AI interpreta correttamente la scena senza che il prompt usi parole censurate.
 31. **Direttive anti-testo nei prompt scenografici**: Gemini sbaglia regolarmente parole inglesi su poster/diplomi/libri (es. "Anatomicl Flexes" invece di "Anatomy"). Per evitare: aggiungere esplicitamente nel prompt "DO NOT write any readable English words ... use abstract shapes, blurred horizontal lines, ornamental flourishes". Risultato: poster e certificati con bordi decorativi ma senza testo storpiato.
 32. **Sistema `CHARACTER_POSITIONS` per-scena**: alcune stanze hanno composizioni dove la posizione sprite default copre elementi importanti dello sfondo (es. l'hint). Soluzione scalabile: oggetto `CHARACTER_POSITIONS` in `theme.js` con override per-scena + `DEFAULT_CHARACTER_POSITION` come fallback. Helper `getCharacterPosition(sceneId)` integrato in `CircoStanzaScreen` e `NarratorView` come prop. Aggiungere una sola riga per riposizionare il personaggio in una stanza specifica senza toccare il CSS globale.
+33. **Root cause lentezza `MapScreen`**: due fattori concorrenti, entrambi risolti.
+    - **PNG sorgente sproporzionati**: `node_frame.png` era 6768×12528 (84 MP) renderizzato a ~150×300 px; `node_tent_final.png` 6921×9369 (45 MB) renderizzato a ~420×420 px. Decodificare un 84 MP PNG alloca ~340 MB di bitmap raw in RAM solo per scalarlo. Risolto con `scripts/resize-assets.py` (Pillow `Image.resize(LANCZOS) + optimize=True`) che porta i PNG a 1024 px lato lungo (2x abbondante per retina). Comando `npm run resize-assets`. Da rilanciare ogni volta che si aggiungono nuovi asset, prima di build APK e commit. Idempotente — salta i PNG gia' sotto soglia.
+    - **Render bloccante**: `MapScreen` mostrava uno schermo nero (`if (loading) return <View ... />`) per tutta la durata della query Supabase `progress`. Risolto inizializzando `nodeStates` sincronicamente da `allChoices` (passato via `route.params`) con `useMemo(computeNodeStates([], allChoices))`. La query Supabase aggiorna solo le scene gia' risolte a `visited` quando arriva.
+    - Target dimensioni `npm run resize-assets`: 1024 px per `map/`, `characters/`, `hints/`; 2048 px per `backgrounds/` (mostrati a tutto schermo). Risparmio misurato 358 MB → 51 MB (−86%).
 
 
 ## Bugs
@@ -296,4 +302,4 @@
 - **EAS Build "Invalid UUID appId"**: `app.json` aveva `extra.eas.projectId: "librogame"` (stringa, non UUID). Risolto rimuovendo il campo e lasciando che `eas build:configure` generasse un UUID valido.
 
 ### Aperti
-- **Lentezza caricamento sfondo su web (~1 sec)**: `ImagePreloader` con delay 100 ms non è sufficiente per scene con immagini pesanti. Possibili strade: ridurre dimensione PNG, `new window.Image()` per pre-fetch puro su web, o aumentare delay preloader.
+- **Lentezza caricamento sfondo su web (~1 sec)**: `ImagePreloader` con delay 100 ms non è sufficiente per scene con immagini pesanti. Mitigato in parte dal ridimensionamento PNG (background scesi da 30 MB a 2-3 MB), ma `<Image>` 1×1 nascosto non garantisce il decode pre-render su web. Possibili strade: `new window.Image()` per pre-fetch puro su web, conversione a WebP, o aumentare delay preloader.

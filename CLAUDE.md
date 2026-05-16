@@ -61,7 +61,7 @@ Ignore node_modules folder when scanning the project files
 - Player screens:
   - `JoinRoomScreen` validates a 6-digit code, joins open rooms, and resumes progress. The code input is trimmed and then `.padStart(6, '0')` is applied so that codes with leading zeros (e.g. `001234`) are preserved before the Supabase lookup. Uses `maybeSingle()` to avoid errors on missing rooms. Calls `resolvePlayerResumeRoute` and `navigation.reset` to the right scene. Logout link via `confirmLogout`.
   - `IntroScreen` handles the initial cipher and unlocks `acrobata` on the map. Due modalità interne: `'narration'` (NarratorView con sfondo `intro_bg.png` + testo narrativo + bottone "📜 Decifra il messaggio", no sprite tramite `hideCharacter`) e `'cipher'` (chiave 1-14 + messaggio cifrato + input). Bottone "← Torna all'immagine" in modalità cipher. Auto-skip narrazione se già risolto.
-  - `MapScreen` renders the circus map with illustrated arch-frame nodes. Two node types: `TentNode` (intro/direttrice, PNG tents + banner scroll) and `ArchNode` (12 NPCs, arch frame PNG + sprite inside). Fog state: arch shows `?` without dark circle; tent darkens via `tintColor`. Available arch nodes scale up on hover/press (`Animated.timing`, 140ms ease-out quad — sostituisce spring per performance su web). `HINT_POSITIONS` usa valori decimali 0-1 relativi all'immagine di sfondo; `NarratorView.computeHintStyle` converte in coordinate assolute compensando `resizeMode="cover"` in base alle dimensioni schermo correnti (`useWindowDimensions`). `BG_ASPECT_RATIO = 16/9` in `theme.js`. Personaggio a `zIndex: 2`, hint a `zIndex: 1`. SVG bezier paths connect nodes; `pathAnchorX/Y` in `MAP_NODES` offset path endpoints for intro/direttrice. All visual tuning constants at top of file (`ARCH_SCALE`, `TENT_SCALE`, `INTERIOR_*`, `SPRITE_SCALE`, `BANNER_BOTTOM`, `LABEL_FONT_SCALE`). Banner config for tents in `BANNER_CONFIG` in `theme.js`.
+  - `MapScreen` renders the circus map with illustrated arch-frame nodes. Two node types: `TentNode` (intro/direttrice, PNG tents + banner scroll) and `ArchNode` (12 NPCs, arch frame PNG + sprite inside). Fog state: arch shows `?` without dark circle; tent darkens via `tintColor`. Available arch nodes scale up on hover/press (`Animated.timing`, 140ms ease-out quad — sostituisce spring per performance su web). `HINT_POSITIONS` usa valori decimali 0-1 relativi all'immagine di sfondo; `NarratorView.computeHintStyle` converte in coordinate assolute compensando `resizeMode="cover"` in base alle dimensioni schermo correnti (`useWindowDimensions`). `BG_ASPECT_RATIO = 16/9` in `theme.js`. Personaggio a `zIndex: 2`, hint a `zIndex: 1`. SVG bezier paths connect nodes; `pathAnchorX/Y` in `MAP_NODES` offset path endpoints for intro/direttrice. All visual tuning constants at top of file (`ARCH_SCALE`, `TENT_SCALE`, `INTERIOR_*`, `SPRITE_SCALE`, `BANNER_BOTTOM`, `LABEL_FONT_SCALE`). Banner config for tents in `BANNER_CONFIG` in `theme.js`. **Render non-bloccante**: `nodeStates` viene inizializzato sincronicamente via `useMemo(computeNodeStates([], allChoices))` cosi' la mappa appare immediatamente; la query Supabase `progress` aggiorna gli stati a `visited` quando arriva (era `if (loading) return <View>` che mostrava uno schermo nero per tutta la durata della query).
   - `CircoStanzaScreen` combines narration and anagram play for the current active flow.
   - `DirectriceScreen` handles the final twelve anagrams (with skip and free navigation) and stores final completion in `progress`. Due modalità interne: `'narration'` (NarratorView con sfondo + sprite Direttrice + testo dal PDF + bottone "🎩 Risolvi gli anagrammi finali") e `'anagrams'` (lista 12 anagrammi). Bottone "← Torna alla Direttrice" in modalità anagrams. Auto-skip narrazione se già completato.
   - `SceneScreen` and `AnagramScreen` are legacy route fallbacks.
@@ -467,6 +467,7 @@ The `gm elimina stanza` policy is required by `RoomListScreen` deletion. Without
 - `npm run android` launches Android.
 - `npm run ios` launches iOS.
 - `npm run clean-pngs` ripulisce metadata PNG (lanciare prima di ogni build APK).
+- `npm run resize-assets` ridimensiona i PNG di `assets/{map,characters,backgrounds,hints}` ai target di rendering (1024-2048 px lato lungo). Idempotente — salta i file gia' sotto soglia. Lanciare dopo aver aggiunto nuovi asset, prima di build APK e commit.
 
 ## Development rules
 
@@ -500,6 +501,7 @@ Configurazione attuale che produce APK installabile su telefono fisico:
 
 ```
 cd LibroGame
+npm run resize-assets                               # ridimensiona PNG oversize (idempotente)
 npm run clean-pngs                                  # IMPORTANTE prima della build
 eas build --platform android --profile preview
 ```
