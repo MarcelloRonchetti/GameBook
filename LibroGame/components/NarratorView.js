@@ -45,6 +45,7 @@ export default function NarratorView({
   characterPosition = null,
   anagramButtonLabel = "🔤 Affronta l'anagramma",
   hideCharacter = false,
+  overlayOpacity = null,
 }) {
   const npc = getNpcTheme(sceneId);
   // Normalizza i blocchi del dialogo in formato uniforme {speaker, text}.
@@ -179,7 +180,7 @@ export default function NarratorView({
           resizeMode="cover"
         />
       )}
-      <View style={styles.overlay} />
+      <View style={[styles.overlay, overlayOpacity !== null && { backgroundColor: `rgba(0,0,0,${overlayOpacity})` }]} />
       {!hideCharacter && characterAsset ? (
         <View style={[styles.characterContainer, characterPosition, { zIndex: 2 }]} pointerEvents="none">
           <Image source={characterAsset} style={styles.characterImage} resizeMode="contain" />

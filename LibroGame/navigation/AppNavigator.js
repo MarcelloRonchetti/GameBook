@@ -128,7 +128,7 @@ export default function AppNavigator() {
         <Stack.Screen
           name="Intro"
           component={IntroScreen}
-          options={{ title: 'Il Circo', headerLeft: () => null, gestureEnabled: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
         <Stack.Screen
           name="CircoStanza"
@@ -144,7 +144,7 @@ export default function AppNavigator() {
         <Stack.Screen
           name="Direttrice"
           component={DirectriceScreen}
-          options={{ title: 'La Direttrice', headerLeft: () => null, gestureEnabled: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
 
         {/* Player — vecchio flusso (compatibilità) */}

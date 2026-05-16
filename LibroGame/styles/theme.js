@@ -252,6 +252,7 @@ export const ASSETS = {
     sputafuoco: require('../assets/backgrounds/sputafuoco_bg.png'),
     illusionista: require('../assets/backgrounds/illusionista_bg.png'),
     direttrice: require('../assets/backgrounds/direttrice_bg.png'),
+    victory:    require('../assets/backgrounds/victory_bg.png'),
   },
   hints: {
     acrobata:   require('../assets/hints/acrobata_hint.png'),
