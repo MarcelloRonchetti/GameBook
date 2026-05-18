@@ -126,6 +126,7 @@
 - [x] **`components/VelvetBackdrop.js`** — nuovo componente: sfondo full-bleed `position: absolute, inset: 0, zIndex: 0` con (1) gradient SVG bordeaux scuro, (2) due tende SVG ancorate ai bordi con sway sinusoidale (loop 6s, skew 1-2°), (3) 8 particelle dorate fluttuanti in loop verticale 9-15s. Solo `Animated` nativo. Renderizzato come primo figlio in tutte le schermate ridisegnate
 - [x] **CTA glow ring riusabile**: componente animato locale alle schermate auth/gm (wrapper `Animated.View` con shadow oro pulsante 0.4→0.8→0.4 in 2400ms). Applicato ai CTA primari "Accedi", "Registrati", "Crea stanza", "Entra" (RoomList), "Invia suggerimento"
 - [x] **Header bar palette via `navigation.setOptions`** screen-local (NON in `AppNavigator.js`): `RoomList`, `CreateRoom`, `Dashboard`, `PlayerDetail` impostano `headerStyle/Tint/Title` velluto al mount, cosi' la barra di sistema React Navigation non rompe la continuita visiva. `AppNavigator` resta intoccato
+- [x] **`AnagramOverlay` — coppia "← Testo" / "Verifica" unificata e centrata**: i due bottoni sotto l'input usano lo stesso stile primario (`button + buttonCompact`, gold filled, stesso paddings e `buttonText`) e la row `verifyRow` passa da `justifyContent: 'space-between'` a `'center'` con `gap: 12`. Rimosso `alignSelf: 'flex-start'` da `buttonCompact` (la row ora controlla la centratura) e cancellati gli stili orfani `backToTextButton`/`backToTextText` in `styles/player.js`
 
 ---
 

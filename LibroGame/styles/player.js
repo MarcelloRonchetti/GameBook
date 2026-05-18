@@ -1129,23 +1129,6 @@ export const circoStanzaStyles = StyleSheet.create({
     flex: 1,
     letterSpacing: 0.5,
   },
-  // Bottone "Torna al testo" in alto a destra nel pannello anagramma
-  backToTextButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: 'rgba(200,164,90,0.45)',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: radius.sm,
-  },
-  backToTextText: {
-    fontFamily: fontFamilies.bodyMedium,
-    color: colors.velvet.goldSoft,
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-  },
   anagramBox: {
     backgroundColor: 'rgba(26,12,15,0.45)',
     borderRadius: radius.md,
@@ -1228,13 +1211,12 @@ export const circoStanzaStyles = StyleSheet.create({
     paddingHorizontal: spacing.xxl,
     paddingVertical: 12,
     marginTop: 0,
-    alignSelf: 'flex-start',
   },
-  // Row "torna al testo + verifica" sotto l'input dell'anagramma
+  // Row "torna al testo + verifica" sotto l'input dell'anagramma — coppia centrata, stessa identita visiva
   verifyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     gap: 12,
     marginTop: 12,
   },

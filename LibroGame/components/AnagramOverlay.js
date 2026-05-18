@@ -199,10 +199,10 @@ export default function AnagramOverlay({
               )}
               <View style={styles.verifyRow}>
                 <TouchableOpacity
-                  style={styles.backToTextButton}
+                  style={[styles.button, styles.buttonCompact]}
                   onPress={onBackToText}
                 >
-                  <Text style={styles.backToTextText}>← Testo</Text>
+                  <Text style={styles.buttonText}>← Testo</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
