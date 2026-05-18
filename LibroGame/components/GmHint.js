@@ -24,6 +24,7 @@ export default function GmHint({ hints }) {
           {new Date(lastHint.created_at).toLocaleTimeString('it-IT', {
             hour: '2-digit',
             minute: '2-digit',
+            timeZone: 'Europe/Rome',
           })}
         </Text>
       )}

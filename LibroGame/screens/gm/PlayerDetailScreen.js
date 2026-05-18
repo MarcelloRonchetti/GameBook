@@ -163,6 +163,7 @@ export default function PlayerDetailScreen({ route, navigation }) {
     return new Date(timestamp).toLocaleTimeString('it-IT', {
       hour: '2-digit',
       minute: '2-digit',
+      timeZone: 'Europe/Rome',
     });
   };
 

@@ -497,6 +497,7 @@ The `gm elimina stanza` policy is required by `RoomListScreen` deletion. Without
 - Faithful to the source story (do not modify scene texts).
 - No `StyleSheet.create` inside screens — keep styles in `styles/`, tokens in `theme.js`.
 - No direct `Alert.alert` — use `notify()` for messages, `confirm()` for destructive prompts, inline banners for form errors.
+- Quando formatti timestamp/date per la UI (`toLocaleTimeString`/`toLocaleDateString`), passa sempre `timeZone: 'Europe/Rome'` in aggiunta al locale `'it-IT'`. Senza, l'output usa il fuso del runtime (UTC su molti browser/server) e gli orari risultano sbagliati di 1-2 ore. Punti correnti: `GmHint`, `PlayerDetailScreen.formatTimestamp`, `RoomListScreen.formatDate`.
 - Ask before proceeding when something is unclear.
 
 ## Deployment
