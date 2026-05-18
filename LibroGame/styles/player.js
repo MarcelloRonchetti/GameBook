@@ -257,12 +257,20 @@ export const introStyles = StyleSheet.create({
     width: '95%',
     alignSelf: 'center',
   },
-  // Gruppo di tile che compongono una singola parola — sempre su stessa riga
+  // Gruppo di tile che compongono una singola parola — riquadro proprio attorno
+  // alle caselle dei numeri, leggermente piu' chiaro del pannello esterno per
+  // dare l'effetto "frame within a frame". Sempre su stessa riga (no wrap interno)
   cipherWordGroup: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     flexWrap: 'nowrap',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(200,164,90,0.4)',
+    backgroundColor: 'rgba(245,234,209,0.05)',
   },
   // Singolo numero come "casella" in stile typewriter — quadratino con bordo oro
   cipherTile: {
