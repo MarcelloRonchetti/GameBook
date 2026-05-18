@@ -123,7 +123,7 @@ export default function AppNavigator() {
         <Stack.Screen
           name="JoinRoom"
           component={JoinRoomScreen}
-          options={{ title: 'Entra nella Stanza', headerLeft: () => null, gestureEnabled: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
         <Stack.Screen
           name="Intro"
