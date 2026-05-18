@@ -194,245 +194,11 @@ export const joinRoomStyles = StyleSheet.create({
 });
 
 // ---------------------------------------------------------------------------
-// IntroScreen
+// IntroScreen — usa `circoStanzaStyles` (stesso layout/colori delle altre stanze)
+// I vecchi `introStyles` sono stati rimossi: IntroScreen importa direttamente
+// `circoStanzaStyles` e le tile del cifrario (cipherWrap/cipherWordGroup/...)
+// vivono lì come sezione condivisa con la sezione cifrario dell'Illusionista.
 // ---------------------------------------------------------------------------
-export const introStyles = StyleSheet.create({
-  flex: { flex: 1 },
-  container: { flex: 1, backgroundColor: colors.velvet.bgDeep },
-  content: { padding: spacing.xl, paddingBottom: spacing.huge },
-  // Titolo pagina → Cormorant italic crema
-  title: {
-    fontFamily: fontFamilies.serif,
-    fontStyle: 'italic',
-    fontWeight: '500',
-    fontSize: 32,
-    color: colors.velvet.champagne,
-    textAlign: 'center',
-    marginBottom: spacing.xxl,
-    letterSpacing: 0.5,
-  },
-  storyText: {
-    fontFamily: fontFamilies.serif,
-    fontStyle: 'italic',
-    fontSize: 17,
-    color: colors.velvet.champagne,
-    lineHeight: 28,
-    textAlign: 'justify',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.velvet.goldFaint,
-    marginVertical: spacing.xxl,
-  },
-  // Eyebrow di sezione — uppercase oro tracked
-  sectionTitle: {
-    fontFamily: fontFamilies.bodyMedium,
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.velvet.gold,
-    marginBottom: spacing.md,
-    textAlign: 'left',
-    textTransform: 'uppercase',
-    letterSpacing: 2.5,
-    maxWidth: 950,
-    width: '95%',
-    alignSelf: 'center',
-  },
-  // Pannello che contiene le tile del cifrario (sostituisce il vecchio `cipherText`
-  // a singola Text). Sfondo bordeaux quasi opaco per leggibilità delle caselle.
-  cipherWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    rowGap: 10,
-    columnGap: 18,
-    backgroundColor: 'rgba(26,12,15,0.82)',
-    padding: spacing.lg,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.velvet.goldFaint,
-    marginBottom: spacing.xl,
-    maxWidth: 950,
-    width: '95%',
-    alignSelf: 'center',
-  },
-  // Gruppo di tile che compongono una singola parola — riquadro proprio attorno
-  // alle caselle dei numeri, leggermente piu' chiaro del pannello esterno per
-  // dare l'effetto "frame within a frame". Sempre su stessa riga (no wrap interno)
-  cipherWordGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    flexWrap: 'nowrap',
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: 'rgba(200,164,90,0.4)',
-    backgroundColor: 'rgba(245,234,209,0.05)',
-  },
-  // Singolo numero come "casella" in stile typewriter — quadratino con bordo oro
-  cipherTile: {
-    minWidth: 34,
-    height: 36,
-    paddingHorizontal: 6,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.velvet.goldFaint,
-    backgroundColor: 'rgba(245,234,209,0.06)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  // Numero nella casella — Special Elite oro
-  cipherTileText: {
-    fontFamily: fontFamilies.typewriter,
-    fontSize: 18,
-    color: colors.velvet.goldSoft,
-    letterSpacing: 0,
-  },
-  // Punteggiatura attaccata (es. apostrofo dopo `1'`) — fuori dalla tile
-  cipherSuffix: {
-    fontFamily: fontFamilies.typewriter,
-    fontSize: 18,
-    color: colors.velvet.champagneMuted,
-    marginLeft: 2,
-  },
-  keyContainer: {
-    backgroundColor: 'rgba(26,12,15,0.75)',
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    marginBottom: spacing.xxl,
-    borderWidth: 1,
-    borderColor: colors.velvet.goldFaint,
-    maxWidth: 950,
-    width: '95%',
-    alignSelf: 'center',
-  },
-  keyTitle: {
-    fontFamily: fontFamilies.bodyMedium,
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.velvet.gold,
-    marginBottom: spacing.md,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    letterSpacing: 2.5,
-  },
-  keyGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  keyItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(26,12,15,0.7)',
-    borderRadius: radius.sm,
-    paddingVertical: 6,
-    paddingHorizontal: spacing.sm + 2,
-    minWidth: 70,
-    justifyContent: 'center',
-  },
-  // Numero della chiave → Special Elite
-  keyNumber: {
-    fontFamily: fontFamilies.typewriter,
-    fontSize: fontSize.lg,
-    color: colors.velvet.gold,
-    minWidth: 20,
-    textAlign: 'right',
-  },
-  keyEquals: { fontSize: fontSize.md, color: colors.velvet.champagneMuted, marginHorizontal: spacing.xs },
-  // Lettera della chiave → Manrope bold (lettera, non numero)
-  keyLetter: {
-    fontFamily: fontFamilies.bodyBold,
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.velvet.champagne,
-    minWidth: 14,
-  },
-  answerSection: { marginTop: spacing.xs },
-  input: {
-    fontFamily: fontFamilies.body,
-    backgroundColor: 'rgba(26,12,15,0.55)',
-    color: colors.velvet.champagne,
-    fontSize: fontSize.lg,
-    borderRadius: radius.md,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: colors.velvet.goldFaint,
-    marginBottom: spacing.md,
-    minHeight: 80,
-    textAlignVertical: 'top',
-    maxWidth: 950,
-    width: '95%',
-    alignSelf: 'center',
-  },
-  inputError: { borderColor: colors.velvet.danger, borderWidth: 2 },
-  errorText: {
-    fontFamily: fontFamilies.body,
-    color: colors.velvet.danger,
-    fontSize: fontSize.md,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  button: {
-    backgroundColor: colors.velvet.gold,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xxxl,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    alignSelf: 'center',
-    borderWidth: 1,
-    borderColor: colors.velvet.goldSoft,
-  },
-  buttonDisabled: { backgroundColor: colors.velvet.taupe, borderColor: colors.velvet.taupe },
-  buttonText: {
-    fontFamily: fontFamilies.bodyBold,
-    color: colors.velvet.ink,
-    fontSize: 14,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 4,
-  },
-  proceedButton: {
-    backgroundColor: colors.velvet.gold,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xxxl,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    alignSelf: 'center',
-    marginTop: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.velvet.goldSoft,
-  },
-  successBox: {
-    backgroundColor: 'rgba(122,163,122,0.15)',
-    borderRadius: radius.md,
-    padding: spacing.lg,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.velvet.success,
-    marginBottom: spacing.sm,
-  },
-  successText: {
-    fontFamily: fontFamilies.bodyMedium,
-    color: colors.velvet.success,
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    marginBottom: spacing.sm,
-  },
-  // Soluzione cifrata svelata — Cormorant italic crema
-  solutionText: {
-    fontFamily: fontFamilies.serif,
-    fontStyle: 'italic',
-    color: colors.velvet.champagne,
-    fontSize: 20,
-    lineHeight: 28,
-  },
-});
 
 // ---------------------------------------------------------------------------
 // SceneScreen + NPC PLACEHOLDER GRAFICO
@@ -1312,7 +1078,7 @@ export const circoStanzaStyles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 4,
   },
-  // Sezione cifrario (solo Illusionista)
+  // Sezione cifrario (Illusionista + Intro)
   cipherSection: { marginBottom: 14 },
   cipherText: {
     fontFamily: fontFamilies.typewriter,
@@ -1327,6 +1093,61 @@ export const circoStanzaStyles = StyleSheet.create({
     marginBottom: 12,
     textAlign: 'center',
     letterSpacing: 2,
+  },
+  // --- Cipher tiles (Intro) ---
+  // Pannello che contiene le tile del cifrario — sfondo bordeaux quasi opaco
+  cipherWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    rowGap: 10,
+    columnGap: 14,
+    backgroundColor: 'rgba(26,12,15,0.55)',
+    padding: 14,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.velvet.goldFaint,
+    marginBottom: 14,
+  },
+  // Riquadro per parola: contiene le tile dei numeri di un'unica parola.
+  // Bordo oro hairline + sfondo champagne molto traslucido = effetto frame within frame
+  cipherWordGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    flexWrap: 'nowrap',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(200,164,90,0.4)',
+    backgroundColor: 'rgba(245,234,209,0.05)',
+  },
+  // Singolo numero come "casella" — quadratino con bordo oro
+  cipherTile: {
+    minWidth: 30,
+    height: 32,
+    paddingHorizontal: 5,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.velvet.goldFaint,
+    backgroundColor: 'rgba(245,234,209,0.07)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Numero nella casella — Special Elite oro soft
+  cipherTileText: {
+    fontFamily: fontFamilies.typewriter,
+    fontSize: 16,
+    color: colors.velvet.goldSoft,
+  },
+  // Punteggiatura attaccata (es. apostrofo dopo `1'`) — fuori dalla tile
+  cipherSuffix: {
+    fontFamily: fontFamilies.typewriter,
+    fontSize: 16,
+    color: colors.velvet.champagneMuted,
+    marginLeft: 2,
   },
   keyContainer: {
     backgroundColor: 'rgba(26,12,15,0.3)',

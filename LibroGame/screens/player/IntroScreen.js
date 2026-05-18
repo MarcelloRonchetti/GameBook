@@ -4,22 +4,25 @@
 // Due modalità interne:
 //   'narration' → NarratorView con sfondo + testo narrativo + bottone
 //                 "Decifra il messaggio" che porta alla modalità cifrario
-//   'cipher'    → chiave di decodifica (1-14) + messaggio cifrato + input
-//                 + bottone "← Torna all'immagine" per tornare alla narrazione
+//   'cipher'    → stesso layout/stile delle altre stanze (anagramPanel su
+//                 sfondo intro_bg.png + overlay scuro), con chiave 1-14,
+//                 messaggio cifrato a tile, input e coppia di bottoni
+//                 "← Immagine / Verifica decodifica" come nelle scene NPC
 
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, Image,
+  View, Text, TouchableOpacity, Image,
   ScrollView, KeyboardAvoidingView, Platform, StatusBar,
 } from 'react-native';
 
 import { supabase } from '../../lib/supabase';
 import { normalizeText, formatQuotes } from '../../lib/helpers';
 import { useRoomClosedListener, useDisableAndroidBack } from '../../lib/useRoomClosedListener';
-import { introStyles as styles } from '../../styles/player';
-import { getBackgroundAsset, colors, fontFamilies, radius } from '../../styles/theme';
+import { circoStanzaStyles as styles } from '../../styles/player';
+import { getBackgroundAsset } from '../../styles/theme';
 
 import NarratorView from '../../components/NarratorView';
+import AnagramInput from '../../components/AnagramInput';
 import scenes from '../../story/storia_1/scenes.json';
 
 // Chiave di decodifica — 14 valori noti al giocatore
@@ -30,9 +33,8 @@ const CIPHER_KEY = {
 };
 
 // Rende il messaggio cifrato come tiles ("caselle") raggruppati per parola.
-// Le parole sono separate da 2+ spazi nel JSON sorgente; gli atomi di una parola
-// sono separati da `-`. Eventuale punteggiatura attaccata (es. `1'`) viene
-// estratta e renderizzata fuori dalla casella per non sporcare la tile.
+// Parole separate da 2+ spazi nel JSON sorgente, atomi separati da `-`.
+// Punteggiatura attaccata (es. `1'`) estratta e renderizzata fuori tile.
 function CipherTiles({ cipher }) {
   const words = cipher.split(/\s{2,}/);
   return (
@@ -69,7 +71,7 @@ export default function IntroScreen({ route, navigation }) {
   useDisableAndroidBack();
 
   // 'narration' = schermata di benvenuto col sfondo della partenza
-  // 'cipher'    = sezione cifrario (comportamento storico)
+  // 'cipher'    = sezione cifrario nel pannello stile-anagramma
   const [mode, setMode] = useState('narration');
 
   const [answer, setAnswer] = useState('');
@@ -169,101 +171,95 @@ export default function IntroScreen({ route, navigation }) {
     );
   }
 
-  // --- Modalità cifrario: chiave + messaggio + input ---
+  // --- Modalità cifrario: stesso layout/stile delle altre stanze ---
   return (
-    <View style={{ flex: 1, backgroundColor: '#1a1a1a' }}>
-      {/* Sfondo della Circo-stanza di Partenza */}
+    <View style={styles.container}>
+      <StatusBar hidden />
+
+      {/* Placeholder color → poi immagine di sfondo Circo-stanza di Partenza */}
+      <View style={[styles.background, { backgroundColor: '#2a1a0a' }]} />
       {introBackground && (
         <Image
           source={introBackground}
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' }}
+          style={[styles.background, styles.backgroundImage]}
           resizeMode="cover"
         />
       )}
-      {/* Overlay scuro per leggibilità del testo */}
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.45)' }} />
+      {/* Overlay scuro intenso identico alle altre stanze in modalità anagramma */}
+      <View style={[styles.overlay, styles.overlayAnagram]} />
 
       <KeyboardAvoidingView
-        style={styles.flex}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView
-          style={[styles.container, { backgroundColor: 'transparent' }]}
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Bottone per tornare alla narrazione (immagine) */}
-          <TouchableOpacity
-            style={localStyles.backToNarration}
-            onPress={() => setMode('narration')}
-            activeOpacity={0.8}
-          >
-            <Text style={localStyles.backToNarrationText}>← Torna all'immagine</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.title}>{intro.title}</Text>
-
-          <Text style={styles.sectionTitle}>Messaggio cifrato</Text>
-          <CipherTiles cipher={intro.cipher} />
-
-          <View style={styles.keyContainer}>
-            <Text style={styles.keyTitle}>Chiave di decodifica</Text>
-            <View style={styles.keyGrid}>
-              {Object.entries(CIPHER_KEY).map(([num, letter]) => (
-                <View key={num} style={styles.keyItem}>
-                  <Text style={styles.keyNumber}>{num}</Text>
-                  <Text style={styles.keyEquals}>=</Text>
-                  <Text style={styles.keyLetter}>{letter}</Text>
-                </View>
-              ))}
-            </View>
+        <View style={styles.anagramPanel}>
+          <View style={styles.anagramPanelHeader}>
+            <Text style={styles.anagramPanelTitle}>{intro.title}</Text>
           </View>
 
-          <View style={styles.answerSection}>
-            <Text style={styles.sectionTitle}>La tua decodifica</Text>
+          <ScrollView
+            style={styles.anagramPanelScroll}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Text style={styles.sectionTitle}>Messaggio cifrato</Text>
+            <CipherTiles cipher={intro.cipher} />
 
+            <View style={styles.keyContainer}>
+              <Text style={styles.keyTitle}>Chiave di decodifica</Text>
+              <View style={styles.keyGrid}>
+                {Object.entries(CIPHER_KEY).map(([num, letter]) => (
+                  <View key={num} style={styles.keyItem}>
+                    <Text style={styles.keyNumber}>{num}</Text>
+                    <Text style={styles.keyEquals}>=</Text>
+                    <Text style={styles.keyLetter}>{letter}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.divider} />
+
+            <Text style={styles.sectionTitle}>La tua decodifica</Text>
             {!solved ? (
               <>
-                <TextInput
-                  style={[styles.input, error && styles.inputError]}
+                <AnagramInput
                   value={answer}
-                  onChangeText={(text) => {
-                    setAnswer(text);
-                    setError(false);
-                  }}
+                  onChangeText={(text) => { setAnswer(text); setError(false); }}
+                  hasError={error}
                   placeholder="Scrivi qui il messaggio decodificato..."
-                  placeholderTextColor="#666"
-                  multiline
-                  numberOfLines={3}
-                  autoCapitalize="none"
-                  autoCorrect={false}
                 />
-
                 {error && (
-                  <Text style={styles.errorText}>
-                    Decodifica non corretta, riprova!
-                  </Text>
+                  <Text style={styles.errorText}>Decodifica non corretta, riprova!</Text>
                 )}
-
-                <TouchableOpacity
-                  style={[styles.button, !answer.trim() && styles.buttonDisabled]}
-                  onPress={handleCheck}
-                  disabled={!answer.trim()}
-                >
-                  <Text style={styles.buttonText}>Verifica</Text>
-                </TouchableOpacity>
+                <View style={styles.verifyRow}>
+                  <TouchableOpacity
+                    style={[styles.button, styles.buttonCompact]}
+                    onPress={() => setMode('narration')}
+                  >
+                    <Text style={styles.buttonText}>← Immagine</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.button,
+                      styles.buttonCompact,
+                      !answer.trim() && styles.buttonDisabled,
+                    ]}
+                    onPress={handleCheck}
+                    disabled={!answer.trim()}
+                  >
+                    <Text style={styles.buttonText}>Verifica decodifica</Text>
+                  </TouchableOpacity>
+                </View>
               </>
             ) : (
               <>
                 <View style={styles.successBox}>
-                  <Text style={styles.successText}>
-                    Corretto! Il messaggio dice:
-                  </Text>
+                  <Text style={styles.successText}>Corretto! Il messaggio dice:</Text>
                   <Text style={styles.solutionText}>
                     {formatQuotes(`"${intro.cipherSolution}"`)}
                   </Text>
                 </View>
-
                 <TouchableOpacity
                   style={[styles.proceedButton, loading && styles.buttonDisabled]}
                   onPress={handleProceed}
@@ -275,33 +271,11 @@ export default function IntroScreen({ route, navigation }) {
                 </TouchableOpacity>
               </>
             )}
-          </View>
 
-          <View style={{ height: 40 }} />
-        </ScrollView>
+            <View style={{ height: 24 }} />
+          </ScrollView>
+        </View>
       </KeyboardAvoidingView>
     </View>
   );
 }
-
-import { StyleSheet } from 'react-native';
-const localStyles = StyleSheet.create({
-  backToNarration: {
-    alignSelf: 'flex-start',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: 'rgba(200,164,90,0.45)',
-    borderRadius: radius.sm,
-    marginBottom: 12,
-  },
-  backToNarrationText: {
-    fontFamily: fontFamilies.bodyMedium,
-    color: colors.velvet.goldSoft,
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-  },
-});
