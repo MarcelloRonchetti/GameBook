@@ -57,7 +57,7 @@ Ignore node_modules folder when scanning the project files
   - `RoomListScreen` lists rooms, supports enter/close/reopen/delete (with `confirm()` for destructive actions), and exposes logout in the header. La `FlatList` rimane root della schermata (wrapper `<View flex:1>` ammesso senza padding per ospitare il `VelvetBackdrop` absolute — il vincolo CLAUDE.md vieta il wrapper `flex:1 + padding`, non un wrapper flex puro); "Entra" uses `navigation.push('Dashboard', …)` to force a fresh Dashboard instance every time (avoids the white-screen on re-enter bug). FAB "+ Nuova stanza" spostata in `ListFooterComponent` per restare nel contratto `FlatList`-as-root.
   - `CreateRoomScreen` creates named rooms with story selection and auto-hint timing. Inline error banner. Auto-hint timer renderizzato come segmented control (gold-on-bordeaux) invece di Picker.
   - `DashboardScreen` shows room code, status, connected players in realtime, current scene, close-room action, and player removal. Header back button uses `navigation.goBack()` (RoomList is always below in the stack) so Dashboard unmounts cleanly. La `FlatList` resta root (con wrapper `flex:1` no-padding per il backdrop). Hero strip in testa: codice stanza renderizzato come "brass plate" oro con letter-spacing 6-8 px (mock engraving).
-  - `PlayerDetailScreen` shows player progress (vertical timeline con dot oro: `velvet.gold` filled = solved, `velvet.gold` ring outline = pending — sostituiscono i precedenti green/orange) and sends manual text hints; `notify()` for validation/send errors. The `FlatList` is the direct child of `KeyboardAvoidingView` (no wrapper `<View>`) so it scrolls correctly on web.
+  - `PlayerDetailScreen` shows player progress (vertical timeline con dot oro: `velvet.gold` filled = solved, `velvet.gold` ring outline = pending — sostituiscono i precedenti green/orange) and sends manual text hints scoped alla scena attuale del giocatore (campo `scene_id` su `hints`, derivato dall'ultima entry di `progress`). La label del composer mostra "Invia suggerimento · <scena>" e la lista "Suggerimenti inviati" etichetta ogni hint con la scena di invio. `notify()` for validation/send errors. The `FlatList` is the direct child of `KeyboardAvoidingView` (no wrapper `<View>`) so it scrolls correctly on web.
 
 - Player screens:
   - `JoinRoomScreen` validates a 6-digit code, joins open rooms, and resumes progress. The code input is trimmed and then `.padStart(6, '0')` is applied so that codes with leading zeros (e.g. `001234`) are preserved before the Supabase lookup. Uses `maybeSingle()` to avoid errors on missing rooms. Calls `resolvePlayerResumeRoute` and `navigation.reset` to the right scene. Logout link via `confirmLogout`. **Stile "Velluto teatrale"**: usa `VelvetBackdrop` + `colors.velvet` (eccezione tra le schermate player, che altrimenti hanno il tema circo/scena) perche' e' il primo touchpoint del giocatore e va in continuita visiva con Login/Register. Card centrale, codice come "brass plate" con letter-spacing 14 + mono font, CTA "Entra in scena" con glow ring. Logica di validazione/Supabase invariata.
@@ -69,7 +69,7 @@ Ignore node_modules folder when scanning the project files
 
 - Components:
   - `CipherTiles` (`components/CipherTiles.js`): rende un messaggio cifrato come tiles ("caselle") raggruppati parola per parola. Parsing: parole separate da 2+ spazi, atomi separati da `-`, eventuale punteggiatura attaccata (es. `1'`) estratta via regex `^(\d+)(.*)$` e renderizzata fuori dalla tile. Usa stili condivisi di `circoStanzaStyles` (`cipherWrap`/`cipherWordGroup`/`cipherTile`/`cipherTileText`/`cipherSuffix`). Consumato sia da `IntroScreen` (modalità cifrario di benvenuto) sia da `AnagramOverlay` (sezione cifrario dell'Illusionista) — stessa identita visiva fra le due schermate.
-  - Current flow: `NarratorView` (typewriter dialog box; legge dialoghi strutturati `scene.dialogue` (array di `{speaker, text}`) con fallback `scene.narratorBlocks` (legacy) o `scene.text`. Header del dialog box mostra dinamicamente "NARRATORE" o il nome del personaggio in base allo speaker del blocco corrente. Battute personaggio (`speaker === 'character'`) renderizzate in Cormorant **tondo** (override locale `fontStyle: 'normal'` sul `dialogText`) per distinguerle visivamente; il narratore mantiene l'italic Cormorant di default. Typewriter a `TYPEWRITER_SPEED = 14ms` per carattere. Dialog box altezza max 22% schermo (`useWindowDimensions`) con ScrollView interno per testi lunghi, alpha background 0.7 per maggiore trasparenza. Props: `anagramButtonLabel`, `hideCharacter`, `characterPosition`, `hintActive`, `hintAsset`, `hintPosition`, `overlayOpacity` (override per-scena dell'overlay scuro sullo sfondo, default = stile globale `circoStanzaStyles.overlay`)), `AnagramOverlay` (anagram panel, GM hints, Illusionista cipher reso come `CipherTiles`, next-scene choices), `AutoHintEffect`, `GmHint` (shows only the latest hint), `AnagramInput`.
+  - Current flow: `NarratorView` (typewriter dialog box; legge dialoghi strutturati `scene.dialogue` (array di `{speaker, text}`) con fallback `scene.narratorBlocks` (legacy) o `scene.text`. Header del dialog box mostra dinamicamente "NARRATORE" o il nome del personaggio in base allo speaker del blocco corrente. Battute personaggio (`speaker === 'character'`) renderizzate in Cormorant **tondo** (override locale `fontStyle: 'normal'` sul `dialogText`) per distinguerle visivamente; il narratore mantiene l'italic Cormorant di default. Typewriter a `TYPEWRITER_SPEED = 14ms` per carattere. Dialog box altezza max 22% schermo (`useWindowDimensions`) con ScrollView interno per testi lunghi, alpha background 0.7 per maggiore trasparenza. Props: `anagramButtonLabel`, `hideCharacter`, `characterPosition`, `hintActive`, `hintAsset`, `hintPosition`, `overlayOpacity` (override per-scena dell'overlay scuro sullo sfondo, default = stile globale `circoStanzaStyles.overlay`)), `AnagramOverlay` (anagram panel, Illusionista cipher reso come `CipherTiles`, next-scene choices), `AutoHintEffect`, `GmHint` (banner top a livello `CircoStanzaScreen`, mostra solo l'ultimo hint della scena corrente, scoped per `scene_id`), `AnagramInput`.
   - `VelvetBackdrop` (`components/VelvetBackdrop.js`): sfondo "velluto teatrale" condiviso da tutte le schermate Auth + GM ridisegnate. Strati: gradient SVG bordeaux scuro full-bleed + due tende SVG ancorate ai bordi con sway sinusoidale (loop 6s, skew 1-2°) + 8 particelle dorate fluttuanti in loop verticale (Animated.timing + interpolate). Solo `Animated` built-in + `react-native-svg` (nessuna nuova dipendenza). Va renderizzato a `position: absolute, inset: 0, zIndex: 0` con i figli sopra.
   - Reusable/legacy support: `PlayerCard`, `SceneCard`.
   - `ErrorBoundary` (class component, file dedicato): cattura crash React e li mostra a schermo invece di chiudere l'app. Wrappa `AppNavigator` in `App.js`. Tenere in file separato per non rompere Fast Refresh.
@@ -213,9 +213,11 @@ If GM closes the room mid-game: alert "Il GM ha chiuso la stanza" -> reset to `J
 
 ### Manual GM hint
 
-- Text hint typed by the GM in `PlayerDetailScreen`.
-- Visible to the player in `AnagramScreen` / `CircoStanzaScreen` via `GmHint`.
-- Realtime delivery via Supabase channel `hints_changes_<room>_<user>`.
+- Text hint typed by the GM in `PlayerDetailScreen`. Al click, il record `hints` è inserito con `scene_id` = scena attuale del giocatore (ultima entry di `progress` per `entered_at`).
+- Visibile al giocatore in `CircoStanzaScreen` come banner top assoluto (componente `GmHint`, wrapper `circoStanzaStyles.gmHintBanner`, `zIndex: 50`) **sia in modalità narrazione sia in modalità anagramma** — appare subito al ricevimento via realtime, non solo quando il player apre il pannello anagramma.
+- `fetchHints` filtra per `room_id` + `player_id` + `scene_id`: un hint inviato in una scena resta scoped a quella scena (non riappare quando il giocatore avanza alle stanze successive).
+- Il GM in `PlayerDetailScreen` vede sotto "Suggerimenti inviati" ogni hint con la scena di invio (eyebrow oro uppercase) + orario (Special Elite). La label del composer ("Invia suggerimento · <scena>") riflette dove andrà inviato il prossimo hint.
+- Realtime delivery via Supabase channel `hints_<room>_<user>`. Il filtro Postgres realtime resta solo `room_id=eq.<roomId>` (non supporta AND su più campi); il filtro per `scene_id` avviene in `fetchHints` lato JS dopo ogni INSERT.
 
 ## Story: storia_1 — Il circo delle circostanze
 
@@ -381,10 +383,15 @@ CREATE TABLE hints (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   room_id UUID REFERENCES rooms(id),
   player_id UUID REFERENCES users(id),
+  scene_id TEXT,
   message TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
+CREATE INDEX hints_room_player_scene_idx ON hints (room_id, player_id, scene_id);
 ```
+- `scene_id` è la scena in cui il GM ha inviato il suggerimento (es. `'acrobata'`). Nullable per retrocompatibilità con righe storiche.
+- Il player carica solo gli hint della scena corrente (`fetchHints` filtra `room_id` + `player_id` + `scene_id`), così un hint inviato in una scena non riappare nelle stanze successive.
+- Il GM in `PlayerDetailScreen` valorizza `scene_id` con la scena attuale del giocatore (ultima entry di `progress` per `entered_at`).
 
 ### Realtime replication
 

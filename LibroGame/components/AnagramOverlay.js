@@ -1,7 +1,10 @@
 // components/AnagramOverlay.js
 // Pannello anagramma che si sovrappone alla stanza (sfondo sempre visibile dietro).
-// Contiene: mini-sprite NPC, hints GM, sezione cifrario (solo Illusionista),
+// Contiene: mini-sprite NPC, sezione cifrario (solo Illusionista),
 // input anagramma, feedback, scelte dopo risoluzione.
+//
+// Il banner suggerimento GM (GmHint) NON è più qui: viene renderizzato a livello
+// di CircoStanzaScreen come overlay top, così è visibile anche in modalità narrazione.
 //
 // Props:
 //   scene           — oggetto scena da scenes.json
@@ -12,7 +15,6 @@
 //   onChoiceSelect  — callback(nextSceneId) dopo risoluzione + scelta NPC
 //   onGoToDirettrice — callback per l'Illusionista
 //   characterAsset  — require() sprite mini NPC (o null)
-//   hints           — array di hint dal GM
 //   initialSolved   — se true, l'anagramma era già risolto al caricamento
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -25,7 +27,6 @@ import { supabase } from '../lib/supabase';
 import { normalizeText, formatQuotes } from '../lib/helpers';
 
 import AnagramInput from './AnagramInput';
-import GmHint from './GmHint';
 import CipherTiles from './CipherTiles';
 
 import { circoStanzaStyles as styles } from '../styles/player';
@@ -48,7 +49,6 @@ export default function AnagramOverlay({
   onGoToMap,
   onGoToDirettrice,
   characterAsset,
-  hints,
   initialSolved,
 }) {
   const npc = getNpcTheme(sceneId);
@@ -120,9 +120,6 @@ export default function AnagramOverlay({
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Hint GM */}
-          <GmHint hints={hints} />
-
           {/* Sezione cifrario — solo Illusionista */}
           {isIllusionista && scene.cipher && (
             <View style={styles.cipherSection}>

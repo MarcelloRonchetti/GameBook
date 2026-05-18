@@ -732,6 +732,17 @@ export const circoStanzaStyles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.60)',
   },
 
+  // --- BANNER suggerimento GM (overlay top, sempre visibile nella scena corrente) ---
+  // Sovrapposto a tutto il layout sia in modalità narrazione sia in anagramma.
+  // Il GmHint interno ha già sfondo + bordo oro + padding propri.
+  gmHintBanner: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    right: 16,
+    zIndex: 50,
+  },
+
   // --- SCROLL WRAPPER (modalità narrazione) ---
   // Permette di scrollare verticalmente il contenuto della narrazione
   // quando la finestra è troppo piccola (es. browser ridotto su web).

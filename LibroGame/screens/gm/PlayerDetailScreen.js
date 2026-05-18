@@ -86,7 +86,7 @@ export default function PlayerDetailScreen({ route, navigation }) {
   const fetchHints = async () => {
     const { data, error } = await supabase
       .from('hints')
-      .select('message, created_at')
+      .select('message, created_at, scene_id')
       .eq('room_id', roomId)
       .eq('player_id', player.id)
       .order('created_at', { ascending: true });
@@ -94,11 +94,22 @@ export default function PlayerDetailScreen({ route, navigation }) {
     if (!error && data) setSentHints(data);
   };
 
+  // Scena attuale del giocatore = ultima entry di progress (la più recente per entered_at).
+  // Serve a etichettare il prossimo suggerimento che il GM invia.
+  const currentSceneId = progress.length > 0
+    ? progress[progress.length - 1].scene_id
+    : null;
+
   const handleSendHint = async () => {
     const sanitizedHint = hintText.trim();
 
     if (!sanitizedHint) {
       notify('Errore', 'Scrivi un suggerimento prima di inviare');
+      return;
+    }
+
+    if (!currentSceneId) {
+      notify('Errore', 'Il giocatore non è ancora in una stanza');
       return;
     }
 
@@ -109,6 +120,7 @@ export default function PlayerDetailScreen({ route, navigation }) {
       .insert({
         room_id: roomId,
         player_id: player.id,
+        scene_id: currentSceneId,
         message: sanitizedHint,
       });
 
@@ -202,16 +214,27 @@ export default function PlayerDetailScreen({ route, navigation }) {
                 <Text style={styles.sentHintsTitle}>
                   Suggerimenti inviati ({sentHints.length})
                 </Text>
-                {sentHints.map((hint, i) => (
-                  <Text key={i} style={styles.sentHintText}>
-                    {formatTimestamp(hint.created_at)} — {hint.message}
-                  </Text>
-                ))}
+                {sentHints.map((hint, i) => {
+                  const sceneLabel = hint.scene_id
+                    ? hint.scene_id.charAt(0).toUpperCase() + hint.scene_id.slice(1)
+                    : '—';
+                  return (
+                    <View key={i} style={styles.sentHintRow}>
+                      <View style={styles.sentHintMeta}>
+                        <Text style={styles.sentHintScene}>{sceneLabel}</Text>
+                        <Text style={styles.sentHintTime}>{formatTimestamp(hint.created_at)}</Text>
+                      </View>
+                      <Text style={styles.sentHintText}>{hint.message}</Text>
+                    </View>
+                  );
+                })}
               </View>
             )}
 
             <View style={styles.hintSection}>
-              <Text style={styles.hintLabel}>Invia suggerimento</Text>
+              <Text style={styles.hintLabel}>
+                Invia suggerimento{currentSceneId ? ` · ${currentSceneId}` : ''}
+              </Text>
               <TextInput
                 style={styles.hintInput}
                 value={hintText}

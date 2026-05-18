@@ -874,10 +874,35 @@ export const playerDetailStyles = StyleSheet.create({
   },
   sentHintText: {
     fontSize: fontSize.sm,
-    color: v.champagneMuted,
+    color: v.champagne,
     lineHeight: 20,
-    fontFamily: fontFamilies.body,
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+  },
+  sentHintRow: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: v.goldFaint,
+  },
+  sentHintMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
     marginBottom: 2,
+  },
+  sentHintScene: {
+    fontFamily: fontFamilies.body,
+    fontSize: 11,
+    color: v.gold,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    fontWeight: '600',
+  },
+  sentHintTime: {
+    fontFamily: fontFamilies.typewriter,
+    fontSize: 11,
+    color: v.champagneMuted,
   },
   // Hint composer
   hintSection: {

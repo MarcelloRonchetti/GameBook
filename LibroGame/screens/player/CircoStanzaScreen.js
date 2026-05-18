@@ -23,6 +23,7 @@ import { useRoomClosedListener, useDisableAndroidBack } from '../../lib/useRoomC
 
 import NarratorView from '../../components/NarratorView';
 import AnagramOverlay from '../../components/AnagramOverlay';
+import GmHint from '../../components/GmHint';
 
 import { circoStanzaStyles as styles } from '../../styles/player';
 import {
@@ -129,17 +130,22 @@ export default function CircoStanzaScreen({ route, navigation }) {
     }, delayMs);
   };
 
+  // Carica solo i suggerimenti inviati dal GM per QUESTA scena.
+  // Hint inviati in scene precedenti non devono riapparire qui.
   const fetchHints = async (userId) => {
     const { data, error } = await supabase
       .from('hints')
-      .select('message, created_at')
+      .select('message, created_at, scene_id')
       .eq('room_id', room.id)
       .eq('player_id', userId)
+      .eq('scene_id', sceneId)
       .order('created_at', { ascending: true });
     if (!error && data) setHints(data);
   };
 
   const subscribeToHints = (userId) => {
+    // Il filtro realtime Postgres non supporta filtri multipli in AND su tutti i campi;
+    // sottoscriviamo per room_id e lasciamo a fetchHints la responsabilità di filtrare per scene_id.
     hintsChannelRef.current = supabase
       .channel(`hints_${room.id}_${userId}`)
       .on('postgres_changes', {
@@ -185,6 +191,14 @@ export default function CircoStanzaScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <StatusBar hidden />
+
+      {/* Banner suggerimento GM — sempre visibile (sia in narrazione sia in anagramma)
+          finché il giocatore è in questa scena. Posizionato sopra a tutto. */}
+      {hints.length > 0 && (
+        <View style={styles.gmHintBanner} pointerEvents="box-none">
+          <GmHint hints={hints} />
+        </View>
+      )}
 
       {mode === 'narration' ? (
         <NarratorView
@@ -233,7 +247,6 @@ export default function CircoStanzaScreen({ route, navigation }) {
             onGoToMap={handleGoToMap}
             onGoToDirettrice={handleGoToDirettrice}
             characterAsset={characterAsset}
-            hints={hints}
             initialSolved={initialSolved}
           />
         </>
