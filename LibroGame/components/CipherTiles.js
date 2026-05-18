@@ -16,7 +16,9 @@ import { View, Text } from 'react-native';
 
 import { circoStanzaStyles as styles } from '../styles/player';
 
-export default function CipherTiles({ cipher }) {
+// Memoizzato: il contenuto dipende solo dalla stringa `cipher` (immutabile per scena).
+// Senza memo veniva ricostruito ad ogni keystroke nell'input anagramma del padre.
+function CipherTilesImpl({ cipher }) {
   const words = cipher.split(/\s{2,}/);
   return (
     <View style={styles.cipherWrap}>
@@ -42,3 +44,5 @@ export default function CipherTiles({ cipher }) {
     </View>
   );
 }
+
+export default React.memo(CipherTilesImpl);

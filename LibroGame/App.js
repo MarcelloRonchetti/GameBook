@@ -53,6 +53,17 @@ function useWebScrollFix() {
   }, []);
 }
 
+// ImagePreloader — preload con strategia diversa per piattaforma.
+//
+// Su web: render 1×1 di TUTTI gli asset al boot. Il browser tiene la decodifica
+// nella cache HTTP e i successivi <Image> sono istantanei. Memoria abbondante.
+//
+// Su native (Android/iOS): renderizzare 32 PNG a piena risoluzione costa
+// ~150-200 MB di bitmap RGBA in RAM e causa GC pauses → choppiness.
+// Su mobile preloadiamo SOLO gli asset della mappa (piccoli, sempre necessari)
+// e l'Acrobata (prima scena reale). Gli altri sfondi decodificano al volo
+// quando il giocatore entra nella scena: il delay è di pochi ms, accettabile,
+// e il working set di memoria resta basso.
 function ImagePreloader() {
   const [ready, setReady] = React.useState(false);
 
@@ -63,15 +74,23 @@ function ImagePreloader() {
 
   if (!ready) return null;
 
-  const allAssets = [
-    ...Object.values(ASSETS.map),
-    ...Object.values(ASSETS.backgrounds),
-    ...Object.values(ASSETS.characters),
-  ];
+  const isNative = Platform.OS !== 'web';
+  const allAssets = isNative
+    ? [
+        ...Object.values(ASSETS.map),
+        ASSETS.backgrounds.intro,
+        ASSETS.backgrounds.acrobata,
+        ASSETS.characters.acrobata,
+      ].filter(Boolean)
+    : [
+        ...Object.values(ASSETS.map),
+        ...Object.values(ASSETS.backgrounds),
+        ...Object.values(ASSETS.characters),
+      ];
   return (
     <View style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>
       {allAssets.map((source, i) => (
-        <Image key={i} source={source} style={{ width: 1, height: 1 }} />
+        <Image key={i} source={source} style={{ width: 1, height: 1 }} fadeDuration={0} />
       ))}
     </View>
   );

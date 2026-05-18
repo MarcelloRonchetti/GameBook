@@ -30,8 +30,50 @@ import { circoStanzaStyles as styles } from '../styles/player';
 import { getNpcTheme, BG_ASPECT_RATIO, colors, fontFamilies } from '../styles/theme';
 import { formatQuotes } from '../lib/helpers';
 
-const TYPEWRITER_SPEED = 14;
+// Typewriter: 2 caratteri ogni 28ms → cadence visiva equivalente a 14ms/char
+// ma metà delle setState (= metà dei render del componente). Determinante su
+// mobile dove ogni re-render passa per la riconciliazione di tutto il subtree.
+const TYPEWRITER_TICK_MS = 28;
+const TYPEWRITER_CHARS_PER_TICK = 2;
 const INITIAL_DELAY = 200;
+
+// Layer di sfondo (immagine + overlay + sprite/emoji).
+// Memoizzato così non si re-renderizza ad ogni tick del typewriter: dipende
+// solo da background/character/overlay, che cambiano una volta per scena.
+// L'AutoHintEffect è RENDERIZZATO FUORI da qui per non invalidare il memo
+// quando hintActive cambia.
+const BackdropLayer = React.memo(function BackdropLayer({
+  backgroundAsset,
+  characterAsset,
+  hideCharacter,
+  characterPosition,
+  npc,
+  overlayOpacity,
+}) {
+  return (
+    <>
+      <View style={[styles.background, { backgroundColor: npc.color, opacity: 0.4 }]} />
+      {backgroundAsset && (
+        <Image
+          source={backgroundAsset}
+          style={[styles.background, styles.backgroundImage]}
+          resizeMode="cover"
+          fadeDuration={0}
+        />
+      )}
+      <View style={[styles.overlay, overlayOpacity !== null && { backgroundColor: `rgba(0,0,0,${overlayOpacity})` }]} />
+      {!hideCharacter && characterAsset ? (
+        <View style={[styles.characterContainer, characterPosition, { zIndex: 2 }]} pointerEvents="none">
+          <Image source={characterAsset} style={styles.characterImage} resizeMode="contain" fadeDuration={0} />
+        </View>
+      ) : !hideCharacter ? (
+        <View style={[styles.characterContainer, characterPosition, { alignItems: 'center', justifyContent: 'center', zIndex: 2 }]} pointerEvents="none">
+          <Text style={{ fontSize: 100 }}>{npc.emoji}</Text>
+        </View>
+      ) : null}
+    </>
+  );
+});
 
 export default function NarratorView({
   scene,
@@ -122,14 +164,17 @@ export default function NarratorView({
     const currentBlockText = blocks[blockIndex]?.text || '';
     const startTimer = setTimeout(() => {
       timerRef.current = setInterval(() => {
-        charIndexRef.current += 1;
+        charIndexRef.current = Math.min(
+          charIndexRef.current + TYPEWRITER_CHARS_PER_TICK,
+          currentBlockText.length,
+        );
         setDisplayed(currentBlockText.slice(0, charIndexRef.current));
         if (charIndexRef.current >= currentBlockText.length) {
           clearInterval(timerRef.current);
           setIsTyping(false);
           setBlockDone(true);
         }
-      }, TYPEWRITER_SPEED);
+      }, TYPEWRITER_TICK_MS);
     }, INITIAL_DELAY);
 
     return () => {
@@ -168,38 +213,27 @@ export default function NarratorView({
     setQuickView(false);
   };
 
-  // Sfondo e personaggio sono inlineati in entrambi i rami del render
-  // per evitare che React li smonta/rimonta (causerebbe flash nero).
-  const renderBackground = () => (
-    <>
-      {/* Colore placeholder immediato — visibile mentre il PNG decodifica */}
-      <View style={[styles.background, { backgroundColor: npc.color, opacity: 0.4 }]} />
-      {backgroundAsset && (
-        <Image
-          source={backgroundAsset}
-          style={[styles.background, styles.backgroundImage]}
-          resizeMode="cover"
-        />
-      )}
-      <View style={[styles.overlay, overlayOpacity !== null && { backgroundColor: `rgba(0,0,0,${overlayOpacity})` }]} />
-      {!hideCharacter && characterAsset ? (
-        <View style={[styles.characterContainer, characterPosition, { zIndex: 2 }]} pointerEvents="none">
-          <Image source={characterAsset} style={styles.characterImage} resizeMode="contain" />
-        </View>
-      ) : !hideCharacter ? (
-        <View style={[styles.characterContainer, characterPosition, { alignItems: 'center', justifyContent: 'center', zIndex: 2 }]} pointerEvents="none">
-          <Text style={{ fontSize: 100 }}>{npc.emoji}</Text>
-        </View>
-      ) : null}
-    </>
+  // Il backdrop (sfondo + overlay + personaggio) è incapsulato in un
+  // componente memoizzato a parte (BackdropLayer in cima al file) così non
+  // si re-renderizza ad ogni tick del typewriter.
+  const hintStyle = computeHintStyle(hintPosition);
+  const backdrop = (
+    <BackdropLayer
+      backgroundAsset={backgroundAsset}
+      characterAsset={characterAsset}
+      hideCharacter={hideCharacter}
+      characterPosition={characterPosition}
+      npc={npc}
+      overlayOpacity={overlayOpacity}
+    />
   );
 
   // --- QUICK VIEW: ritorno dall'anagramma ---
   if (quickView) {
     return (
       <View style={styles.container}>
-        {renderBackground()}
-        <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={computeHintStyle(hintPosition)} />
+        {backdrop}
+        <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={hintStyle} />
         <View style={styles.quickViewPanel}>
           <Text style={styles.dialogName}>{npc.label}</Text>
           <View style={styles.quickViewButtons}>
@@ -229,8 +263,8 @@ export default function NarratorView({
   const dialogMaxH = screenH * 0.22;
   return (
     <View style={styles.container}>
-      {renderBackground()}
-      <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={computeHintStyle(hintPosition)} />
+      {backdrop}
+      <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={hintStyle} />
       <TouchableWithoutFeedback onPress={handleTap}>
         <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2 }}>
           <View style={[styles.dialogBox, { maxHeight: dialogMaxH }]}>

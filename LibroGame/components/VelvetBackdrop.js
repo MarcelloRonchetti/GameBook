@@ -11,14 +11,25 @@
 // posizionamento relativo/flex sopra di esso.
 
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Animated, Easing, View, useWindowDimensions } from 'react-native';
+import { Animated, Easing, Platform, View, useWindowDimensions } from 'react-native';
 import Svg, {
   Defs, LinearGradient, Stop, Path, RadialGradient, Rect, G,
 } from 'react-native-svg';
 import { colors } from '../styles/theme';
 import { velvetBackdropStyles as styles } from '../styles/components';
 
-const AnimatedSvg = Animated.createAnimatedComponent(Svg);
+// Su mobile riduciamo numero particelle e dettaglio tende per evitare
+// chop sul thread UI nativo (rasterizzazione SVG frame-per-frame).
+const IS_NATIVE = Platform.OS !== 'web';
+const DEFAULT_PARTICLE_COUNT = IS_NATIVE ? 4 : 8;
+const CURTAIN_FOLD_COUNT = IS_NATIVE ? 3 : 5;
+
+// Hardware texture caching: trasforma le tende SVG in bitmap GPU una volta sola
+// e fa solo translateX della texture per il sway. Senza questo, react-native-svg
+// rirasterizza i Path vector ogni frame → choppy.
+const RASTERIZE_PROPS = IS_NATIVE
+  ? { renderToHardwareTextureAndroid: true, shouldRasterizeIOS: true }
+  : {};
 
 // Generatore deterministico di particelle: configurate una volta per evitare
 // che cambino ad ogni render e per garantire varieta visiva controllata.
@@ -87,7 +98,7 @@ function Particle({ seed, height }) {
   );
 }
 
-export default function VelvetBackdrop({ particleCount = 8 }) {
+export default function VelvetBackdrop({ particleCount = DEFAULT_PARTICLE_COUNT }) {
   const { width, height } = useWindowDimensions();
   const sway = useRef(new Animated.Value(0)).current;
 
@@ -122,8 +133,11 @@ export default function VelvetBackdrop({ particleCount = 8 }) {
 
   return (
     <View pointerEvents="none" style={styles.root}>
-      {/* Gradient di base + vignetta radiale ai bordi */}
+      {/* Gradient di base + vignetta radiale ai bordi.
+          Layer statico → su mobile lo rasterizziamo come texture GPU una volta
+          sola, così l'eventuale composizione coi layer animati sopra è cheap. */}
       <Svg
+        {...RASTERIZE_PROPS}
         width="100%"
         height="100%"
         style={styles.layerFill}
@@ -155,6 +169,7 @@ export default function VelvetBackdrop({ particleCount = 8 }) {
 
       {/* Tenda sinistra */}
       <Animated.View
+        {...RASTERIZE_PROPS}
         style={[
           styles.curtain,
           { left: 0, width: curtainWidth, height: curtainHeight, transform: [{ translateX: Animated.multiply(swayLeft, -1) }] },
@@ -177,8 +192,8 @@ export default function VelvetBackdrop({ particleCount = 8 }) {
             d="M0 0 L100 0 L92 100 L0 100 Z"
             fill="url(#curtainLeftFill)"
           />
-          {/* pieghe verticali */}
-          {[12, 28, 44, 60, 76].map((x, i) => (
+          {/* pieghe verticali — meno su mobile per ridurre draw calls */}
+          {(CURTAIN_FOLD_COUNT === 5 ? [12, 28, 44, 60, 76] : [16, 44, 72]).map((x, i) => (
             <Path
               key={i}
               d={`M${x} 0 Q ${x - 3} 50 ${x - 6} 100`}
@@ -194,6 +209,7 @@ export default function VelvetBackdrop({ particleCount = 8 }) {
 
       {/* Tenda destra (specchiata) */}
       <Animated.View
+        {...RASTERIZE_PROPS}
         style={[
           styles.curtain,
           { right: 0, width: curtainWidth, height: curtainHeight, transform: [{ translateX: swayRight }] },
@@ -216,7 +232,7 @@ export default function VelvetBackdrop({ particleCount = 8 }) {
             d="M0 0 L100 0 L100 100 L8 100 Z"
             fill="url(#curtainRightFill)"
           />
-          {[24, 40, 56, 72, 88].map((x, i) => (
+          {(CURTAIN_FOLD_COUNT === 5 ? [24, 40, 56, 72, 88] : [28, 56, 84]).map((x, i) => (
             <Path
               key={i}
               d={`M${x} 0 Q ${x + 3} 50 ${x + 6} 100`}
