@@ -324,7 +324,7 @@ CREATE TABLE stories (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   description TEXT,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 Seeded with `storia_1` — "Il circo delle circostanze".
@@ -339,7 +339,7 @@ CREATE TABLE rooms (
   story_id UUID REFERENCES stories(id),
   auto_hint_minutes INTEGER NOT NULL,
   status TEXT DEFAULT 'open' CHECK (status IN ('open', 'closed')),
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 `name` is nullable for compatibility with rooms created before the column was added (`ALTER TABLE rooms ADD COLUMN name TEXT;`).
@@ -372,8 +372,8 @@ CREATE TABLE progress (
   player_id UUID REFERENCES users(id),
   scene_id TEXT NOT NULL,
   solved BOOLEAN DEFAULT FALSE,
-  entered_at TIMESTAMP DEFAULT NOW(),
-  timestamp TIMESTAMP DEFAULT NOW()
+  entered_at TIMESTAMPTZ DEFAULT NOW(),
+  timestamp TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 - `entered_at` drives the auto-hint timer; refreshed on scene re-entry.
@@ -388,7 +388,7 @@ CREATE TABLE hints (
   player_id UUID REFERENCES users(id),
   scene_id TEXT,
   message TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX hints_room_player_scene_idx ON hints (room_id, player_id, scene_id);
 ```
@@ -497,6 +497,7 @@ The `gm elimina stanza` policy is required by `RoomListScreen` deletion. Without
 - Faithful to the source story (do not modify scene texts).
 - No `StyleSheet.create` inside screens — keep styles in `styles/`, tokens in `theme.js`.
 - No direct `Alert.alert` — use `notify()` for messages, `confirm()` for destructive prompts, inline banners for form errors.
+- Tutte le colonne timestamp sono `TIMESTAMPTZ` (timestamp with time zone): Supabase serializza ISO con offset `+00:00`, JS `new Date()` le parsa correttamente come UTC instant.
 - Quando formatti timestamp/date per la UI (`toLocaleTimeString`/`toLocaleDateString`), passa sempre `timeZone: 'Europe/Rome'` in aggiunta al locale `'it-IT'`. Senza, l'output usa il fuso del runtime (UTC su molti browser/server) e gli orari risultano sbagliati di 1-2 ore. Punti correnti: `GmHint`, `PlayerDetailScreen.formatTimestamp`, `RoomListScreen.formatDate`.
 - Ask before proceeding when something is unclear.
 
