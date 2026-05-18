@@ -29,6 +29,37 @@ const CIPHER_KEY = {
   11: 'R', 12: 'S', 13: 'Z', 14: 'B'
 };
 
+// Rende il messaggio cifrato come tiles ("caselle") raggruppati per parola.
+// Le parole sono separate da 2+ spazi nel JSON sorgente; gli atomi di una parola
+// sono separati da `-`. Eventuale punteggiatura attaccata (es. `1'`) viene
+// estratta e renderizzata fuori dalla casella per non sporcare la tile.
+function CipherTiles({ cipher }) {
+  const words = cipher.split(/\s{2,}/);
+  return (
+    <View style={styles.cipherWrap}>
+      {words.map((word, wi) => (
+        <View key={wi} style={styles.cipherWordGroup}>
+          {word.split('-').map((atom, ai) => {
+            const m = atom.match(/^(\d+)(.*)$/);
+            const num = m ? m[1] : atom;
+            const suffix = m ? m[2] : '';
+            return (
+              <React.Fragment key={ai}>
+                <View style={styles.cipherTile}>
+                  <Text style={styles.cipherTileText}>{num}</Text>
+                </View>
+                {suffix ? (
+                  <Text style={styles.cipherSuffix}>{suffix}</Text>
+                ) : null}
+              </React.Fragment>
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export default function IntroScreen({ route, navigation }) {
   const { room } = route.params;
   const intro = scenes.intro;
@@ -150,7 +181,7 @@ export default function IntroScreen({ route, navigation }) {
         />
       )}
       {/* Overlay scuro per leggibilità del testo */}
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.25)' }} />
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.45)' }} />
 
       <KeyboardAvoidingView
         style={styles.flex}
@@ -173,7 +204,7 @@ export default function IntroScreen({ route, navigation }) {
           <Text style={styles.title}>{intro.title}</Text>
 
           <Text style={styles.sectionTitle}>Messaggio cifrato</Text>
-          <Text style={styles.cipherText}>{intro.cipher.replace(/-/g, '‑')}</Text>
+          <CipherTiles cipher={intro.cipher} />
 
           <View style={styles.keyContainer}>
             <Text style={styles.keyTitle}>Chiave di decodifica</Text>

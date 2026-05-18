@@ -238,26 +238,60 @@ export const introStyles = StyleSheet.create({
     width: '95%',
     alignSelf: 'center',
   },
-  // Cifrario: Special Elite, lettere ariose
-  cipherText: {
-    fontFamily: fontFamilies.typewriter,
-    fontSize: 22,
-    color: colors.velvet.champagne,
-    lineHeight: 34,
-    backgroundColor: 'rgba(26,12,15,0.55)',
+  // Pannello che contiene le tile del cifrario (sostituisce il vecchio `cipherText`
+  // a singola Text). Sfondo bordeaux quasi opaco per leggibilità delle caselle.
+  cipherWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    rowGap: 10,
+    columnGap: 18,
+    backgroundColor: 'rgba(26,12,15,0.82)',
     padding: spacing.lg,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.velvet.goldFaint,
     marginBottom: spacing.xl,
-    textAlign: 'center',
-    letterSpacing: 2,
     maxWidth: 950,
     width: '95%',
     alignSelf: 'center',
   },
+  // Gruppo di tile che compongono una singola parola — sempre su stessa riga
+  cipherWordGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    flexWrap: 'nowrap',
+  },
+  // Singolo numero come "casella" in stile typewriter — quadratino con bordo oro
+  cipherTile: {
+    minWidth: 34,
+    height: 36,
+    paddingHorizontal: 6,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.velvet.goldFaint,
+    backgroundColor: 'rgba(245,234,209,0.06)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Numero nella casella — Special Elite oro
+  cipherTileText: {
+    fontFamily: fontFamilies.typewriter,
+    fontSize: 18,
+    color: colors.velvet.goldSoft,
+    letterSpacing: 0,
+  },
+  // Punteggiatura attaccata (es. apostrofo dopo `1'`) — fuori dalla tile
+  cipherSuffix: {
+    fontFamily: fontFamilies.typewriter,
+    fontSize: 18,
+    color: colors.velvet.champagneMuted,
+    marginLeft: 2,
+  },
   keyContainer: {
-    backgroundColor: 'rgba(26,12,15,0.45)',
+    backgroundColor: 'rgba(26,12,15,0.75)',
     borderRadius: radius.md,
     padding: spacing.lg,
     marginBottom: spacing.xxl,

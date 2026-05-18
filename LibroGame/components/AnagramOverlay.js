@@ -155,13 +155,19 @@ export default function AnagramOverlay({
                   {cipherError && (
                     <Text style={styles.errorText}>Decodifica non corretta!</Text>
                   )}
-                  <TouchableOpacity
-                    style={[styles.button, !cipherAnswer.trim() && styles.buttonDisabled]}
-                    onPress={handleCheckCipher}
-                    disabled={!cipherAnswer.trim()}
-                  >
-                    <Text style={styles.buttonText}>Verifica decodifica</Text>
-                  </TouchableOpacity>
+                  <View style={styles.verifyRow}>
+                    <TouchableOpacity
+                      style={[
+                        styles.button,
+                        styles.buttonCompact,
+                        !cipherAnswer.trim() && styles.buttonDisabled,
+                      ]}
+                      onPress={handleCheckCipher}
+                      disabled={!cipherAnswer.trim()}
+                    >
+                      <Text style={styles.buttonText}>Verifica decodifica</Text>
+                    </TouchableOpacity>
+                  </View>
                 </>
               ) : (
                 <View style={styles.successBox}>
