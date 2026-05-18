@@ -217,7 +217,10 @@ If GM closes the room mid-game: alert "Il GM ha chiuso la stanza" -> reset to `J
 - Visibile al giocatore in `CircoStanzaScreen` come banner top assoluto (componente `GmHint`, wrapper `circoStanzaStyles.gmHintBanner`, `zIndex: 50`) **sia in modalità narrazione sia in modalità anagramma** — appare subito al ricevimento via realtime, non solo quando il player apre il pannello anagramma.
 - `fetchHints` filtra per `room_id` + `player_id` + `scene_id`: un hint inviato in una scena resta scoped a quella scena (non riappare quando il giocatore avanza alle stanze successive).
 - Il GM in `PlayerDetailScreen` vede sotto "Suggerimenti inviati" ogni hint con la scena di invio (eyebrow oro uppercase) + orario (Special Elite). La label del composer ("Invia suggerimento · <scena>") riflette dove andrà inviato il prossimo hint.
-- Realtime delivery via Supabase channel `hints_<room>_<user>`. Il filtro Postgres realtime resta solo `room_id=eq.<roomId>` (non supporta AND su più campi); il filtro per `scene_id` avviene in `fetchHints` lato JS dopo ogni INSERT.
+- **Doppio canale di delivery** (belt-and-suspenders):
+  1. **`postgres_changes` su INSERT** — canale `hints_<room>_<user>`, filtro `room_id=eq.<roomId>`. Richiede che la tabella `hints` sia in `pg_publication` `supabase_realtime` (vedi sezione Realtime replication).
+  2. **Broadcast esplicito** — canale `hint_push_<room>_<user>`, evento `new_hint`. Il GM in `PlayerDetailScreen.handleSendHint` chiama `channel.send({type:'broadcast', event:'new_hint'})` subito dopo l'insert riuscito. Il player ascolta lo stesso canale con `.on('broadcast', { event: 'new_hint' }, ...)`. Garantisce delivery immediato anche se postgres_changes ritarda o se la publication non è attiva per `hints`.
+- Entrambi i canali chiamano `fetchHints(userId)`, che filtra per `scene_id` corrente.
 
 ## Story: storia_1 — Il circo delle circostanze
 
@@ -400,9 +403,11 @@ CREATE INDEX hints_room_player_scene_idx ON hints (room_id, player_id, scene_id)
 | `rooms` | `useRoomClosedListener` listens for `UPDATE` to detect room close from GM |
 | `room_players` | GM Dashboard updates player list in realtime |
 | `progress` | GM Dashboard + PlayerDetail update player position in realtime |
-| `hints` | `AnagramScreen` / `CircoStanzaScreen` receive GM hints in realtime |
+| `hints` | `CircoStanzaScreen` receives GM hints in realtime (banner top scoped per scena) |
 
-Path: Supabase Dashboard → Database → Replication → enable per table.
+Path: Supabase Dashboard → Database → Replication → enable per table, **oppure** via SQL: `ALTER PUBLICATION supabase_realtime ADD TABLE public.<tablename>;`.
+
+Verifica stato attuale: `SELECT tablename FROM pg_publication_tables WHERE pubname = 'supabase_realtime';` — devono comparire tutte e quattro le tabelle del progetto (`rooms`, `room_players`, `progress`, `hints`). Se la publication è vuota, `postgres_changes` non scatta mai e tutti i listener realtime falliscono in silenzio. Per il flusso hint c'è un fallback via Supabase Broadcast (vedi sezione "Manual GM hint").
 
 ### RLS
 

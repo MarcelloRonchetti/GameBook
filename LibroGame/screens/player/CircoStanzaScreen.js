@@ -61,6 +61,7 @@ export default function CircoStanzaScreen({ route, navigation }) {
 
   const [hints, setHints] = useState([]);
   const hintsChannelRef = useRef(null);
+  const hintBroadcastChannelRef = useRef(null);
 
   const [returnedFromAnagram, setReturnedFromAnagram] = useState(false);
 
@@ -75,6 +76,7 @@ export default function CircoStanzaScreen({ route, navigation }) {
       if (timerRef.current) clearTimeout(timerRef.current);
       if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
       if (hintsChannelRef.current) supabase.removeChannel(hintsChannelRef.current);
+      if (hintBroadcastChannelRef.current) supabase.removeChannel(hintBroadcastChannelRef.current);
     };
   }, [sceneId]);
 
@@ -144,8 +146,15 @@ export default function CircoStanzaScreen({ route, navigation }) {
   };
 
   const subscribeToHints = (userId) => {
-    // Il filtro realtime Postgres non supporta filtri multipli in AND su tutti i campi;
-    // sottoscriviamo per room_id e lasciamo a fetchHints la responsabilità di filtrare per scene_id.
+    // Doppio canale per massima affidabilità:
+    //
+    // 1) `hints_<room>_<user>` — postgres_changes su INSERT (push automatico dalla DB
+    //    se la tabella è nella publication `supabase_realtime`).
+    // 2) `hint_push_<room>_<user>` — broadcast esplicito che il GM emette in
+    //    PlayerDetailScreen.handleSendHint subito dopo l'insert. Funziona anche se
+    //    postgres_changes ritarda o se la publication non è attiva.
+    //
+    // Entrambi i canali chiamano fetchHints, che filtra per scene_id corrente.
     hintsChannelRef.current = supabase
       .channel(`hints_${room.id}_${userId}`)
       .on('postgres_changes', {
@@ -154,6 +163,11 @@ export default function CircoStanzaScreen({ route, navigation }) {
         table: 'hints',
         filter: `room_id=eq.${room.id}`,
       }, () => fetchHints(userId))
+      .subscribe();
+
+    hintBroadcastChannelRef.current = supabase
+      .channel(`hint_push_${room.id}_${userId}`)
+      .on('broadcast', { event: 'new_hint' }, () => fetchHints(userId))
       .subscribe();
   };
 

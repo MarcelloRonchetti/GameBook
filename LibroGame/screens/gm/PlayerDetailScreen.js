@@ -39,6 +39,11 @@ export default function PlayerDetailScreen({ route, navigation }) {
   const [sentHints, setSentHints] = useState([]);
   const [sending, setSending] = useState(false);
 
+  // Canale Supabase Broadcast dedicato a questo player in questa stanza.
+  // Usato sia per inviare il "ping" hint sia (potenzialmente) per altri eventi futuri.
+  // Il channel name DEVE essere identico a quello su cui si iscrive il player in CircoStanzaScreen.
+  const hintChannelRef = useRef(null);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerStyle: { backgroundColor: colors.velvet.bgDeeper, shadowOpacity: 0, elevation: 0, borderBottomWidth: 1, borderBottomColor: colors.velvet.goldFaint },
@@ -65,7 +70,15 @@ export default function PlayerDetailScreen({ route, navigation }) {
       }, () => fetchProgress())
       .subscribe();
 
-    return () => supabase.removeChannel(subscription);
+    // Channel broadcast per il push immediato del nuovo hint al player.
+    // Lo apriamo al mount così quando l'utente clicca "Invia" la chiamata `.send()` parte subito.
+    hintChannelRef.current = supabase.channel(`hint_push_${roomId}_${player.id}`);
+    hintChannelRef.current.subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+      if (hintChannelRef.current) supabase.removeChannel(hintChannelRef.current);
+    };
   }, []);
 
   const fetchProgress = async () => {
@@ -129,6 +142,16 @@ export default function PlayerDetailScreen({ route, navigation }) {
     if (error) {
       notify('Errore', 'Impossibile inviare il suggerimento');
       return;
+    }
+
+    // Push broadcast esplicito al player: garantisce visualizzazione immediata
+    // anche se postgres_changes ritarda o non è attivo per la tabella `hints`.
+    if (hintChannelRef.current) {
+      hintChannelRef.current.send({
+        type: 'broadcast',
+        event: 'new_hint',
+        payload: { scene_id: currentSceneId, message: sanitizedHint },
+      });
     }
 
     setHintText('');
