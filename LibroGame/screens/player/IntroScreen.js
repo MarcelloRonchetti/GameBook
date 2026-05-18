@@ -23,6 +23,7 @@ import { getBackgroundAsset } from '../../styles/theme';
 
 import NarratorView from '../../components/NarratorView';
 import AnagramInput from '../../components/AnagramInput';
+import CipherTiles from '../../components/CipherTiles';
 import scenes from '../../story/storia_1/scenes.json';
 
 // Chiave di decodifica — 14 valori noti al giocatore
@@ -31,36 +32,6 @@ const CIPHER_KEY = {
   6: 'T', 7: 'D', 8: 'E', 9: 'C', 10: 'I',
   11: 'R', 12: 'S', 13: 'Z', 14: 'B'
 };
-
-// Rende il messaggio cifrato come tiles ("caselle") raggruppati per parola.
-// Parole separate da 2+ spazi nel JSON sorgente, atomi separati da `-`.
-// Punteggiatura attaccata (es. `1'`) estratta e renderizzata fuori tile.
-function CipherTiles({ cipher }) {
-  const words = cipher.split(/\s{2,}/);
-  return (
-    <View style={styles.cipherWrap}>
-      {words.map((word, wi) => (
-        <View key={wi} style={styles.cipherWordGroup}>
-          {word.split('-').map((atom, ai) => {
-            const m = atom.match(/^(\d+)(.*)$/);
-            const num = m ? m[1] : atom;
-            const suffix = m ? m[2] : '';
-            return (
-              <React.Fragment key={ai}>
-                <View style={styles.cipherTile}>
-                  <Text style={styles.cipherTileText}>{num}</Text>
-                </View>
-                {suffix ? (
-                  <Text style={styles.cipherSuffix}>{suffix}</Text>
-                ) : null}
-              </React.Fragment>
-            );
-          })}
-        </View>
-      ))}
-    </View>
-  );
-}
 
 export default function IntroScreen({ route, navigation }) {
   const { room } = route.params;

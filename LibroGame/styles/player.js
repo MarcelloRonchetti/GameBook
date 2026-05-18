@@ -1080,21 +1080,7 @@ export const circoStanzaStyles = StyleSheet.create({
   },
   // Sezione cifrario (Illusionista + Intro)
   cipherSection: { marginBottom: 14 },
-  cipherText: {
-    fontFamily: fontFamilies.typewriter,
-    fontSize: 18,
-    color: colors.velvet.champagne,
-    lineHeight: 30,
-    backgroundColor: 'rgba(26,12,15,0.45)',
-    padding: 14,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.velvet.goldFaint,
-    marginBottom: 12,
-    textAlign: 'center',
-    letterSpacing: 2,
-  },
-  // --- Cipher tiles (Intro) ---
+  // --- Cipher tiles (Intro + Illusionista) ---
   // Pannello che contiene le tile del cifrario — sfondo bordeaux quasi opaco
   cipherWrap: {
     flexDirection: 'row',
@@ -1209,13 +1195,14 @@ export const circoStanzaStyles = StyleSheet.create({
     marginTop: 8,
   },
   divider: { height: 1, backgroundColor: colors.velvet.goldFaint, marginVertical: 14 },
-  // Eyebrow di sezione: uppercase + tracked oro
+  // Eyebrow di sezione: uppercase + tracked oro, centrato (matcha keyTitle)
   sectionTitle: {
     fontFamily: fontFamilies.bodyMedium,
     fontSize: 11,
     fontWeight: '600',
     color: colors.velvet.gold,
     marginBottom: 10,
+    textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 2.5,
   },

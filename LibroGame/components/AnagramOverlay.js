@@ -26,6 +26,7 @@ import { normalizeText, formatQuotes } from '../lib/helpers';
 
 import AnagramInput from './AnagramInput';
 import GmHint from './GmHint';
+import CipherTiles from './CipherTiles';
 
 import { circoStanzaStyles as styles } from '../styles/player';
 import { getNpcTheme, fontFamilies } from '../styles/theme';
@@ -126,7 +127,7 @@ export default function AnagramOverlay({
           {isIllusionista && scene.cipher && (
             <View style={styles.cipherSection}>
               <Text style={styles.sectionTitle}>Messaggio cifrato</Text>
-              <Text style={styles.cipherText}>{scene.cipher.replace(/-/g, '‑')}</Text>
+              <CipherTiles cipher={scene.cipher} />
 
               <View style={styles.keyContainer}>
                 <Text style={styles.keyTitle}>La chiave</Text>
