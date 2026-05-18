@@ -23,6 +23,9 @@ TARGETS = [
     ('characters',  1200),  # sprite NPC (mostrati anche full-bleed in CircoStanza)
     ('backgrounds', 2048),  # sfondi stanze (mostrati full screen)
     ('hints',       1200),  # hint ritagli (mostrati sopra al background)
+    # Icone app: Expo richiede 1024x1024 (icon, adaptive-icon, splash-icon).
+    # favicon.png (64x64) viene saltato automaticamente dalla guardia "longest <= max_side".
+    ('app-icons',   1024),
 ]
 
 
