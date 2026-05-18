@@ -165,7 +165,11 @@ export default function IntroScreen({ route, navigation }) {
       >
         <View style={styles.anagramPanel}>
           <View style={styles.anagramPanelHeader}>
-            <Text style={styles.anagramPanelTitle}>{intro.title}</Text>
+            {/* Solo nella Circo-stanza di Partenza: titolo centrato.
+                Le scene NPC usano `anagramPanelTitle` di default (left). */}
+            <Text style={[styles.anagramPanelTitle, { textAlign: 'center' }]}>
+              {intro.title}
+            </Text>
           </View>
 
           <ScrollView

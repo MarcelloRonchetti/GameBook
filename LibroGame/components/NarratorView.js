@@ -4,7 +4,7 @@
 //
 // LOGICA TYPEWRITER:
 //   - Il testo del narratore è diviso in blocchi (array di stringhe in scenes.json).
-//   - Ogni blocco esce carattere per carattere con un intervallo di ~30ms.
+//   - Ogni blocco esce carattere per carattere con un intervallo di ~14ms.
 //   - TAP 1 durante scrittura → completa il blocco istantaneamente.
 //   - TAP 1 a blocco completato → passa al blocco successivo.
 //   - Ultimo blocco completato → mostra il bottone "Anagramma".
@@ -30,7 +30,7 @@ import { circoStanzaStyles as styles } from '../styles/player';
 import { getNpcTheme, BG_ASPECT_RATIO, colors, fontFamilies } from '../styles/theme';
 import { formatQuotes } from '../lib/helpers';
 
-const TYPEWRITER_SPEED = 28;
+const TYPEWRITER_SPEED = 14;
 const INITIAL_DELAY = 200;
 
 export default function NarratorView({
@@ -258,7 +258,14 @@ export default function NarratorView({
               contentContainerStyle={styles.dialogScrollContent}
               showsVerticalScrollIndicator={true}
             >
-              <Text style={styles.dialogText}>
+              <Text
+                style={[
+                  styles.dialogText,
+                  // Battute dei personaggi: tondo (non italic).
+                  // Narratore: lascia l'italic Cormorant di default.
+                  blocks[blockIndex]?.speaker === 'character' && { fontStyle: 'normal' },
+                ]}
+              >
                 {blocks[blockIndex]?.speaker === 'character'
                   ? formatQuotes(displayed)
                   : displayed}
