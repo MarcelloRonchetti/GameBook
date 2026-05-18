@@ -4,10 +4,22 @@
 // tutta la navigazione tra le schermate.
 
 import React, { useEffect } from 'react';
-import { Platform, View, Image } from 'react-native';
+import { Platform, View, Image, ActivityIndicator } from 'react-native';
+import {
+  useFonts as useCormorant,
+  CormorantGaramond_500Medium,
+  CormorantGaramond_500Medium_Italic,
+} from '@expo-google-fonts/cormorant-garamond';
+import {
+  Manrope_400Regular,
+  Manrope_600SemiBold,
+  Manrope_700Bold,
+} from '@expo-google-fonts/manrope';
+import { SpecialElite_400Regular } from '@expo-google-fonts/special-elite';
 import AppNavigator from './navigation/AppNavigator';
 import ErrorBoundary from './components/ErrorBoundary';
-import { ASSETS } from './styles/theme';
+import VelvetBackdrop from './components/VelvetBackdrop';
+import { ASSETS, colors } from './styles/theme';
 
 function useWebScrollFix() {
   useEffect(() => {
@@ -65,8 +77,33 @@ function ImagePreloader() {
   );
 }
 
+// Splash velluto teatrale: mostrato finche' i Google Fonts non sono caricati.
+// Sfondo bordeaux pieno + VelvetBackdrop animato + spinner oro. Evita il
+// flash dei font di sistema al primo paint.
+function VelvetSplash() {
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.velvet.bgDeep, alignItems: 'center', justifyContent: 'center' }}>
+      <VelvetBackdrop particleCount={6} />
+      <ActivityIndicator size="large" color={colors.velvet.gold} />
+    </View>
+  );
+}
+
 function AppWithScrollFix() {
   useWebScrollFix();
+  const [fontsLoaded] = useCormorant({
+    CormorantGaramond_500Medium,
+    CormorantGaramond_500Medium_Italic,
+    Manrope_400Regular,
+    Manrope_600SemiBold,
+    Manrope_700Bold,
+    SpecialElite_400Regular,
+  });
+
+  if (!fontsLoaded) {
+    return <VelvetSplash />;
+  }
+
   return (
     <ErrorBoundary>
       <ImagePreloader />

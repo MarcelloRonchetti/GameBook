@@ -4,6 +4,23 @@
 import { Alert, Platform } from 'react-native';
 
 // ---------------------------------------------------------------------------
+// formatQuotes — converte virgolette dritte (") in caporali italiane («/»).
+// Stile velluto teatrale: le battute dei personaggi devono usare « ». Mantiene
+// i JSON sorgente con le virgolette dritte (leggibili da chi edita) e applica
+// la conversione solo al render. Logica: la PRIMA virgoletta di una coppia
+// diventa «, la SECONDA », alternando sull'intera stringa.
+// ---------------------------------------------------------------------------
+export function formatQuotes(text) {
+  if (!text) return text;
+  let open = true;
+  return text.replace(/"/g, () => {
+    const ch = open ? '«' : '»';
+    open = !open;
+    return ch;
+  });
+}
+
+// ---------------------------------------------------------------------------
 // normalizeText — rimuove accenti, spazi multipli, punteggiatura e porta in maiuscolo.
 // Usato per confrontare la risposta del giocatore con la soluzione dell'anagramma
 // in modo tollerante (ignora apostrofi, accenti, maiuscole/minuscole).

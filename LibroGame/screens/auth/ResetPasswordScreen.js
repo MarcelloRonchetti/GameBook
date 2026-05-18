@@ -112,7 +112,7 @@ export default function ResetPasswordScreen({ navigation }) {
         <Text style={styles.title}>Link non valido</Text>
         <View style={styles.errorBanner}>
           <Text style={styles.errorBannerText}>
-            ⚠️ Il link di recupero non è valido o è scaduto.
+            Il link di recupero non è valido o è scaduto.
           </Text>
         </View>
         <TouchableOpacity onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Login' }] })}>
@@ -139,7 +139,7 @@ export default function ResetPasswordScreen({ navigation }) {
 
         {errorMsg ? (
           <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>⚠️ {errorMsg}</Text>
+            <Text style={styles.errorBannerText}>{errorMsg}</Text>
           </View>
         ) : null}
 

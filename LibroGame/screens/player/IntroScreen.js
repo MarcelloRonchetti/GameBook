@@ -14,10 +14,10 @@ import {
 } from 'react-native';
 
 import { supabase } from '../../lib/supabase';
-import { normalizeText } from '../../lib/helpers';
+import { normalizeText, formatQuotes } from '../../lib/helpers';
 import { useRoomClosedListener, useDisableAndroidBack } from '../../lib/useRoomClosedListener';
 import { introStyles as styles } from '../../styles/player';
-import { getBackgroundAsset } from '../../styles/theme';
+import { getBackgroundAsset, colors, fontFamilies, radius } from '../../styles/theme';
 
 import NarratorView from '../../components/NarratorView';
 import scenes from '../../story/storia_1/scenes.json';
@@ -131,7 +131,7 @@ export default function IntroScreen({ route, navigation }) {
           characterAsset={null}
           backgroundAsset={introBackground}
           hideCharacter={true}
-          anagramButtonLabel="📜 Decifra il messaggio"
+          anagramButtonLabel="Decifra il messaggio"
           overlayOpacity={0.1}
         />
       </View>
@@ -172,11 +172,11 @@ export default function IntroScreen({ route, navigation }) {
 
           <Text style={styles.title}>{intro.title}</Text>
 
-          <Text style={styles.sectionTitle}>📜 Messaggio cifrato</Text>
+          <Text style={styles.sectionTitle}>Messaggio cifrato</Text>
           <Text style={styles.cipherText}>{intro.cipher.replace(/-/g, '‑')}</Text>
 
           <View style={styles.keyContainer}>
-            <Text style={styles.keyTitle}>🔑 Chiave di decodifica</Text>
+            <Text style={styles.keyTitle}>Chiave di decodifica</Text>
             <View style={styles.keyGrid}>
               {Object.entries(CIPHER_KEY).map(([num, letter]) => (
                 <View key={num} style={styles.keyItem}>
@@ -189,7 +189,7 @@ export default function IntroScreen({ route, navigation }) {
           </View>
 
           <View style={styles.answerSection}>
-            <Text style={styles.sectionTitle}>✏️ La tua decodifica</Text>
+            <Text style={styles.sectionTitle}>La tua decodifica</Text>
 
             {!solved ? (
               <>
@@ -210,7 +210,7 @@ export default function IntroScreen({ route, navigation }) {
 
                 {error && (
                   <Text style={styles.errorText}>
-                    ❌ Decodifica non corretta, riprova!
+                    Decodifica non corretta, riprova!
                   </Text>
                 )}
 
@@ -226,10 +226,10 @@ export default function IntroScreen({ route, navigation }) {
               <>
                 <View style={styles.successBox}>
                   <Text style={styles.successText}>
-                    ✅ Corretto! Il messaggio dice:
+                    Corretto! Il messaggio dice:
                   </Text>
                   <Text style={styles.solutionText}>
-                    "{intro.cipherSolution}"
+                    {formatQuotes(`"${intro.cipherSolution}"`)}
                   </Text>
                 </View>
 
@@ -259,15 +259,18 @@ const localStyles = StyleSheet.create({
     alignSelf: 'flex-start',
     paddingVertical: 8,
     paddingHorizontal: 14,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#c8a45a',
-    borderRadius: 8,
+    borderColor: 'rgba(200,164,90,0.45)',
+    borderRadius: radius.sm,
     marginBottom: 12,
   },
   backToNarrationText: {
-    color: '#c8a45a',
-    fontSize: 14,
+    fontFamily: fontFamilies.bodyMedium,
+    color: colors.velvet.goldSoft,
+    fontSize: 11,
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
   },
 });

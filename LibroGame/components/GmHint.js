@@ -16,7 +16,6 @@ export default function GmHint({ hints }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.icon}>💡</Text>
         <Text style={styles.title}>Suggerimento dal GM</Text>
       </View>
       <Text style={styles.message}>{lastHint.message}</Text>

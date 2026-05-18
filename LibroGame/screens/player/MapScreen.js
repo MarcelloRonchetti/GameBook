@@ -394,7 +394,7 @@ export default function MapScreen({ route, navigation }) {
 
       {/* HEADER */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🎪 Il Circo delle Circostanze</Text>
+        <Text style={styles.headerTitle}>Il Circo delle Circostanze</Text>
         <Text style={styles.headerHint}>Scegli la prossima circo-stanza</Text>
       </View>
     </View>

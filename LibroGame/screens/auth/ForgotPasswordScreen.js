@@ -72,7 +72,7 @@ export default function ForgotPasswordScreen({ navigation }) {
           <>
             <View style={styles.successBanner}>
               <Text style={styles.successBannerText}>
-                ✉️ Controlla la tua email. Il link di recupero è valido per 1 ora.
+                Controlla la tua email. Il link di recupero è valido per 1 ora.
               </Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -87,7 +87,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
             {errorMsg ? (
               <View style={styles.errorBanner}>
-                <Text style={styles.errorBannerText}>⚠️ {errorMsg}</Text>
+                <Text style={styles.errorBannerText}>{errorMsg}</Text>
               </View>
             ) : null}
 

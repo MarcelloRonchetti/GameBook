@@ -22,13 +22,13 @@ import {
 } from 'react-native';
 
 import { supabase } from '../lib/supabase';
-import { normalizeText } from '../lib/helpers';
+import { normalizeText, formatQuotes } from '../lib/helpers';
 
 import AnagramInput from './AnagramInput';
 import GmHint from './GmHint';
 
 import { circoStanzaStyles as styles } from '../styles/player';
-import { getNpcTheme } from '../styles/theme';
+import { getNpcTheme, fontFamilies } from '../styles/theme';
 
 // Chiave cifrario — solo per l'Illusionista
 const CIPHER_KEY = {
@@ -107,17 +107,11 @@ export default function AnagramOverlay({
     >
       <View style={styles.anagramPanel}>
 
-        {/* Header: nome NPC + bottone torna al testo */}
+        {/* Header: solo nome NPC (il bottone "← Testo" si è spostato vicino a Verifica) */}
         <View style={styles.anagramPanelHeader}>
           <Text style={styles.anagramPanelTitle}>
-            {npc.emoji}  {npc.label}
+            {npc.label}
           </Text>
-          <TouchableOpacity
-            style={styles.backToTextButton}
-            onPress={onBackToText}
-          >
-            <Text style={styles.backToTextText}>← Testo</Text>
-          </TouchableOpacity>
         </View>
 
         <ScrollView
@@ -131,11 +125,11 @@ export default function AnagramOverlay({
           {/* Sezione cifrario — solo Illusionista */}
           {isIllusionista && scene.cipher && (
             <View style={styles.cipherSection}>
-              <Text style={styles.sectionTitle}>📜 Messaggio cifrato</Text>
+              <Text style={styles.sectionTitle}>Messaggio cifrato</Text>
               <Text style={styles.cipherText}>{scene.cipher.replace(/-/g, '‑')}</Text>
 
               <View style={styles.keyContainer}>
-                <Text style={styles.keyTitle}>🔑 La chiave</Text>
+                <Text style={styles.keyTitle}>La chiave</Text>
                 <View style={styles.keyGrid}>
                   {Object.entries(CIPHER_KEY).map(([num, letter]) => (
                     <View key={num} style={styles.keyItem}>
@@ -159,7 +153,7 @@ export default function AnagramOverlay({
                     placeholder="Decodifica il messaggio..."
                   />
                   {cipherError && (
-                    <Text style={styles.errorText}>❌ Decodifica non corretta!</Text>
+                    <Text style={styles.errorText}>Decodifica non corretta!</Text>
                   )}
                   <TouchableOpacity
                     style={[styles.button, !cipherAnswer.trim() && styles.buttonDisabled]}
@@ -171,8 +165,8 @@ export default function AnagramOverlay({
                 </>
               ) : (
                 <View style={styles.successBox}>
-                  <Text style={styles.successText}>✅ Messaggio decodificato:</Text>
-                  <Text style={styles.solutionText}>"{scene.cipherSolution}"</Text>
+                  <Text style={styles.successText}>Messaggio decodificato:</Text>
+                  <Text style={styles.solutionText}>{formatQuotes(`"${scene.cipherSolution}"`)}</Text>
                 </View>
               )}
 
@@ -181,11 +175,15 @@ export default function AnagramOverlay({
           )}
 
           {/* Anagramma */}
-          <Text style={styles.sectionTitle}>🔤 Anagramma</Text>
+          <Text style={styles.sectionTitle}>Anagramma</Text>
           <View style={styles.anagramBox}>
             <Text style={styles.anagramText}>{anagramData.anagram}</Text>
-            <Text style={styles.anagramHint}>
-              ({anagramData.words || '?'} {(anagramData.words || 1) === 1 ? 'parola' : 'parole'})
+            <Text style={[styles.anagramHint, { fontFamily: fontFamilies.body }]}>
+              ({' '}
+              <Text style={{ fontFamily: fontFamilies.typewriter }}>
+                {anagramData.words || '?'}
+              </Text>
+              {' '}{(anagramData.words || 1) === 1 ? 'parola' : 'parole'} )
             </Text>
           </View>
 
@@ -197,18 +195,27 @@ export default function AnagramOverlay({
                 hasError={hasError}
               />
               {hasError && (
-                <Text style={styles.errorText}>❌ Non è corretto, riprova!</Text>
+                <Text style={styles.errorText}>Non è corretto, riprova!</Text>
               )}
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  (!answer.trim() || (isIllusionista && !cipherSolved)) && styles.buttonDisabled
-                ]}
-                onPress={handleCheckAnagram}
-                disabled={!answer.trim() || (isIllusionista && !cipherSolved)}
-              >
-                <Text style={styles.buttonText}>Verifica</Text>
-              </TouchableOpacity>
+              <View style={styles.verifyRow}>
+                <TouchableOpacity
+                  style={styles.backToTextButton}
+                  onPress={onBackToText}
+                >
+                  <Text style={styles.backToTextText}>← Testo</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    styles.buttonCompact,
+                    (!answer.trim() || (isIllusionista && !cipherSolved)) && styles.buttonDisabled
+                  ]}
+                  onPress={handleCheckAnagram}
+                  disabled={!answer.trim() || (isIllusionista && !cipherSolved)}
+                >
+                  <Text style={styles.buttonText}>Verifica</Text>
+                </TouchableOpacity>
+              </View>
               {isIllusionista && !cipherSolved && answer.trim() && (
                 <Text style={styles.warningText}>
                   Devi prima decodificare il messaggio cifrato
@@ -218,7 +225,7 @@ export default function AnagramOverlay({
           ) : (
             <>
               <View style={styles.successBox}>
-                <Text style={styles.successText}>✅ Corretto!</Text>
+                <Text style={styles.successText}>Corretto!</Text>
                 <Text style={styles.solutionText}>{anagramData.solution}</Text>
               </View>
 
@@ -228,7 +235,7 @@ export default function AnagramOverlay({
                   style={styles.proceedButton}
                   onPress={onGoToDirettrice}
                 >
-                  <Text style={styles.buttonText}>🎩 Vai dalla Direttrice →</Text>
+                  <Text style={styles.buttonText}>Vai dalla Direttrice →</Text>
                 </TouchableOpacity>
               ) : (
                 <>
@@ -242,7 +249,7 @@ export default function AnagramOverlay({
                     style={styles.proceedButton}
                     onPress={onGoToMap}
                   >
-                    <Text style={styles.buttonText}>🗺️ Vai alla mappa →</Text>
+                    <Text style={styles.buttonText}>Vai alla mappa →</Text>
                   </TouchableOpacity>
                 </>
               )}

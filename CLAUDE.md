@@ -30,6 +30,7 @@ Ignore node_modules folder when scanning the project files
 - `react-dom` + `react-native-web` (web development)
 - `@react-native-picker/picker`
 - `@react-native-async-storage/async-storage`
+- `@expo-google-fonts/cormorant-garamond` + `/manrope` + `/special-elite` + `expo-font` (caricati al boot via `useFonts` in `App.js` — display/body/typewriter)
 
 ### Stack notes
 
@@ -118,11 +119,13 @@ LibroGame/
 ## Styling system
 
 `styles/theme.js`:
-- `colors` (dark/light backgrounds, gold accent `primary`, semantic states, GM badge colors). Sub-namespace `colors.velvet` aggiunto per il restyle Auth+GM: `bgDeep` (#2a1418), `bgPanel` (#3d1e25), `bgRaised` (#4a2530), `gold` (#c8a45a — alias di `primary`), `goldSoft` (#e0c485), `goldFaint` (rgba(200,164,90,0.25)), `champagne` (#f5ead1), `champagneMuted` (#b8a285), `taupe` (#8a6d4b), `success` (#7aa37a), `danger` (#a85959). Da NON usare nelle schermate player — quelle hanno il loro tema circo/scena.
+- `colors` (dark/light backgrounds, gold accent `primary`, semantic states, GM badge colors). Sub-namespace `colors.velvet` adottato su TUTTA l'app (Auth, GM e player flow): `bgDeep` (#2a1418), `bgPanel` (#3d1e25), `bgRaised` (#4a2530), `gold` (#c8a45a — alias di `primary`), `goldSoft` (#e0c485), `goldFaint` (rgba(200,164,90,0.25)), `goldFaintStrong` (0.5), `champagne` (#f5ead1), `champagneMuted` (#b8a285), `taupe` (#8a6d4b), `success` (#7aa37a), `danger` (#a85959), `ink` (#1a0c0f).
 - `spacing` (xs=4 … huge=40)
 - `radius` (sm=6 … pill=20 … round=999)
 - `fontSize` (xs=12 … display=40)
-- `fonts.mono` (Courier on iOS, monospace elsewhere)
+- `fontFamilies` (Google Fonts caricati via `useFonts` in `App.js`): `serif` = Cormorant Garamond 500 **Italic** (display di default — il prompt velluto richiede ALWAYS italic per titoli/nomi NPC), `serifUpright` (Cormorant non-italic, raramente usato), `body`/`bodyMedium`/`bodyBold` = Manrope 400/600/700 (corpo, UI, pulsanti uppercase), `typewriter` = Special Elite (ESCLUSIVAMENTE per numeri: codici stanza, timer, batt. N/M, contatori, date, orari).
+- `typography` helpers (mixin pronti): `display` (Cormorant italic 500), `body`, `eyebrow` (uppercase Manrope 600, letter-spacing 2.5, color gold), `button` (uppercase Manrope 700, letter-spacing 4), `numeric` (Special Elite), `dialog` (Cormorant italic per battute).
+- `fonts.mono` ora alias a `fontFamilies.typewriter` (Special Elite) per compatibilità con codice esistente.
 - `shadows` (sm/md/lg + Android elevation)
 - `npcThemes` and `getNpcTheme(sceneId)` (fallback `{ color: primary, emoji: '🎪', label: 'Circo-stanza' }`)
 - `STORY_GRAPH` and `MAP_NODES`

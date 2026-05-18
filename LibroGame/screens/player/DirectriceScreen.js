@@ -29,6 +29,9 @@ import {
   getCharacterAsset,
   getBackgroundAsset,
   getCharacterPosition,
+  colors,
+  fontFamilies,
+  radius,
 } from '../../styles/theme';
 
 // Dati della scena Direttrice dal JSON
@@ -247,7 +250,7 @@ export default function DirectriceScreen({ route, navigation }) {
           characterAsset={characterAsset}
           backgroundAsset={backgroundAsset}
           characterPosition={characterPosition}
-          anagramButtonLabel="🎩 Risolvi gli anagrammi finali"
+          anagramButtonLabel="Risolvi gli anagrammi finali"
         />
       </View>
     );
@@ -300,7 +303,10 @@ export default function DirectriceScreen({ route, navigation }) {
         {/* Contatore progressi */}
         <View style={styles.progressBar}>
           <Text style={styles.progressText}>
-            {solvedCount} / {finalAnagrams.length} risolti
+            <Text style={{ fontFamily: fontFamilies.typewriter }}>{solvedCount}</Text>
+            {' / '}
+            <Text style={{ fontFamily: fontFamilies.typewriter }}>{finalAnagrams.length}</Text>
+            {' risolti'}
           </Text>
           <View style={styles.progressTrack}>
             <View style={[
@@ -336,7 +342,8 @@ export default function DirectriceScreen({ route, navigation }) {
           <>
             <View style={styles.anagramBox}>
               <Text style={styles.anagramLabel}>
-                Anagramma {currentIndex + 1}
+                Anagramma{' '}
+                <Text style={{ fontFamily: fontFamilies.typewriter }}>{currentIndex + 1}</Text>
               </Text>
               <Text style={styles.anagramText}>
                 {currentAnagram.anagram}
@@ -345,7 +352,7 @@ export default function DirectriceScreen({ route, navigation }) {
 
             {solvedStatus[currentIndex] ? (
               <View style={styles.successBox}>
-                <Text style={styles.successText}>✅ Risolto!</Text>
+                <Text style={styles.successText}>Risolto!</Text>
                 <Text style={styles.solutionText}>
                   {currentAnagram.solution}
                 </Text>
@@ -360,7 +367,7 @@ export default function DirectriceScreen({ route, navigation }) {
 
                 {errors[currentIndex] && (
                   <Text style={styles.errorText}>
-                    ❌ Non è corretto, riprova!
+                    Non è corretto, riprova!
                   </Text>
                 )}
 
@@ -392,7 +399,6 @@ export default function DirectriceScreen({ route, navigation }) {
         ) : (
           // TUTTI RISOLTI — messaggio di completamento
           <View style={styles.completionBox}>
-            <Text style={styles.completionEmoji}>🎪</Text>
             <Text style={styles.completionTitle}>
               Complimenti!
             </Text>
@@ -413,56 +419,71 @@ export default function DirectriceScreen({ route, navigation }) {
   );
 }
 
+const v = colors.velvet;
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  container: { flex: 1, backgroundColor: '#1a1a1a' },
+  container: { flex: 1, backgroundColor: v.bgDeep },
   content: { padding: 20, paddingBottom: 40 },
+  // Bottone "← Torna alla Direttrice" outline oro
   backToNarration: {
     alignSelf: 'flex-start',
     paddingVertical: 8,
     paddingHorizontal: 14,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#c8a45a',
-    borderRadius: 8,
+    borderColor: 'rgba(200,164,90,0.45)',
+    borderRadius: radius.sm,
     marginBottom: 12,
   },
   backToNarrationText: {
-    color: '#c8a45a',
-    fontSize: 14,
+    fontFamily: fontFamilies.bodyMedium,
+    color: v.goldSoft,
+    fontSize: 11,
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
   },
+  // Titolo pagina — Cormorant italic crema
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#c8a45a',
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+    fontWeight: '500',
+    fontSize: 30,
+    color: v.champagne,
     textAlign: 'center',
     marginBottom: 16,
+    letterSpacing: 0.5,
   },
   storyText: {
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
     fontSize: 16,
-    color: '#ddd',
+    color: v.champagne,
     lineHeight: 26,
     textAlign: 'justify',
     marginBottom: 20,
   },
   progressBar: { marginBottom: 20 },
+  // "N / M risolti" — numeri Special Elite gestiti inline
   progressText: {
-    color: '#999',
-    fontSize: 14,
+    fontFamily: fontFamilies.body,
+    color: v.champagneMuted,
+    fontSize: 13,
     textAlign: 'center',
     marginBottom: 8,
   },
   progressTrack: {
-    height: 8,
-    backgroundColor: '#2a2a2a',
-    borderRadius: 4,
+    height: 6,
+    backgroundColor: 'rgba(26,12,15,0.55)',
+    borderRadius: 3,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: v.goldFaint,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4caf50',
-    borderRadius: 4,
+    backgroundColor: v.gold,
+    borderRadius: 3,
   },
   navGrid: {
     flexDirection: 'row',
@@ -475,61 +496,84 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: 'rgba(26,12,15,0.55)',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#444',
+    borderWidth: 1.5,
+    borderColor: v.goldFaint,
   },
-  navDotActive: { borderColor: '#c8a45a' },
+  navDotActive: { borderColor: v.goldSoft, borderWidth: 2 },
   navDotSolved: {
-    backgroundColor: '#1e2d1e',
-    borderColor: '#4caf50',
+    backgroundColor: 'rgba(122,163,122,0.18)',
+    borderColor: v.success,
   },
-  navDotText: { color: '#999', fontSize: 14, fontWeight: 'bold' },
-  navDotTextSolved: { color: '#4caf50' },
+  // Numeri 1-12 nei dot → Special Elite
+  navDotText: {
+    fontFamily: fontFamilies.typewriter,
+    color: v.champagneMuted,
+    fontSize: 14,
+  },
+  navDotTextSolved: { color: v.success },
   anagramBox: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 10,
-    padding: 20,
+    backgroundColor: 'rgba(26,12,15,0.55)',
+    borderRadius: radius.md,
+    padding: 22,
     alignItems: 'center',
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#c8a45a',
+    borderColor: v.goldFaint,
   },
-  anagramLabel: { fontSize: 13, color: '#999', marginBottom: 8 },
+  // "Anagramma 7" → eyebrow oro
+  anagramLabel: {
+    fontFamily: fontFamilies.bodyMedium,
+    fontSize: 11,
+    color: v.gold,
+    marginBottom: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 2.5,
+  },
+  // L'anagramma stesso (parole) — Cormorant italic crema
   anagramText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fff',
-    letterSpacing: 2,
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+    fontWeight: '500',
+    fontSize: 24,
+    color: v.champagne,
+    letterSpacing: 1,
     textAlign: 'center',
   },
   errorText: {
-    color: '#e74c3c',
-    fontSize: 14,
+    fontFamily: fontFamilies.body,
+    color: v.danger,
+    fontSize: 13,
     textAlign: 'center',
     marginVertical: 10,
   },
   successBox: {
-    backgroundColor: '#1e2d1e',
-    borderRadius: 10,
+    backgroundColor: 'rgba(122,163,122,0.15)',
+    borderRadius: radius.md,
     padding: 16,
     borderLeftWidth: 3,
-    borderLeftColor: '#4caf50',
+    borderLeftColor: v.success,
     marginVertical: 12,
   },
   successText: {
-    color: '#4caf50',
-    fontSize: 15,
+    fontFamily: fontFamilies.bodyMedium,
+    color: v.success,
+    fontSize: 12,
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
     marginBottom: 6,
   },
+  // Soluzione rivelata — Cormorant italic crema
   solutionText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    letterSpacing: 1,
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+    fontWeight: '500',
+    color: v.champagne,
+    fontSize: 20,
+    letterSpacing: 0.5,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -538,58 +582,71 @@ const styles = StyleSheet.create({
   },
   checkButton: {
     flex: 1,
-    backgroundColor: '#c8a45a',
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: v.gold,
+    paddingVertical: 14,
+    borderRadius: radius.md,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: v.goldSoft,
   },
-  buttonDisabled: { backgroundColor: '#666' },
+  buttonDisabled: { backgroundColor: v.taupe, borderColor: v.taupe },
   buttonText: {
-    color: '#1a1a1a',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: fontFamilies.bodyBold,
+    color: v.ink,
+    fontSize: 14,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 4,
   },
   skipButton: {
-    backgroundColor: '#2a2a2a',
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: 'transparent',
+    paddingVertical: 14,
+    borderRadius: radius.md,
     alignItems: 'center',
     paddingHorizontal: 24,
     borderWidth: 1,
-    borderColor: '#444',
+    borderColor: 'rgba(200,164,90,0.45)',
   },
   skipText: {
-    color: '#999',
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: fontFamilies.bodyBold,
+    color: v.goldSoft,
+    fontSize: 14,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 4,
   },
   completionBox: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 16,
+    backgroundColor: 'rgba(58,22,30,0.92)',
+    borderRadius: radius.lg,
     padding: 30,
     alignItems: 'center',
     marginTop: 20,
-    borderWidth: 2,
-    borderColor: '#c8a45a',
+    borderWidth: 1,
+    borderColor: v.goldFaint,
   },
-  completionEmoji: { fontSize: 48, marginBottom: 16 },
   completionTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#c8a45a',
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+    fontWeight: '500',
+    fontSize: 30,
+    color: v.champagne,
     marginBottom: 16,
+    letterSpacing: 0.5,
   },
   completionText: {
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
     fontSize: 16,
-    color: '#ddd',
-    lineHeight: 24,
+    color: v.champagne,
+    lineHeight: 26,
     textAlign: 'center',
     marginBottom: 12,
   },
   completionSubtext: {
-    fontSize: 15,
-    color: '#999',
+    fontFamily: fontFamilies.serif,
     fontStyle: 'italic',
+    fontSize: 15,
+    color: v.goldSoft,
     textAlign: 'center',
   },
 });
@@ -630,23 +687,29 @@ const victoryStyles = StyleSheet.create({
     elevation: 12,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#ffd87a',
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+    fontWeight: '500',
+    fontSize: 34,
+    color: v.champagne,
     marginBottom: 14,
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   text: {
-    fontSize: 16,
-    color: '#fff8e0',
-    lineHeight: 24,
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+    fontSize: 17,
+    color: v.champagne,
+    lineHeight: 26,
     textAlign: 'center',
     marginBottom: 16,
   },
   subtext: {
-    fontSize: 15,
-    color: '#ffd87a',
+    fontFamily: fontFamilies.serif,
     fontStyle: 'italic',
+    fontSize: 15,
+    color: v.goldSoft,
     textAlign: 'center',
   },
 });

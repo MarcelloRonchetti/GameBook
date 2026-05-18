@@ -3,7 +3,7 @@
 // Importa da theme.js per coerenza visiva.
 
 import { StyleSheet } from 'react-native';
-import { colors, spacing, radius, fontSize } from './theme';
+import { colors, spacing, radius, fontSize, fontFamilies } from './theme';
 
 // ---------------------------------------------------------------------------
 // VelvetBackdrop — sfondo teatrale condiviso
@@ -40,22 +40,24 @@ export const velvetBackdropStyles = StyleSheet.create({
 });
 
 // ---------------------------------------------------------------------------
-// AnagramInput
+// AnagramInput — input velluto teatrale, Manrope, focus oro
 // ---------------------------------------------------------------------------
 export const anagramInputStyles = StyleSheet.create({
   input: {
-    backgroundColor: colors.surfaceDark,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.body,
+    backgroundColor: 'rgba(26,12,15,0.55)',
+    color: colors.velvet.champagne,
     fontSize: fontSize.lg,
     borderRadius: radius.md,
     padding: spacing.md + 2,
     borderWidth: 1,
-    borderColor: colors.borderDark,
+    borderColor: colors.velvet.goldFaint,
     minHeight: 50,
     textAlignVertical: 'center',
+    letterSpacing: 0.5,
   },
   inputError: {
-    borderColor: colors.error,
+    borderColor: colors.velvet.danger,
     borderWidth: 2,
   },
 });
@@ -92,16 +94,18 @@ export const autoHintEffectStyles = StyleSheet.create({
 });
 
 // ---------------------------------------------------------------------------
-// GmHint — banner suggerimenti del GM
+// GmHint — banner suggerimenti del GM (velvet teatrale)
 // ---------------------------------------------------------------------------
 export const gmHintStyles = StyleSheet.create({
   container: {
-    backgroundColor: colors.warningBg,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.warning,
+    backgroundColor: 'rgba(58,22,30,0.78)',
+    borderLeftWidth: 3,
+    borderLeftColor: colors.velvet.gold,
     borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.velvet.goldFaint,
   },
   header: {
     flexDirection: 'row',
@@ -113,19 +117,24 @@ export const gmHintStyles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   title: {
-    color: colors.warning,
-    fontSize: fontSize.sm,
-    fontWeight: 'bold',
+    fontFamily: fontFamilies.bodyMedium,
+    color: colors.velvet.gold,
+    fontSize: 11,
+    fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 2.5,
   },
   message: {
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+    color: colors.velvet.champagne,
     fontSize: fontSize.md,
-    lineHeight: 20,
+    lineHeight: 22,
   },
+  // Orario suggerimento → Special Elite (numerico)
   timestamp: {
-    color: colors.textMuted,
+    fontFamily: fontFamilies.typewriter,
+    color: colors.velvet.champagneMuted,
     fontSize: fontSize.xs,
     marginTop: spacing.xs,
   },

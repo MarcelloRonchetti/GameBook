@@ -68,21 +68,96 @@ export const colors = {
 };
 
 // ---------------------------------------------------------------------------
-// FONT FAMILIES — typography "Velluto teatrale"
+// FONT FAMILIES — typography "Velluto teatrale" via Google Fonts
 // ---------------------------------------------------------------------------
-// Usa stack di sistema cross-platform. Serif per heading (foyer di teatro),
-// system-ui per body.
+// I family name corrispondono alle chiavi esportate da @expo-google-fonts/*
+// e devono essere caricati al boot tramite `useFonts` in App.js.
+// Fallback ai font di sistema mentre il loading non e' completo.
 export const fontFamilies = {
+  // Display: Cormorant Garamond — usato per titoli, nomi NPC, prompt enigma.
+  // Convenzione del prompt velluto: SEMPRE italic. `serif` punta direttamente
+  // alla variante italic per ottenere il comportamento by-default su tutta
+  // l'app senza dover scrivere ovunque `fontStyle: 'italic'`. Mantengo anche
+  // `serifUpright` per i casi rari che richiedessero il romano.
   serif: Platform.select({
-    ios: 'Georgia',
-    android: 'serif',
-    default: 'Georgia, "Times New Roman", serif',
+    ios: 'CormorantGaramond_500Medium_Italic',
+    android: 'CormorantGaramond_500Medium_Italic',
+    default: '"Cormorant Garamond", Georgia, serif',
   }),
+  serifUpright: Platform.select({
+    ios: 'CormorantGaramond_500Medium',
+    android: 'CormorantGaramond_500Medium',
+    default: '"Cormorant Garamond", Georgia, "Times New Roman", serif',
+  }),
+  // Body: Manrope — corpo, UI, pulsanti, label, eyebrow.
   body: Platform.select({
-    ios: 'System',
-    android: 'sans-serif',
-    default: 'system-ui, -apple-system, "Helvetica Neue", sans-serif',
+    ios: 'Manrope_400Regular',
+    android: 'Manrope_400Regular',
+    default: 'Manrope, system-ui, -apple-system, "Helvetica Neue", sans-serif',
   }),
+  bodyMedium: Platform.select({
+    ios: 'Manrope_600SemiBold',
+    android: 'Manrope_600SemiBold',
+    default: 'Manrope, system-ui, sans-serif',
+  }),
+  bodyBold: Platform.select({
+    ios: 'Manrope_700Bold',
+    android: 'Manrope_700Bold',
+    default: 'Manrope, system-ui, sans-serif',
+  }),
+  // Typewriter: Special Elite — esclusivamente per numeri (codici, timer,
+  // contatori, date, orari, "batt. N/M", "(1 parola)").
+  typewriter: Platform.select({
+    ios: 'SpecialElite_400Regular',
+    android: 'SpecialElite_400Regular',
+    default: '"Special Elite", Courier, monospace',
+  }),
+};
+
+// ---------------------------------------------------------------------------
+// TYPOGRAPHY — mixin riusabili per applicare i pattern del prompt velluto.
+// Convenzioni: usare questi helper invece di scrivere a mano fontFamily/
+// fontStyle/letterSpacing/textTransform.
+// ---------------------------------------------------------------------------
+export const typography = {
+  // Titoli di pagina e nomi NPC — Cormorant italic 500 (fontFamilies.serif
+  // gia' punta alla variante italic).
+  display: {
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+    fontWeight: '500',
+  },
+  // Corpo del testo (descrizioni, etichette informative) — Manrope 400
+  body: {
+    fontFamily: fontFamilies.body,
+    fontWeight: '400',
+  },
+  // Eyebrow: piccola etichetta sopra un titolo importante.
+  // 10-12px, uppercase, oro, tracked.
+  eyebrow: {
+    fontFamily: fontFamilies.bodyMedium,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 2.5, // ~0.24em a 10-12px
+    color: '#c8a45a',
+  },
+  // Pulsante: uppercase, peso 700, letter-spacing 0.28em (~ 4px a 14px)
+  button: {
+    fontFamily: fontFamilies.bodyBold,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 4,
+  },
+  // Numeri (Special Elite). Da applicare a TUTTI i numeri visibili:
+  // codici stanza, timer, contatori, date, orari, "batt. N/M".
+  numeric: {
+    fontFamily: fontFamilies.typewriter,
+  },
+  // Battuta dialogo NPC — Cormorant italic crema, dimensione gestita inline
+  dialog: {
+    fontFamily: fontFamilies.serif,
+    fontStyle: 'italic',
+  },
 };
 
 export const spacing = {
@@ -98,8 +173,11 @@ export const fontSize = {
   xxl: 22, xxxl: 26, huge: 32, display: 40,
 };
 
+// `fonts.mono` legacy: ora alias a typewriter (Special Elite) per coerenza
+// con la convenzione "numeri = Special Elite". Mantenuto per compatibilità
+// con codice esistente che fa riferimento a `fonts.mono`.
 export const fonts = {
-  mono: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  mono: fontFamilies.typewriter,
 };
 
 export const shadows = {

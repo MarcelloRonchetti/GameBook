@@ -311,10 +311,10 @@ export const roomListStyles = StyleSheet.create({
   },
   brassPlateText: {
     color: v.ink,
-    fontFamily: fontFamilies.serif,
+    fontFamily: fontFamilies.typewriter,
     fontSize: fontSize.md,
     fontWeight: '700',
-    letterSpacing: 4,
+    letterSpacing: 5, // = 0.32em a 16px come da design
   },
   // Stato
   statusRow: {
@@ -529,7 +529,7 @@ export const dashboardStyles = StyleSheet.create({
   },
   brassPlateBigText: {
     color: v.ink,
-    fontFamily: fontFamilies.serif,
+    fontFamily: fontFamilies.typewriter,
     fontSize: 40,
     fontWeight: '700',
     letterSpacing: 10,

@@ -27,7 +27,8 @@ import {
 
 import AutoHintEffect from './AutoHintEffect';
 import { circoStanzaStyles as styles } from '../styles/player';
-import { getNpcTheme, BG_ASPECT_RATIO } from '../styles/theme';
+import { getNpcTheme, BG_ASPECT_RATIO, colors, fontFamilies } from '../styles/theme';
+import { formatQuotes } from '../lib/helpers';
 
 const TYPEWRITER_SPEED = 28;
 const INITIAL_DELAY = 200;
@@ -43,7 +44,7 @@ export default function NarratorView({
   hintAsset = null,
   hintPosition = null,
   characterPosition = null,
-  anagramButtonLabel = "🔤 Affronta l'anagramma",
+  anagramButtonLabel = "Affronta l'anagramma",
   hideCharacter = false,
   overlayOpacity = null,
 }) {
@@ -200,14 +201,14 @@ export default function NarratorView({
         {renderBackground()}
         <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={computeHintStyle(hintPosition)} />
         <View style={styles.quickViewPanel}>
-          <Text style={styles.dialogName}>{npc.label.toUpperCase()}</Text>
+          <Text style={styles.dialogName}>{npc.label}</Text>
           <View style={styles.quickViewButtons}>
             <TouchableOpacity
               style={styles.rereadButton}
               onPress={handleReread}
               activeOpacity={0.8}
             >
-              <Text style={styles.rereadButtonText}>📖 Rileggi il testo</Text>
+              <Text style={styles.rereadButtonText}>Rileggi il testo</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.anagramButton}
@@ -233,17 +234,24 @@ export default function NarratorView({
       <TouchableWithoutFeedback onPress={handleTap}>
         <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2 }}>
           <View style={[styles.dialogBox, { maxHeight: dialogMaxH }]}>
+            {/* Header: nome NPC (o "Narratore") + filetto oro + "batt. N/M" */}
             <View style={styles.dialogHeader}>
               <Text style={styles.dialogName}>
                 {blocks[blockIndex]?.speaker === 'character'
-                  ? npc.label.toUpperCase()
-                  : 'NARRATORE'}
+                  ? npc.label
+                  : 'Narratore'}
               </Text>
-              {!allDone && (
-                <Text style={styles.dialogTapHint}>
-                  {isTyping ? 'tocca per saltare' : 'tocca per continuare ›'}
+              <View style={styles.dialogRule} />
+              <Text style={{ fontFamily: fontFamilies.body, fontSize: 11, color: colors.velvet.champagneMuted, letterSpacing: 0.5 }}>
+                batt.{' '}
+                <Text style={{ fontFamily: fontFamilies.typewriter, fontSize: 12 }}>
+                  {blockIndex + 1}
                 </Text>
-              )}
+                {' / '}
+                <Text style={{ fontFamily: fontFamilies.typewriter, fontSize: 12 }}>
+                  {blocks.length}
+                </Text>
+              </Text>
             </View>
             <ScrollView
               style={{ flexGrow: 0 }}
@@ -251,7 +259,9 @@ export default function NarratorView({
               showsVerticalScrollIndicator={true}
             >
               <Text style={styles.dialogText}>
-                {displayed}
+                {blocks[blockIndex]?.speaker === 'character'
+                  ? formatQuotes(displayed)
+                  : displayed}
                 {!allDone && (
                   <Animated.Text style={[styles.dialogCursor, { opacity: cursorOpacity }]}>
                     {blockDone ? '' : '▌'}

@@ -13,7 +13,7 @@ export default function AnagramInput({ value, onChangeText, hasError, placeholde
       value={value}
       onChangeText={onChangeText}
       placeholder={placeholder || 'Scrivi qui la tua risposta...'}
-      placeholderTextColor="#666"
+      placeholderTextColor="rgba(184,162,133,0.5)"
       autoCapitalize="characters"
       autoCorrect={false}
     />

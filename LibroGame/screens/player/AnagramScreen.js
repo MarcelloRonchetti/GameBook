@@ -234,11 +234,11 @@ export default function AnagramScreen({ route, navigation }) {
         {/* === SEZIONE CIFRARIO — solo per l'Illusionista === */}
         {isIllusionista && scene.cipher && (
           <View style={styles.cipherSection}>
-            <Text style={styles.sectionTitle}>📜 Messaggio cifrato</Text>
+            <Text style={styles.sectionTitle}>Messaggio cifrato</Text>
             <Text style={styles.cipherText}>{scene.cipher}</Text>
 
             <View style={styles.keyContainer}>
-              <Text style={styles.keyTitle}>🔑 Ricordi la chiave?</Text>
+              <Text style={styles.keyTitle}>Ricordi la chiave?</Text>
               <View style={styles.keyGrid}>
                 {Object.entries(CIPHER_KEY).map(([num, letter]) => (
                   <View key={num} style={styles.keyItem}>
@@ -264,7 +264,7 @@ export default function AnagramScreen({ route, navigation }) {
                   hasError={cipherError}
                 />
                 {cipherError && (
-                  <Text style={styles.errorText}>❌ Decodifica non corretta!</Text>
+                  <Text style={styles.errorText}>Decodifica non corretta!</Text>
                 )}
                 <TouchableOpacity
                   style={[styles.button, !cipherAnswer.trim() && styles.buttonDisabled]}
@@ -276,7 +276,7 @@ export default function AnagramScreen({ route, navigation }) {
               </>
             ) : (
               <View style={styles.successBox}>
-                <Text style={styles.successText}>✅ Messaggio decodificato:</Text>
+                <Text style={styles.successText}>Messaggio decodificato:</Text>
                 <Text style={styles.solutionText}>"{scene.cipherSolution}"</Text>
               </View>
             )}
@@ -286,7 +286,7 @@ export default function AnagramScreen({ route, navigation }) {
         )}
 
         {/* === SEZIONE ANAGRAMMA === */}
-        <Text style={styles.sectionTitle}>🔤 Anagramma</Text>
+        <Text style={styles.sectionTitle}>Anagramma</Text>
 
         <View style={styles.anagramBox}>
           <Text style={styles.anagramText}>{anagramData.anagram}</Text>
@@ -307,7 +307,7 @@ export default function AnagramScreen({ route, navigation }) {
             />
 
             {hasError && (
-              <Text style={styles.errorText}>❌ Risposta non corretta, riprova!</Text>
+              <Text style={styles.errorText}>Risposta non corretta, riprova!</Text>
             )}
 
             <TouchableOpacity
@@ -330,7 +330,7 @@ export default function AnagramScreen({ route, navigation }) {
         ) : (
           <>
             <View style={styles.successBox}>
-              <Text style={styles.successText}>✅ Corretto!</Text>
+              <Text style={styles.successText}>Corretto!</Text>
               <Text style={styles.solutionText}>{anagramData.solution}</Text>
             </View>
 
