@@ -1,15 +1,17 @@
 // lib/useRoomClosedListener.js
 // Hook personalizzato che sottoscrive in realtime gli aggiornamenti
 // della stanza corrente: se il GM cambia lo status a 'closed' mentre
-// il giocatore sta giocando, mostra un Alert e lo rimanda al JoinRoom.
+// il giocatore sta giocando, mostra una notify cross-platform e lo
+// rimanda al JoinRoom.
 //
 // Usato nelle schermate del giocatore: Intro, Scene, Anagram, Direttrice.
 
 import { useEffect } from 'react';
-import { Alert, BackHandler } from 'react-native';
+import { BackHandler } from 'react-native';
 // BackHandler — per disabilitare il tasto back hardware su Android
 
 import { supabase } from './supabase';
+import { notify } from './helpers';
 
 export function useRoomClosedListener(room, navigation) {
   useEffect(() => {
@@ -26,23 +28,19 @@ export function useRoomClosedListener(room, navigation) {
       }, (payload) => {
         // Se lo status è cambiato a 'closed' -> avvisa e riporta a JoinRoom
         if (payload?.new?.status === 'closed') {
-          Alert.alert(
+          // notify() è cross-platform (web + native); su web window.alert
+          // è bloccante e attende l'OK prima di proseguire, su native è
+          // non-bloccante ma il reset successivo è comunque l'azione corretta.
+          notify(
             'Stanza chiusa',
-            'Il GM ha chiuso la stanza. La sessione di gioco è terminata.',
-            [
-              {
-                text: 'OK',
-                onPress: () => {
-                  // reset dello stack — il player resta loggato ma torna
-                  // alla schermata di ingresso stanza
-                  navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'JoinRoom' }],
-                  });
-                }
-              }
-            ]
+            'Il GM ha chiuso la stanza. La sessione di gioco è terminata.'
           );
+          // reset dello stack — il player resta loggato ma torna
+          // alla schermata di ingresso stanza
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'JoinRoom' }],
+          });
         }
       })
       .subscribe();

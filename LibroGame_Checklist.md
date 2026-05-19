@@ -156,6 +156,8 @@
 - [x] **Adozione `expo-image`** (`npm install expo-image ~3.0.11`): rimpiazza `<Image>` di React Native nei componenti con immagini pesanti (`NarratorView` background+character, `CircoStanzaScreen` background+character in modalità anagramma, `MapScreen` background, `IntroScreen` background, `DirectriceScreen` background+character+victory, `AutoHintEffect` hint). Vantaggi: decode bitmap off-thread (non blocca UI), cache disco automatica (no più "esci e rientra per far apparire l'immagine"), `cachePolicy="memory-disk"` su tutti gli usi. API renaming: `resizeMode` → `contentFit`, `fadeDuration` → `transition`, `tintColor` da style a prop top-level. `<Image>` RN mantenuto in `MapScreen` per tende/archi con `tintColor` in style (file piccoli, l'override sarebbe più rischioso del beneficio).
 - [x] **`ImagePreloader` riscritto con `Image.prefetch()`**: non renderizza più 1×1 nascosti, ma popola direttamente la cache disco di expo-image via `ExpoImage.prefetch(sources)`. Quando il giocatore entra in una scena, l'immagine è già decodificata in cache: appare istantaneamente. FASE 1 (boot) preloada map + intro + acrobata; FASE 2 (1.5s post-boot) preloada il resto a batch di 3 con 800ms di pausa.
 - [x] **Fix label NPC overflow banner su telefono**: i nomi degli NPC sull'arco della mappa uscivano dal banner su schermi phone-sized. Root cause: `letterSpacing: 0.5` fisso in `nodeLabel` accumulava pixel extra (es. 13 chars × 0.5 = 6.5 dp) non considerati da `numberOfLines={1}`. Fix: aggiunto `adjustsFontSizeToFit` + `minimumFontScale={0.6}` sul `Text` label in `ArchNode` e `letterSpacing: 0` nell'inline style per override il base. Il testo si riduce automaticamente se necessario invece di sforare.
+- [x] **`useRoomClosedListener` cross-platform**: sostituito `Alert.alert` diretto con `notify()` da `lib/helpers.js`. Su web il `window.alert` blocca finché l'utente clicca OK; su native è non-bloccante ma il `navigation.reset` successivo è comunque l'azione corretta (la stanza è chiusa, il player torna a `JoinRoom` a prescindere dal tap). Rimosso anche l'import non più usato di `Alert`.
+- [x] **Pulizia codice morto in `styles/player.js`**: rimossi i blocchi `anagramScreenStyles` (218 righe) e `directriceStyles` (187 righe), esportati ma mai importati da alcun file. `AnagramScreen` (legacy) e `DirectriceScreen` continuano a usare i loro `StyleSheet.create` inline. Risparmio: 405 righe e ambiguità in meno.
 
 ---
 
@@ -196,16 +198,15 @@
 
 ### Cross-platform
 
-- [ ] Convertire `useRoomClosedListener` da `Alert.alert` diretto a pattern cross-platform (`notify()` o gestione web dedicata)
-- [ ] Sostituire gli `Alert.alert` residui in `RoomListScreen` con `notify()`
+- [x] Convertire `useRoomClosedListener` da `Alert.alert` diretto a pattern cross-platform (ora usa `notify()` da `lib/helpers.js`)
+- [x] Sostituire gli `Alert.alert` residui in `RoomListScreen` con `notify()` (verificato: nessun `Alert.alert` residuo nel file)
 
 ### Stili
 
 - [x] Centralizzare gli stili ancora locali in `DashboardScreen` (assorbiti nel restyle velluto)
 - [x] Centralizzare gli stili ancora locali in `RoomListScreen` (assorbiti nel restyle velluto)
-- [ ] Centralizzare o rimuovere gli stili locali della route legacy `AnagramScreen`
-- [ ] Collegare `DirectriceScreen` a `directriceStyles` in `styles/player.js`
-- [ ] Rivedere `styles/player.js`: `directriceStyles` e `anagramScreenStyles` esistono ma non sono pienamente usati
+- [x] Pulizia `styles/player.js`: rimossi `anagramScreenStyles` e `directriceStyles` (codice morto, nessun importatore). `AnagramScreen` (legacy) e `DirectriceScreen` mantengono `StyleSheet.create` inline
+- [ ] Centralizzare o rimuovere gli stili locali della route legacy `AnagramScreen` (in attesa della decisione "rimuovere o no le route legacy")
 
 ### Supabase / RLS
 
@@ -240,7 +241,7 @@
 - [ ] **Restyle schermata `DirectriceScreen`**: il finale del gioco merita una grafica più curata
 - [ ] Raffinare mappa e coordinate dei nodi dopo test su dispositivi reali
 - [x] Sistema `AutoHintEffect` per-scena implementato (componente, `getHintAsset`, `HINT_POSITIONS`) — asset Acrobata (`acrobata_hint.png`) da posizionare in `assets/hints/`; coordinate calibrate: `top: 8.9%, left: 38.1%, width: 30%, height: 49.2%`
-- [ ] Aggiungere asset hint per gli altri NPC (Funambolo, Giocoliere, ecc.)
+- [x] Aggiungere asset hint per tutti gli NPC (tutti i 12 hint presenti in `assets/hints/`, formato WebP)
 - [ ] Splash/icona app personalizzata
 - [ ] Rifinitura visuale di Dashboard GM e PlayerDetail
 - [x] **MapScreen — redesign visuale completo**: nodi arco sostituiti con frame PNG (`node_frame.png`); nodi tenda (intro/direttrice) con PNG dedicati (`node_tent_entry.png`, `node_tent_final.png`); banner nome (`node_banner.png`) sovrapposto alla base delle tende

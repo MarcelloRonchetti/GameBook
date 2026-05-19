@@ -143,7 +143,7 @@ LibroGame/
 
 `styles/gm.js`: `createRoomStyles`, `roomListStyles` (open/closed badges, FAB), `dashboardStyles`, `playerDetailStyles`.
 
-`styles/player.js`: `joinRoomStyles` (velluto teatrale: `stage` / `ornament*` / `card` / `eyebrow` / `ctaWrapper` / `ctaGlow` / `errorBanner` — stesso pattern di `loginStyles`/`registerStyles`), `sceneStyles` (NPC placeholder styles), `anagramScreenStyles` (`npcMini` + choice buttons), `directriceStyles` (gold placeholder, progress bar, navDot grid, completionBox), `circoStanzaStyles` (anagramPanel + cipher tiles `cipherWrap`/`cipherWordGroup`/`cipherTile`/`cipherTileText`/`cipherSuffix` condivisi fra IntroScreen e Illusionista). I vecchi `introStyles` sono stati rimossi — `IntroScreen` ora usa `circoStanzaStyles`.
+`styles/player.js`: `joinRoomStyles` (velluto teatrale: `stage` / `ornament*` / `card` / `eyebrow` / `ctaWrapper` / `ctaGlow` / `errorBanner` — stesso pattern di `loginStyles`/`registerStyles`), `sceneStyles` (NPC placeholder styles), `circoStanzaStyles` (anagramPanel + cipher tiles `cipherWrap`/`cipherWordGroup`/`cipherTile`/`cipherTileText`/`cipherSuffix` condivisi fra IntroScreen e Illusionista). I vecchi `introStyles`, `anagramScreenStyles` e `directriceStyles` sono stati rimossi — `IntroScreen` ora usa `circoStanzaStyles`; `AnagramScreen` (legacy) e `DirectriceScreen` mantengono i propri `StyleSheet.create` inline.
 
 Existing bitmap assets:
 - `assets/app-icons/icon.png`, `adaptive-icon.png`, `splash-icon.png` (1024×1024, target Expo) + `favicon.png` (64×64, downscaled da `icon.png` con bicubico) — icone APK/web. Sono incluse in `scripts/resize-assets.py` (TARGET `('app-icons', 1024)`), che le ridimensiona idempotentemente da eventuali sorgenti più grandi (es. 1254×1254 originali)
@@ -570,8 +570,7 @@ ADB via USB è il modo più affidabile:
 
 ## Known gaps
 
-- Styling is only partially centralized. `DashboardScreen`, `RoomListScreen`, legacy `AnagramScreen`, and `DirectriceScreen` still define local `StyleSheet.create` blocks.
-- `useRoomClosedListener` still calls `Alert.alert` directly. If web behavior matters for room-close notifications, convert it to the same cross-platform pattern used by `notify()` / `confirm()`.
+- Styling is only partially centralized. Legacy `AnagramScreen` and `DirectriceScreen` still define local `StyleSheet.create` blocks (DashboardScreen and RoomListScreen were absorbed into the velvet restyle).
 - `RoomListScreen` deletes child rows from `progress`, `hints`, and `room_players` before deleting `rooms`; make sure RLS policies allow these deletes or use database cascades.
 - `DashboardScreen` player removal requires a GM `DELETE` policy on `room_players`.
 - `DirectriceScreen` only persists final completion, not the per-anagram solved state during the final puzzle.
