@@ -16,7 +16,10 @@
 //                  aveva già visto il testo ma non risolto l'anagramma
 
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Image, StatusBar } from 'react-native';
+import { View, StatusBar } from 'react-native';
+// expo-image: stessa cache disco usata da NarratorView, cosi' i background
+// gia' preloadati appaiono istantaneamente anche in modalita' anagramma.
+import { Image } from 'expo-image';
 
 import { supabase } from '../../lib/supabase';
 import { useRoomClosedListener, useDisableAndroidBack } from '../../lib/useRoomClosedListener';
@@ -197,7 +200,14 @@ export default function CircoStanzaScreen({ route, navigation }) {
   };
 
   const handleGoToDirettrice = () => {
-    navigation.replace('Direttrice', { room });
+    // Dopo l'Illusionista torniamo alla mappa: la tenda finale (Direttrice)
+    // diventa available e il giocatore la raggiunge cliccando l'asset finale.
+    navigation.replace('Map', {
+      room,
+      justSolvedScene: sceneId,
+      nextAvailable: ['direttrice'],
+      allChoices: ['direttrice'],
+    });
   };
 
   if (!scene) return null;
@@ -235,7 +245,9 @@ export default function CircoStanzaScreen({ route, navigation }) {
             <Image
               source={backgroundAsset}
               style={[styles.background, styles.backgroundImage]}
-              resizeMode="cover"
+              contentFit="cover"
+              transition={0}
+              cachePolicy="memory-disk"
             />
           )}
           {/* Overlay scuro più intenso per far risaltare il pannello */}
@@ -246,7 +258,9 @@ export default function CircoStanzaScreen({ route, navigation }) {
               <Image
                 source={characterAsset}
                 style={styles.characterImage}
-                resizeMode="contain"
+                contentFit="contain"
+                transition={0}
+                cachePolicy="memory-disk"
               />
             </View>
           )}

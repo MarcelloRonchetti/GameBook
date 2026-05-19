@@ -63,7 +63,7 @@ export function confirm(title, message, onConfirm, destructive = false) {
 //
 //   nessun progress     → Intro
 //   intro solved        → Map (con Acrobata available)
-//   illusionista solved → Direttrice
+//   illusionista solved → Map (con tenda Direttrice available)
 //   direttrice          → Direttrice
 //   altra scena solved  → Map (con i next di quella scena available)
 //   altra scena !solved → CircoStanza in modalità 'anagram'
@@ -98,9 +98,16 @@ export async function resolvePlayerResumeRoute(room, playerId) {
     };
   }
 
-  // Illusionista risolta → Direttrice
+  // Illusionista risolta → mappa con la tenda finale (Direttrice) available
   if (last.scene_id === 'illusionista' && last.solved) {
-    return { screen: 'Direttrice', params: { room } };
+    return {
+      screen: 'Map',
+      params: {
+        room,
+        justSolvedScene: 'illusionista',
+        allChoices: ['direttrice'],
+      },
+    };
   }
 
   // Direttrice → Direttrice

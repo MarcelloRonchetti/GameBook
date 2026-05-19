@@ -20,14 +20,18 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View, Text, Image, ScrollView,
+  View, Text, ScrollView,
   TouchableWithoutFeedback, TouchableOpacity, Animated,
   useWindowDimensions,
 } from 'react-native';
+// expo-image: decode off-thread + cache disco automatica. Drasticamente piu'
+// veloce di <Image> RN per le immagini pesanti (background scena, sprite NPC)
+// e risolve il "esci e rientra per farla apparire" sui telefoni.
+import { Image } from 'expo-image';
 
 import AutoHintEffect from './AutoHintEffect';
 import { circoStanzaStyles as styles } from '../styles/player';
-import { getNpcTheme, BG_ASPECT_RATIO, colors, fontFamilies } from '../styles/theme';
+import { getNpcTheme, BG_ASPECT_RATIO, colors, fontFamilies, useResponsiveScale } from '../styles/theme';
 import { formatQuotes } from '../lib/helpers';
 
 // Typewriter: 2 caratteri ogni 28ms → cadence visiva equivalente a 14ms/char
@@ -57,14 +61,15 @@ const BackdropLayer = React.memo(function BackdropLayer({
         <Image
           source={backgroundAsset}
           style={[styles.background, styles.backgroundImage]}
-          resizeMode="cover"
-          fadeDuration={0}
+          contentFit="cover"
+          transition={0}
+          cachePolicy="memory-disk"
         />
       )}
       <View style={[styles.overlay, overlayOpacity !== null && { backgroundColor: `rgba(0,0,0,${overlayOpacity})` }]} />
       {!hideCharacter && characterAsset ? (
         <View style={[styles.characterContainer, characterPosition, { zIndex: 2 }]} pointerEvents="none">
-          <Image source={characterAsset} style={styles.characterImage} resizeMode="contain" fadeDuration={0} />
+          <Image source={characterAsset} style={styles.characterImage} contentFit="contain" transition={0} cachePolicy="memory-disk" />
         </View>
       ) : !hideCharacter ? (
         <View style={[styles.characterContainer, characterPosition, { alignItems: 'center', justifyContent: 'center', zIndex: 2 }]} pointerEvents="none">
@@ -99,6 +104,10 @@ export default function NarratorView({
       ? scene.narratorBlocks.map(t => ({ speaker: 'narrator', text: t }))
       : [{ speaker: 'narrator', text: scene.text || '' }];
   const { width: screenW, height: screenH } = useWindowDimensions();
+  // Su phone alziamo l'altezza del dialog box. Su web/tablet i fattori
+  // sono 1/0: dialogMaxHeightRatio resta 0.22 e safeBottom resta 0 →
+  // layout invariato.
+  const { dialogMaxHeightRatio, safeBottom, isPhone } = useResponsiveScale();
 
   // Converte posizione relativa all'immagine in coordinate assolute schermo,
   // compensando il resizeMode="cover" del background.
@@ -234,7 +243,7 @@ export default function NarratorView({
       <View style={styles.container}>
         {backdrop}
         <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={hintStyle} />
-        <View style={styles.quickViewPanel}>
+        <View style={[styles.quickViewPanel, { bottom: safeBottom }]}>
           <Text style={styles.dialogName}>{npc.label}</Text>
           <View style={styles.quickViewButtons}>
             <TouchableOpacity
@@ -258,22 +267,43 @@ export default function NarratorView({
   }
 
   // --- NARRAZIONE NORMALE con typewriter ---
-  // Altezza dinamica del dialog box: 22% dello schermo come massimo
-  // (testi corti restano compatti; testi lunghi crescono fino al limite + scroll)
-  const dialogMaxH = screenH * 0.22;
+  // Altezza del dialog box:
+  //   - Su web/tablet: maxHeight 22% → il box cresce col contenuto fino al
+  //     limite, poi scrolla. Comportamento storico, non oscilla perche'
+  //     i testi web sono raramente sotto la threshold.
+  //   - Su phone: HEIGHT fissa 35% → il box NON cresce dinamicamente col
+  //     typewriter (eliminato l'effetto "respiro" che spostava il box su
+  //     e giu' mentre il testo veniva digitato).
+  const dialogH = screenH * dialogMaxHeightRatio;
+  const dialogSizeStyle = isPhone ? { height: dialogH } : { maxHeight: dialogH };
+  const isCharacter = blocks[blockIndex]?.speaker === 'character';
+  // Su native il file font caricato e' la variante italic
+  // (CormorantGaramond_500Medium_Italic): `fontStyle: 'normal'` da solo NON
+  // basta a renderlo tondo perche' il font face stesso e' italic e RN non
+  // sintetizza il romano. Per le battute personaggio passiamo esplicitamente
+  // alla variante upright (`serifUpright`). Su web il browser sintetizza
+  // tondo/italic via CSS, quindi anche li' funziona.
+  const characterTextStyle = isCharacter
+    ? { fontStyle: 'normal', fontFamily: fontFamilies.serifUpright }
+    : null;
   return (
     <View style={styles.container}>
       {backdrop}
       <AutoHintEffect active={hintActive} hintImage={hintAsset} hintImageStyle={hintStyle} />
+      {/* Area "tappable" SOPRA il dialog box: tap per saltare/avanzare la
+          narrazione. Non copre il dialog box stesso, cosi' lo ScrollView
+          interno mantiene il controllo dei gesti drag verticali. */}
       <TouchableWithoutFeedback onPress={handleTap}>
-        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 2 }}>
-          <View style={[styles.dialogBox, { maxHeight: dialogMaxH }]}>
-            {/* Header: nome NPC (o "Narratore") + filetto oro + "batt. N/M" */}
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: dialogH, zIndex: 2 }} />
+      </TouchableWithoutFeedback>
+      <View style={{ position: 'absolute', bottom: safeBottom, left: 0, right: 0, zIndex: 3 }}>
+        <View style={[styles.dialogBox, dialogSizeStyle]}>
+          {/* Header: nome NPC (o "Narratore") + filetto oro + "batt. N/M".
+              Wrappato in TWF cosi' un tap sull'header avanza la narrazione. */}
+          <TouchableWithoutFeedback onPress={handleTap}>
             <View style={styles.dialogHeader}>
               <Text style={styles.dialogName}>
-                {blocks[blockIndex]?.speaker === 'character'
-                  ? npc.label
-                  : 'Narratore'}
+                {isCharacter ? npc.label : 'Narratore'}
               </Text>
               <View style={styles.dialogRule} />
               <Text style={{ fontFamily: fontFamilies.body, fontSize: 11, color: colors.velvet.champagneMuted, letterSpacing: 0.5 }}>
@@ -287,41 +317,35 @@ export default function NarratorView({
                 </Text>
               </Text>
             </View>
-            <ScrollView
-              style={{ flexGrow: 0 }}
-              contentContainerStyle={styles.dialogScrollContent}
-              showsVerticalScrollIndicator={true}
-            >
-              <Text
-                style={[
-                  styles.dialogText,
-                  // Battute dei personaggi: tondo (non italic).
-                  // Narratore: lascia l'italic Cormorant di default.
-                  blocks[blockIndex]?.speaker === 'character' && { fontStyle: 'normal' },
-                ]}
-              >
-                {blocks[blockIndex]?.speaker === 'character'
-                  ? formatQuotes(displayed)
-                  : displayed}
-                {!allDone && (
-                  <Animated.Text style={[styles.dialogCursor, { opacity: cursorOpacity }]}>
-                    {blockDone ? '' : '▌'}
-                  </Animated.Text>
-                )}
-              </Text>
-              {allDone && (
-                <TouchableOpacity
-                  style={styles.anagramButton}
-                  onPress={onStartAnagram}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.anagramButtonText}>{anagramButtonLabel}</Text>
-                </TouchableOpacity>
+          </TouchableWithoutFeedback>
+          {/* ScrollView libero: i gesti drag verticali non sono piu' intercettati
+              dal TWF esterno (che ora copre solo l'area sopra il dialog box). */}
+          <ScrollView
+            style={isPhone ? { flex: 1 } : { flexGrow: 0 }}
+            contentContainerStyle={styles.dialogScrollContent}
+            showsVerticalScrollIndicator={true}
+            nestedScrollEnabled={true}
+          >
+            <Text style={[styles.dialogText, characterTextStyle]}>
+              {isCharacter ? formatQuotes(displayed) : displayed}
+              {!allDone && (
+                <Animated.Text style={[styles.dialogCursor, { opacity: cursorOpacity }]}>
+                  {blockDone ? '' : '▌'}
+                </Animated.Text>
               )}
-            </ScrollView>
-          </View>
+            </Text>
+            {allDone && (
+              <TouchableOpacity
+                style={styles.anagramButton}
+                onPress={onStartAnagram}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.anagramButtonText}>{anagramButtonLabel}</Text>
+              </TouchableOpacity>
+            )}
+          </ScrollView>
         </View>
-      </TouchableWithoutFeedback>
+      </View>
     </View>
   );
 }

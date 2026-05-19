@@ -3,7 +3,82 @@
 // Centralizza colori, font, spaziature, temi NPC,
 // grafo della storia e coordinate nodi della mappa.
 
-import { Platform } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
+
+// ---------------------------------------------------------------------------
+// RESPONSIVE SCALE — adattamento layout a telefoni
+// ---------------------------------------------------------------------------
+// Per default (web e tablet) tutti i fattori sono 1: il comportamento e'
+// identico a prima dell'introduzione di questo helper. I fattori cambiano
+// SOLO quando l'app gira nativa su uno schermo phone-sized (min dimension
+// < PHONE_MAX_DIMENSION dp). Cosi' il layout web/desktop resta intoccato.
+//
+// __DEV_FORCE_PHONE__ → flag debug: metterlo a `true` per simulare il
+// comportamento "phone" anche su web. Utile per testare in browser desktop
+// (DevTools → toggle device toolbar → iPhone/Pixel) senza fare build APK.
+// IMPORTANTE: rimettere a `false` prima di build/commit.
+export const __DEV_FORCE_PHONE__ = false;
+
+// Sotto questa soglia (min(width,height) in dp) consideriamo lo schermo
+// "phone-sized". Tablet 7-8" hanno min dimension >= 600 dp, quindi restano
+// fuori e mantengono il layout desktop.
+const PHONE_MAX_DIMENSION_DP = 600;
+
+// Reference: lato corto ~400 dp = Samsung A34 (393 dp), iPhone 13 (390 dp).
+// Scaliamo proporzionalmente a partire da questa base, con clamp per evitare
+// che telefoni minuscoli o phablet rompano il layout.
+const PHONE_REFERENCE_SHORT_SIDE_DP = 400;
+
+export function useResponsiveScale() {
+  const { width, height } = useWindowDimensions();
+  const minDim = Math.min(width, height);
+
+  const isNative = Platform.OS !== 'web';
+  const isPhoneSized = minDim < PHONE_MAX_DIMENSION_DP;
+  const isPhone = (isNative && isPhoneSized) || __DEV_FORCE_PHONE__;
+
+  // DEBUG: stampa in console lo stato del flag. Rimuovere quando non serve.
+  if (typeof window !== 'undefined' && !window.__rs_logged__) {
+    window.__rs_logged__ = true;
+    // eslint-disable-next-line no-console
+    console.log('[useResponsiveScale]', { width, height, minDim, isNative, isPhoneSized, isPhone, FORCE: __DEV_FORCE_PHONE__ });
+  }
+
+  if (!isPhone) {
+    // Web / tablet / fullscreen → nessuna modifica: tutto come prima.
+    return {
+      isPhone: false,
+      mapScale: 1,
+      dialogMaxHeightRatio: 0.22,
+      spriteScale: 1,
+      safeBottom: 0,
+    };
+  }
+
+  // Ratio relativo alla base 400 dp, clampato in [0.85, 1.15].
+  const ratio = minDim / PHONE_REFERENCE_SHORT_SIDE_DP;
+  const clamped = Math.max(0.85, Math.min(1.15, ratio));
+
+  return {
+    isPhone: true,
+    // Mappa: archi/tende ridotti al ~55% del valore desktop sul phone di
+    // riferimento (A34), scalato proporzionalmente per telefoni piu' piccoli
+    // o piu' grandi. Su web/tablet questo fattore non si applica.
+    mapScale: 0.55 * clamped,
+    // Dialog box: 35% schermo sul phone di riferimento (vs 22% desktop).
+    // Migliora leggibilita' e tap-target del bottone "Affronta l'anagramma".
+    dialogMaxHeightRatio: 0.35,
+    // Sprite NPC nella mappa leggermente piu' piccolo per non invadere lo
+    // schermo del telefono. CharacterPosition nelle scene resta invariato:
+    // li' lo sprite e' gia' calibrato in percentuali sullo schermo.
+    spriteScale: 0.95 * clamped,
+    // Niente padding inferiore: il dialog box resta attaccato al bordo
+    // schermo. La nav bar Android resta sotto la viewport Expo, non
+    // sovrapposta, quindi non serve compensarla.
+    safeBottom: 0,
+  };
+}
+
 
 // ---------------------------------------------------------------------------
 // PALETTE COLORI
@@ -296,55 +371,55 @@ export const ASSETS = {
   map: {
     background:    require('../assets/map/circus_map.png'),
     nodeFrame:     require('../assets/map/node_frame.png'),
-    nodeTentEntry: require('../assets/map/node_tent_entry.png'),
+    // nodeTentEntry rimosso: l'intro non e' cliccabile, mostriamo solo il banner.
     nodeTentFinal: require('../assets/map/node_tent_final.png'),
     nodeBanner:    require('../assets/map/node_banner.png'),
   },
   characters: {
-    acrobata:   require('../assets/characters/acrobata.png'),
-    giocoliere: require('../assets/characters/giocoliere.png'),
-    funambolo:  require('../assets/characters/funambolo.png'),
-    pagliaccio: require('../assets/characters/pagliaccio.png'),
-    trapezista: require('../assets/characters/trapezista.png'),
-    cavallerizza: require('../assets/characters/cavallerizza.png'),
-    contorsionista: require('../assets/characters/contorsionista.png'),
-    controfigura: require('../assets/characters/controfigura.png'),
-    domatore: require('../assets/characters/domatore.png'),
-    equilibrista: require('../assets/characters/equilibrista.png'),
-    sputafuoco: require('../assets/characters/sputafuoco.png'),
-    illusionista: require('../assets/characters/illusionista.png'),
-    direttrice: require('../assets/characters/direttrice.png'),
+    acrobata:   require('../assets/characters/acrobata.webp'),
+    giocoliere: require('../assets/characters/giocoliere.webp'),
+    funambolo:  require('../assets/characters/funambolo.webp'),
+    pagliaccio: require('../assets/characters/pagliaccio.webp'),
+    trapezista: require('../assets/characters/trapezista.webp'),
+    cavallerizza: require('../assets/characters/cavallerizza.webp'),
+    contorsionista: require('../assets/characters/contorsionista.webp'),
+    controfigura: require('../assets/characters/controfigura.webp'),
+    domatore: require('../assets/characters/domatore.webp'),
+    equilibrista: require('../assets/characters/equilibrista.webp'),
+    sputafuoco: require('../assets/characters/sputafuoco.webp'),
+    illusionista: require('../assets/characters/illusionista.webp'),
+    direttrice: require('../assets/characters/direttrice.webp'),
   },
   backgrounds: {
-    intro:      require('../assets/backgrounds/intro_bg.png'),
-    acrobata:   require('../assets/backgrounds/acrobata_bg.png'),
-    giocoliere: require('../assets/backgrounds/giocoliere_bg.png'),
-    funambolo:  require('../assets/backgrounds/funambolo_bg.png'),
-    pagliaccio: require('../assets/backgrounds/pagliaccio_bg.png'),
-    trapezista: require('../assets/backgrounds/trapezista_bg.png'),
-    cavallerizza: require('../assets/backgrounds/cavallerizza_bg.png'),
-    contorsionista: require('../assets/backgrounds/contorsionista_bg.png'),
-    controfigura: require('../assets/backgrounds/controfigura_bg.png'),
-    domatore: require('../assets/backgrounds/domatore_bg.png'),
-    equilibrista: require('../assets/backgrounds/equilibrista_bg.png'),
-    sputafuoco: require('../assets/backgrounds/sputafuoco_bg.png'),
-    illusionista: require('../assets/backgrounds/illusionista_bg.png'),
-    direttrice: require('../assets/backgrounds/direttrice_bg.png'),
-    victory:    require('../assets/backgrounds/victory_bg.png'),
+    intro:      require('../assets/backgrounds/intro_bg.webp'),
+    acrobata:   require('../assets/backgrounds/acrobata_bg.webp'),
+    giocoliere: require('../assets/backgrounds/giocoliere_bg.webp'),
+    funambolo:  require('../assets/backgrounds/funambolo_bg.webp'),
+    pagliaccio: require('../assets/backgrounds/pagliaccio_bg.webp'),
+    trapezista: require('../assets/backgrounds/trapezista_bg.webp'),
+    cavallerizza: require('../assets/backgrounds/cavallerizza_bg.webp'),
+    contorsionista: require('../assets/backgrounds/contorsionista_bg.webp'),
+    controfigura: require('../assets/backgrounds/controfigura_bg.webp'),
+    domatore: require('../assets/backgrounds/domatore_bg.webp'),
+    equilibrista: require('../assets/backgrounds/equilibrista_bg.webp'),
+    sputafuoco: require('../assets/backgrounds/sputafuoco_bg.webp'),
+    illusionista: require('../assets/backgrounds/illusionista_bg.webp'),
+    direttrice: require('../assets/backgrounds/direttrice_bg.webp'),
+    victory:    require('../assets/backgrounds/victory_bg.webp'),
   },
   hints: {
-    acrobata:   require('../assets/hints/acrobata_hint.png'),
-    funambolo:  require('../assets/hints/funambolo_hint.png'),
-    giocoliere: require('../assets/hints/giocoliere_hint.png'),
-    pagliaccio: require('../assets/hints/pagliaccio_hint.png'),
-    trapezista: require('../assets/hints/trapezista_hint.png'),
-    cavallerizza: require('../assets/hints/cavallerizza_hint.png'),
-    contorsionista: require('../assets/hints/contorsionista_hint.png'),
-    controfigura: require('../assets/hints/controfigura_hint.png'),
-    domatore: require('../assets/hints/domatore_hint.png'),
-    equilibrista: require('../assets/hints/equilibrista_hint.png'),
-    sputafuoco: require('../assets/hints/sputafuoco_hint.png'),
-    illusionista: require('../assets/hints/illusionista_hint.png'),
+    acrobata:   require('../assets/hints/acrobata_hint.webp'),
+    funambolo:  require('../assets/hints/funambolo_hint.webp'),
+    giocoliere: require('../assets/hints/giocoliere_hint.webp'),
+    pagliaccio: require('../assets/hints/pagliaccio_hint.webp'),
+    trapezista: require('../assets/hints/trapezista_hint.webp'),
+    cavallerizza: require('../assets/hints/cavallerizza_hint.webp'),
+    contorsionista: require('../assets/hints/contorsionista_hint.webp'),
+    controfigura: require('../assets/hints/controfigura_hint.webp'),
+    domatore: require('../assets/hints/domatore_hint.webp'),
+    equilibrista: require('../assets/hints/equilibrista_hint.webp'),
+    sputafuoco: require('../assets/hints/sputafuoco_hint.webp'),
+    illusionista: require('../assets/hints/illusionista_hint.webp'),
   },
 };
 

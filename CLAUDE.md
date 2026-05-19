@@ -16,7 +16,7 @@ Ignore node_modules folder when scanning the project files
 - Remote: `git@github.com:MarcelloRonchetti/GameBook.git`.
 - Expo stack from `LibroGame/package.json`: Expo `~54.0.34`, React `19.1.0`, React Native `0.81.5`, `react-native-svg ^15.15.4` (used by `MapScreen`).
 - Supabase client is configured in `LibroGame/lib/supabase.js` with `AsyncStorage` persistence.
-- The active player route is `JoinRoom` -> `Intro` -> `Map` -> `CircoStanza` -> `Map` until `Illusionista` -> `Direttrice`.
+- The active player route is `JoinRoom` -> `Intro` -> `Map` -> `CircoStanza` -> `Map` (loop fino all'Illusionista compresa) -> `Map` (con la tenda Direttrice come unica scelta disponibile) -> `Direttrice`. Dopo aver risolto l'Illusionista il giocatore NON va direttamente alla Direttrice: rientra in mappa e deve cliccare la tenda finale per accedervi.
 - `SceneScreen` and `AnagramScreen` are legacy compatibility routes. They remain registered, but the main flow uses `CircoStanzaScreen` and `MapScreen`.
 
 ## Stack
@@ -31,6 +31,7 @@ Ignore node_modules folder when scanning the project files
 - `@react-native-picker/picker`
 - `@react-native-async-storage/async-storage`
 - `@expo-google-fonts/cormorant-garamond` + `/manrope` + `/special-elite` + `expo-font` (caricati al boot via `useFonts` in `App.js` — display/body/typewriter)
+- `expo-image` `~3.0.11` — usato per immagini pesanti (background scene, character sprite, mappa, hint). API: `contentFit`/`transition`/`tintColor` come prop, `cachePolicy="memory-disk"` sempre. Cache disco condivisa con `ImagePreloader.prefetch()` al boot. `<Image>` di React Native resta per gli asset map con `tintColor` in style (banner/tende/archi).
 
 ### Stack notes
 
@@ -184,7 +185,7 @@ Missing NPC/background assets fall back to themed colors and emoji placeholders.
 5. Otherwise: Intro -> initial ciphered message with key 1–14.
 6. Acrobata scene (fixed start) -> green NPC placeholder with 🤸.
 7. Solve anagram -> pick next NPC (with emoji on the button), no going back.
-8. Continue until Illusionista -> cipher + anagram -> Direttrice.
+8. Continue until Illusionista -> cipher + anagram -> ritorno in Mappa con la sola tenda Direttrice cliccabile -> Direttrice.
 9. Direttrice: gold placeholder 🎩 + 12 anagrams with skip and free navigation.
 10. Completion -> final message.
 
@@ -197,7 +198,7 @@ If GM closes the room mid-game: alert "Il GM ha chiuso la stanza" -> reset to `J
 - No progress -> `Intro`.
 - `intro` unsolved -> `Intro`.
 - `intro` solved -> `Map` with `allChoices: ['acrobata']`.
-- `illusionista` solved -> `Direttrice`.
+- `illusionista` solved -> `Map` con `allChoices: ['direttrice']` (la tenda Direttrice resta l'unica scelta cliccabile).
 - `direttrice` progress -> `Direttrice`.
 - Other solved scene -> `Map` with next nodes from `STORY_GRAPH`.
 - Other unsolved scene -> `CircoStanza` with `initialMode: 'anagram'`.

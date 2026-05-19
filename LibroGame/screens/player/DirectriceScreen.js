@@ -14,9 +14,10 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, Image, TouchableOpacity, StyleSheet,
+  View, Text, TouchableOpacity, StyleSheet,
   ScrollView, KeyboardAvoidingView, Platform, StatusBar,
 } from 'react-native';
+import { Image } from 'expo-image';
 
 import { supabase } from '../../lib/supabase';
 import { normalizeText } from '../../lib/helpers';
@@ -216,7 +217,9 @@ export default function DirectriceScreen({ route, navigation }) {
           <Image
             source={victoryBg}
             style={victoryStyles.bgImage}
-            resizeMode="cover"
+            contentFit="cover"
+            transition={0}
+            cachePolicy="memory-disk"
           />
         ) : (
           <View style={victoryStyles.bgFallback} />
@@ -266,7 +269,9 @@ export default function DirectriceScreen({ route, navigation }) {
         <Image
           source={backgroundAsset}
           style={[circoStanzaStyles.background, circoStanzaStyles.backgroundImage]}
-          resizeMode="cover"
+          contentFit="cover"
+          transition={0}
+          cachePolicy="memory-disk"
         />
       )}
       <View style={[circoStanzaStyles.overlay, circoStanzaStyles.overlayAnagram]} />
@@ -275,7 +280,9 @@ export default function DirectriceScreen({ route, navigation }) {
           <Image
             source={characterAsset}
             style={circoStanzaStyles.characterImage}
-            resizeMode="contain"
+            contentFit="contain"
+            transition={0}
+            cachePolicy="memory-disk"
           />
         </View>
       )}

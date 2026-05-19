@@ -5,6 +5,10 @@
 
 import React, { useEffect } from 'react';
 import { Platform, View, Image, ActivityIndicator } from 'react-native';
+// expo-image: cache disco condivisa con i componenti che renderizzeranno
+// successivamente le stesse immagini (NarratorView background, MapScreen
+// background). Image.prefetch popola la cache senza dover renderizzare.
+import { Image as ExpoImage } from 'expo-image';
 import {
   useFonts as useCormorant,
   CormorantGaramond_500Medium,
@@ -53,47 +57,89 @@ function useWebScrollFix() {
   }, []);
 }
 
-// ImagePreloader — preload con strategia diversa per piattaforma.
+// ImagePreloader — preload tramite expo-image.
 //
-// Su web: render 1×1 di TUTTI gli asset al boot. Il browser tiene la decodifica
-// nella cache HTTP e i successivi <Image> sono istantanei. Memoria abbondante.
+// expo-image popola la sua cache disco/memoria con `Image.prefetch(source)`
+// senza dover renderizzare. La cache e' condivisa con i successivi <Image>
+// di expo-image (NarratorView background, MapScreen background): quando il
+// giocatore entra in una scena, l'immagine e' gia' decodificata e appare
+// istantaneamente.
 //
-// Su native (Android/iOS): renderizzare 32 PNG a piena risoluzione costa
-// ~150-200 MB di bitmap RGBA in RAM e causa GC pauses → choppiness.
-// Su mobile preloadiamo SOLO gli asset della mappa (piccoli, sempre necessari)
-// e l'Acrobata (prima scena reale). Gli altri sfondi decodificano al volo
-// quando il giocatore entra nella scena: il delay è di pochi ms, accettabile,
-// e il working set di memoria resta basso.
-function ImagePreloader() {
-  const [ready, setReady] = React.useState(false);
+// Strategia:
+//   FASE 1 (boot): mappa + intro + acrobata preloadati subito.
+//   FASE 2 (post-boot, in background): tutti gli altri background/character/
+//   hint preloadati a batch di pochi alla volta, con pause, per non saturare
+//   il decoder e bloccare l'UI thread. Picco di memoria controllato.
+//
+// Gli asset con tintColor/banner (map/* tranne il background) restano gestiti
+// da <Image> RN e non passano da qui — sono piccoli e usati sempre insieme.
+const PRELOAD_BATCH_SIZE = 3;
+const PRELOAD_BATCH_DELAY_MS = 800;
 
+function ImagePreloader() {
   useEffect(() => {
-    const id = setTimeout(() => setReady(true), 100);
-    return () => clearTimeout(id);
+    const isNative = Platform.OS !== 'web';
+    const bootAssets = isNative
+      ? [
+          ...Object.values(ASSETS.map),
+          ASSETS.backgrounds.intro,
+          ASSETS.backgrounds.acrobata,
+          ASSETS.characters.acrobata,
+        ].filter(Boolean)
+      : [
+          ...Object.values(ASSETS.map),
+          ...Object.values(ASSETS.backgrounds),
+          ...Object.values(ASSETS.characters),
+          ...Object.values(ASSETS.hints || {}),
+        ];
+
+    // Boot prefetch (sincrono, fire-and-forget — expo-image fa il lavoro
+    // off-thread internamente).
+    try {
+      ExpoImage.prefetch(bootAssets);
+    } catch (e) {
+      // ignore — preload e' best-effort
+    }
+
+    if (!isNative) return undefined;
+
+    // FASE 2 (solo native): preload progressivo del resto, dopo 1.5s di
+    // grace period per non competere col first paint.
+    const phase1Set = new Set(bootAssets);
+    const remaining = [
+      ...Object.values(ASSETS.backgrounds),
+      ...Object.values(ASSETS.characters),
+      ...Object.values(ASSETS.hints || {}),
+    ].filter((a) => a && !phase1Set.has(a));
+
+    let cancelled = false;
+    let index = 0;
+    const timers = [];
+
+    const loadNextBatch = () => {
+      if (cancelled || index >= remaining.length) return;
+      const batch = remaining.slice(index, index + PRELOAD_BATCH_SIZE);
+      index += PRELOAD_BATCH_SIZE;
+      try {
+        ExpoImage.prefetch(batch);
+      } catch (e) {
+        // ignore
+      }
+      const t = setTimeout(loadNextBatch, PRELOAD_BATCH_DELAY_MS);
+      timers.push(t);
+    };
+
+    const initial = setTimeout(loadNextBatch, 1500);
+    timers.push(initial);
+
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
   }, []);
 
-  if (!ready) return null;
-
-  const isNative = Platform.OS !== 'web';
-  const allAssets = isNative
-    ? [
-        ...Object.values(ASSETS.map),
-        ASSETS.backgrounds.intro,
-        ASSETS.backgrounds.acrobata,
-        ASSETS.characters.acrobata,
-      ].filter(Boolean)
-    : [
-        ...Object.values(ASSETS.map),
-        ...Object.values(ASSETS.backgrounds),
-        ...Object.values(ASSETS.characters),
-      ];
-  return (
-    <View style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>
-      {allAssets.map((source, i) => (
-        <Image key={i} source={source} style={{ width: 1, height: 1 }} fadeDuration={0} />
-      ))}
-    </View>
-  );
+  // Nessun render: la prefetch popola la cache senza UI.
+  return null;
 }
 
 // Splash velluto teatrale: mostrato finche' i Google Fonts non sono caricati.

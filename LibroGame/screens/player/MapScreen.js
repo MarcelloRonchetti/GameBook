@@ -54,6 +54,10 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, Image, TouchableOpacity, useWindowDimensions,
 } from 'react-native';
+// expo-image solo per lo sfondo mappa (immagine grossa, cache importante).
+// Le tende/archi con tintColor restano <Image> RN: l'API di tintColor su
+// expo-image e' diversa (prop top-level, non in style) e non vale il rischio.
+import { Image as ExpoImage } from 'expo-image';
 import Svg, { Path, Circle } from 'react-native-svg';
 
 import { supabase } from '../../lib/supabase';
@@ -67,6 +71,7 @@ import {
   BANNER_CONFIG,
   getNpcTheme,
   getCharacterAsset,
+  useResponsiveScale,
 } from '../../styles/theme';
 
 // ---------------------------------------------------------------------------
@@ -107,16 +112,17 @@ function computePaths(nodeStates) {
 // ---------------------------------------------------------------------------
 // NODO TENDA — per intro (ENTRATA) e direttrice (FINE)
 // ---------------------------------------------------------------------------
-function TentNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
+function TentNode({ sceneId, nodeConf, state, screenW, screenH, onPress, mapScale = 1 }) {
   const npc       = getNpcTheme(sceneId);
   const isFinal   = sceneId === 'direttrice';
   const isFog     = state === 'fog';
   const isAvail   = state === 'available';
-  const tentAsset = isFinal ? ASSETS.map.nodeTentFinal : ASSETS.map.nodeTentEntry;
+  // L'intro non ha piu' un asset tenda (non e' cliccabile, banner basta).
+  const tentAsset = isFinal ? ASSETS.map.nodeTentFinal : null;
 
   const cx      = (nodeConf.x / 100) * screenW;
   const cy      = (nodeConf.y / 100) * screenH;
-  const tentW   = nodeConf.size * TENT_SCALE;
+  const tentW   = nodeConf.size * TENT_SCALE * mapScale;
   const tentH   = tentW;
   const bc = BANNER_CONFIG[sceneId] || {};
   const bannerW      = tentW  * (bc.bannerScale   ?? 0.4);
@@ -137,18 +143,20 @@ function TentNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
       activeOpacity={isAvail ? 0.8 : 1}
       disabled={!isAvail}
     >
-      {/* Tenda */}
-      <Image
-        source={tentAsset}
-        style={{
-          position: 'absolute',
-          left: (bannerW - tentW) / 2, top: 0,
-          width: tentW, height: tentH,
-          opacity: isFog ? 0.4 : 1,
-          ...(isFog ? { tintColor: '#222' } : {}),
-        }}
-        resizeMode="contain"
-      />
+      {/* Tenda — renderizzata solo se l'asset esiste (intro non ce l'ha piu') */}
+      {tentAsset && (
+        <Image
+          source={tentAsset}
+          style={{
+            position: 'absolute',
+            left: (bannerW - tentW) / 2, top: 0,
+            width: tentW, height: tentH,
+            opacity: isFog ? 0.4 : 1,
+            ...(isFog ? { tintColor: '#222' } : {}),
+          }}
+          resizeMode="contain"
+        />
+      )}
 
 
       {/* Banner con nome — sovrapposto alla base della tenda */}
@@ -191,13 +199,13 @@ function TentNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
 // ---------------------------------------------------------------------------
 // NODO ARCO — per tutti gli NPC
 // ---------------------------------------------------------------------------
-function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
+function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress, mapScale = 1 }) {
   const npc           = getNpcTheme(sceneId);
   const characterAsset = getCharacterAsset(sceneId);
 
   const cx       = (nodeConf.x / 100) * screenW;
   const cy       = (nodeConf.y / 100) * screenH;
-  const frameW   = nodeConf.size * ARCH_SCALE;
+  const frameW   = nodeConf.size * ARCH_SCALE * mapScale;
   const frameH   = frameW * FRAME_RATIO;
   const intSize   = frameW * INTERIOR_SIZE;
   const spriteSize = intSize * SPRITE_SCALE;
@@ -279,6 +287,8 @@ function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress }) {
 export default function MapScreen({ route, navigation }) {
   const { room, allChoices = [] } = route.params;
   const { width: screenW, height: screenH } = useWindowDimensions();
+  // Su phone (web/tablet: mapScale = 1, comportamento invariato).
+  const { mapScale } = useResponsiveScale();
 
   useDisableAndroidBack();
 
@@ -312,16 +322,23 @@ export default function MapScreen({ route, navigation }) {
   };
 
   const handleNodePress = useCallback((sceneId) => {
+    // La tenda finale (Direttrice) ha la sua schermata dedicata.
+    if (sceneId === 'direttrice') {
+      navigation.replace('Direttrice', { room });
+      return;
+    }
     navigation.replace('CircoStanza', { room, sceneId, initialMode: 'narration' });
   }, [navigation, room]);
 
   return (
     <View style={styles.container}>
-      {/* SFONDO */}
-      <Image
+      {/* SFONDO — expo-image per cache + decode off-thread */}
+      <ExpoImage
         source={ASSETS.map.background}
         style={[styles.mapBackground, styles.mapImage]}
-        resizeMode="cover"
+        contentFit="cover"
+        transition={0}
+        cachePolicy="memory-disk"
       />
 
       {/* PERCORSI SVG — linee dorate bezier */}
@@ -376,6 +393,7 @@ export default function MapScreen({ route, navigation }) {
               screenW={screenW}
               screenH={screenH}
               onPress={handleNodePress}
+              mapScale={mapScale}
             />
           );
         }
@@ -388,6 +406,7 @@ export default function MapScreen({ route, navigation }) {
             screenW={screenW}
             screenH={screenH}
             onPress={handleNodePress}
+            mapScale={mapScale}
           />
         );
       })}

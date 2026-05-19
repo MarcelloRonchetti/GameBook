@@ -7,7 +7,8 @@
 // Altrimenti: fallback al bordo oro lampeggiante su tutta la schermata.
 
 import React, { useEffect, useRef } from 'react';
-import { View, Image, Animated } from 'react-native';
+import { View, Animated } from 'react-native';
+import { Image } from 'expo-image';
 import { autoHintEffectStyles as styles } from '../styles/components';
 import { colors } from '../styles/theme';
 
@@ -37,8 +38,10 @@ export default function AutoHintEffect({ active, hintImage, hintImageStyle }) {
       >
         <Image
           source={hintImage}
-          style={{ width: '100%', height: '100%', tintColor: colors.primary }}
-          resizeMode="contain"
+          style={{ width: '100%', height: '100%' }}
+          contentFit="contain"
+          tintColor={colors.primary}
+          cachePolicy="memory-disk"
         />
       </Animated.View>
     );

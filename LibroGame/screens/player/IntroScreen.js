@@ -11,9 +11,10 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, Image,
+  View, Text, TouchableOpacity,
   ScrollView, KeyboardAvoidingView, Platform, StatusBar,
 } from 'react-native';
+import { Image } from 'expo-image';
 
 import { supabase } from '../../lib/supabase';
 import { normalizeText, formatQuotes } from '../../lib/helpers';
@@ -153,7 +154,9 @@ export default function IntroScreen({ route, navigation }) {
         <Image
           source={introBackground}
           style={[styles.background, styles.backgroundImage]}
-          resizeMode="cover"
+          contentFit="cover"
+          transition={0}
+          cachePolicy="memory-disk"
         />
       )}
       {/* Overlay scuro intenso identico alle altre stanze in modalità anagramma */}
