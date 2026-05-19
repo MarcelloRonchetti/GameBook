@@ -265,14 +265,17 @@ function ArchNode({ sceneId, nodeConf, state, screenW, screenH, onPress, mapScal
         style={[
           styles.nodeLabel,
           {
-            bottom:   frameH * (LABEL_POSITION_OVERRIDES[sceneId]?.bottom ?? BANNER_BOTTOM),
-            left:     frameW * (LABEL_POSITION_OVERRIDES[sceneId]?.left   ?? 0.1),
-            width:    frameW * 0.8,
-            fontSize: frameW * (LABEL_FONT_OVERRIDES[sceneId] ?? LABEL_FONT_SCALE),
+            bottom:        frameH * (LABEL_POSITION_OVERRIDES[sceneId]?.bottom ?? BANNER_BOTTOM),
+            left:          frameW * (LABEL_POSITION_OVERRIDES[sceneId]?.left   ?? 0.1),
+            width:         frameW * 0.8,
+            fontSize:      frameW * (LABEL_FONT_OVERRIDES[sceneId] ?? LABEL_FONT_SCALE),
+            letterSpacing: 0,
           },
           isFog && styles.nodeLabelFog,
         ]}
         numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.6}
       >
         {isFog ? '???' : npc.label.toUpperCase()}
       </Text>
