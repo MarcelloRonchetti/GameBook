@@ -511,7 +511,7 @@ Configurazione attuale che produce APK installabile su telefono fisico:
 - **`eas.json`** profilo `preview`: `distribution: "internal"`, `android.buildType: "apk"`. Resource class default (medium, free tier).
 - **`app.json`** essenziale per build cloud:
   - `newArchEnabled: false` — la new architecture causa crash silenziosi durante prebuild con SDK 54 + RN 0.81.5
-  - `orientation: "default"` — supporta portrait + landscape
+  - `orientation: "landscape"` — APK Android e iOS sono bloccati in landscape (mappa, scene e UI sono progettate per orizzontale). Su web il flag e' ignorato (il browser segue la finestra)
   - `android.package: "com.librogame.app"`
   - `extra.eas.projectId: "<UUID>"` — generato da `eas build:configure`, NON una stringa libera
   - `plugins: ["./gradle-memory-plugin"]`

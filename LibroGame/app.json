@@ -3,7 +3,7 @@
     "name": "LibroGame",
     "slug": "librogame",
     "version": "1.0.0",
-    "orientation": "default",
+    "orientation": "landscape",
     "icon": "./assets/app-icons/icon.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": false,
