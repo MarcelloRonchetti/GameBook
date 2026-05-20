@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx eas-cli@latest *)",
+      "Bash(npm run *)",
+      "Bash(command -v pngcrush)",
+      "Bash(command -v optipng)",
+      "Bash(command -v mogrify)",
+      "Bash(command -v convert)",
+      "Bash(command -v python3)",
+      "Read(//home/marci/Projects/GameBook/.claude/**)",
+      "Read(//home/marci/.claude/skills/**)"
+    ]
+  }
+}

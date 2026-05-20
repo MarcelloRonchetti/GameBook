@@ -2,6 +2,7 @@
   "expo": {
     "name": "LibroGame",
     "slug": "librogame",
+    "owner": "roncomarcis-organization",
     "version": "1.0.0",
     "orientation": "landscape",
     "icon": "./assets/app-icons/icon.png",
@@ -35,7 +36,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "bf9b86f3-59ad-4400-8249-9c26abcc7106"
+        "projectId": "72ec8f6a-13cd-4191-8d29-5b3616612044"
       }
     }
   }

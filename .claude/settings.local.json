@@ -25,7 +25,8 @@
       "mcp__claude_ai_Supabase__list_projects",
       "mcp__claude_ai_Supabase__apply_migration",
       "mcp__claude_ai_Supabase__execute_sql",
-      "Bash(python3 -c \"from PIL import Image; print\\(Image.__version__ if hasattr\\(Image,'__version__'\\) else 'OK'\\)\")"
+      "Bash(python3 -c \"from PIL import Image; print\\(Image.__version__ if hasattr\\(Image,'__version__'\\) else 'OK'\\)\")",
+      "Bash(npx eas-cli@latest *)"
     ],
     "additionalDirectories": [
       "/home/marci/.var/app/com.visualstudio.code/data"
