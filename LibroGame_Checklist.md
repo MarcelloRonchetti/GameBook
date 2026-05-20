@@ -23,6 +23,7 @@
 - [x] Fix `JoinRoomScreen`: codici stanza con zeri iniziali preservati tramite `.padStart(6, '0')` dopo il `trim()`
 - [x] `IntroScreen` — messaggio cifrato iniziale + chiave 1-14 + sblocco Acrobata sulla mappa
 - [x] `MapScreen` — mappa interattiva con nodi, percorsi, fog of war e stati scena
+- [x] `MapScreen` — linee attive solo sul percorso realmente percorso + edge dal nodo corrente alle scelte in `allChoices`. `computePaths` usa `visitedOrdered` (da `progress` ordinato per `timestamp`) e `findCurrentFromChoices` come fallback al primo render. Fix: prima erano attive tutte le linee fra nodi non-fog (es. cavallerizza↔contorsionista, domatore↔illusionista) anche se non traversate
 - [x] `CircoStanzaScreen` — schermata attiva unificata con narrazione + anagramma
 - [x] `NarratorView` — testo tipo dialogo con typewriter e fallback placeholder
 - [x] `AnagramOverlay` — pannello anagramma, hints GM, cifrario Illusionista, scelte successive

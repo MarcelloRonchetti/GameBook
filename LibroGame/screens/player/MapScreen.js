@@ -97,13 +97,44 @@ function computeNodeStates(visitedScenes, allChoices) {
 
 // ---------------------------------------------------------------------------
 // HELPER — calcola i percorsi da disegnare
+// Una linea è "attiva" SOLO se:
+//   (a) rappresenta un passo realmente percorso dal giocatore — cioè una
+//       coppia consecutiva nell'ordine storico di visita (visitedOrdered),
+//       valutata in entrambe le direzioni perché gli archi nel grafo sono
+//       direzionali ma la linea visiva è la stessa, OPPURE
+//   (b) parte dal nodo corrente (ultimo visitato) verso una delle scelte
+//       attualmente disponibili (allChoices).
+// Tutte le altre linee restano disegnate ma "spente".
 // ---------------------------------------------------------------------------
-function computePaths(nodeStates) {
+function findCurrentFromChoices(allChoices) {
+  if (!allChoices || allChoices.length === 0) return null;
+  const target = [...allChoices].sort().join('|');
+  for (const [from, { next }] of Object.entries(STORY_GRAPH)) {
+    if ([...next].sort().join('|') === target) return from;
+  }
+  return null;
+}
+
+function computePaths(nodeStates, visitedOrdered = [], allChoices = []) {
+  const traversed = new Set();
+  for (let i = 0; i < visitedOrdered.length - 1; i++) {
+    const a = visitedOrdered[i];
+    const b = visitedOrdered[i + 1];
+    traversed.add(`${a}->${b}`);
+    traversed.add(`${b}->${a}`);
+  }
+  const current = visitedOrdered.length > 0
+    ? visitedOrdered[visitedOrdered.length - 1]
+    : findCurrentFromChoices(allChoices);
+
   const paths = [];
   Object.entries(STORY_GRAPH).forEach(([from, { next }]) => {
     next.forEach((to) => {
-      const isActive = nodeStates[from] !== 'fog' && nodeStates[to] !== 'fog';
-      paths.push({ from, to, active: isActive });
+      const isTraversed = traversed.has(`${from}->${to}`);
+      const isCurrentChoice =
+        (from === current && allChoices.includes(to)) ||
+        (to === current && allChoices.includes(from));
+      paths.push({ from, to, active: isTraversed || isCurrentChoice });
     });
   });
   return paths;
@@ -304,7 +335,7 @@ export default function MapScreen({ route, navigation }) {
     [allChoices],
   );
   const [nodeStates, setNodeStates] = useState(initialStates);
-  const [paths, setPaths]           = useState(() => computePaths(initialStates));
+  const [paths, setPaths]           = useState(() => computePaths(initialStates, [], allChoices));
 
   useEffect(() => {
     loadProgress();
@@ -314,14 +345,15 @@ export default function MapScreen({ route, navigation }) {
     const { data: { user } } = await supabase.auth.getUser();
     const { data: progress } = await supabase
       .from('progress')
-      .select('scene_id, solved')
+      .select('scene_id, solved, timestamp')
       .eq('room_id', room.id)
-      .eq('player_id', user.id);
+      .eq('player_id', user.id)
+      .order('timestamp', { ascending: true });
 
     const visited = (progress || []).filter(p => p.solved).map(p => p.scene_id);
     const states  = computeNodeStates(visited, allChoices);
     setNodeStates(states);
-    setPaths(computePaths(states));
+    setPaths(computePaths(states, visited, allChoices));
   };
 
   const handleNodePress = useCallback((sceneId) => {
