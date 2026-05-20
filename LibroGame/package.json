@@ -2,6 +2,7 @@
   "name": "librogame",
   "version": "1.0.0",
   "main": "index.js",
+  "license": "SEE LICENSE IN ../LICENSE",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",

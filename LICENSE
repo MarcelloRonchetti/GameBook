@@ -1,0 +1,43 @@
+Copyright (c) 2026-present  Marcello Ronchetti & Francesco Giancontieri.
+Copyright (c) 2026-present  Annalisa Maffeis — story "Il circo delle circostanze".
+
+ALL RIGHTS RESERVED — TUTTI I DIRITTI RISERVATI.
+
+This repository is proprietary and confidential. No rights are granted
+to use, copy, modify, adapt, translate, publish, distribute, perform,
+display, sell, license, sublicense, or create derivative works from any
+part of it — including source code, story text, dialogue, anagrams,
+cipher messages, illustrations, map, icons, configuration, and
+documentation — in whole or in part, in any form or by any means,
+without the prior written permission of the respective copyright
+holders.
+
+Attribution:
+
+  - Story "Il circo delle circostanze" — narrative text, dialogue,
+    anagrams, cipher messages, character names, and all material in
+    story/storia_1/ (including scenes.json, anagrams.json, and the
+    source PDF): © Annalisa Maffeis. All rights reserved by the
+    author.
+
+  - Software — source code, configuration, scripts, and documentation
+    under LibroGame/, docs/, scripts/, and the repository root:
+    © Marcello Ronchetti & Francesco Giancontieri.
+
+  - Visual assets — character sprites, backgrounds, hints, map, and
+    app icons under LibroGame/assets/ (PNG/WebP):
+    © Marcello Ronchetti & Francesco Giancontieri.
+
+Access to or visibility of this repository (whether granted privately
+or shared publicly for inspection) does not constitute a license or
+transfer of rights. Viewing the source does not authorize its use.
+
+THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT
+SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE,
+ARISING FROM, OUT OF, OR IN CONNECTION WITH THE WORK OR THE USE OR
+OTHER DEALINGS IN THE WORK.
+
+For licensing inquiries: marcy.ronco@gmail.com

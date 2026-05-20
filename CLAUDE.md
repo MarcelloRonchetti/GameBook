@@ -595,6 +595,18 @@ The app runs on `react-native-web`; a few patterns are required to keep web beha
 - While scanning files, always ignore `node_modules/`.
 - `.claude/settings.json` enables Claude-side plugin entries; `.claude/settings.local.json` currently disables `github@claude-plugins-official` locally.
 
+## Licensing
+
+The repository is proprietary — `LICENSE` at the repo root holds the full terms. "All rights reserved" with a tripartite attribution split:
+
+- **Story "Il circo delle circostanze"** — everything under `story/storia_1/` (`scenes.json`, `anagrams.json`, `CIRCO-STANZE.pdf`), all dialogue, anagrams, cipher key, character names: © **Annalisa Maffeis**.
+- **Software** — source under `LibroGame/lib/`, `screens/`, `components/`, `navigation/`, `styles/`, `App.js`, `index.js`, plus `LibroGame/scripts/`, root configs (`app.json`, `eas.json`, `gradle-memory-plugin.js`), and docs: © **Marcello Ronchetti & Francesco Giancontieri**.
+- **Visual assets** — everything under `LibroGame/assets/` (`characters/`, `backgrounds/`, `hints/`, `map/`, `app-icons/`), PNG and WebP: © **Marcello Ronchetti & Francesco Giancontieri**.
+
+Year: 2026 – present. `LibroGame/package.json` keeps `"private": true` and adds `"license": "SEE LICENSE IN ../LICENSE"` (npm convention for proprietary licenses outside the SPDX list). Licensing inquiries: marcy.ronco@gmail.com.
+
+No per-file copyright headers are added — the root `LICENSE` covers the whole repository.
+
 ## References
 
 - `LibroGame_Checklist.md` — current task list, decisions, and roadmap.
