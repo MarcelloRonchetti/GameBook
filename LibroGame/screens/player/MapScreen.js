@@ -61,7 +61,7 @@ import { Image as ExpoImage } from 'expo-image';
 import Svg, { Path, Circle } from 'react-native-svg';
 
 import { supabase } from '../../lib/supabase';
-import { useDisableAndroidBack } from '../../lib/useRoomClosedListener';
+import { useRoomClosedListener, useDisableAndroidBack } from '../../lib/useRoomClosedListener';
 
 import { mapStyles as styles } from '../../styles/player';
 import {
@@ -325,6 +325,10 @@ export default function MapScreen({ route, navigation }) {
   const { mapScale } = useResponsiveScale();
 
   useDisableAndroidBack();
+  // Listener chiusura stanza: se il GM chiude mentre il player e' sulla mappa
+  // (stato in cui passa la maggior parte del gioco tra una scena e l'altra),
+  // viene riportato a JoinRoom con notify.
+  useRoomClosedListener(room, navigation);
 
   // Stato iniziale derivato sincronicamente da allChoices (passato in route.params):
   // i nodi disponibili appaiono subito come 'available', il resto come 'fog'.

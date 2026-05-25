@@ -17,8 +17,28 @@ export function useRoomClosedListener(room, navigation) {
   useEffect(() => {
     if (!room || !room.id) return;
 
-    // Sottoscrizione realtime su UPDATE della riga della stanza
-    const channel = supabase
+    // Idempotente: la chiusura puo' arrivare sia via postgres_changes
+    // sia via broadcast; evitiamo doppi notify/reset.
+    let fired = false;
+    const kick = () => {
+      if (fired) return;
+      fired = true;
+      // notify() e' cross-platform (web + native).
+      notify(
+        'Stanza chiusa',
+        'Il GM ha chiuso la stanza. La sessione di gioco è terminata.'
+      );
+      // reset dello stack — il player resta loggato ma torna
+      // alla schermata di ingresso stanza
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'JoinRoom' }],
+      });
+    };
+
+    // Canale 1 — postgres_changes UPDATE su rooms.
+    // Richiede che la tabella sia in pg_publication supabase_realtime.
+    const pgChannel = supabase
       .channel(`room_status_${room.id}`)
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -26,26 +46,22 @@ export function useRoomClosedListener(room, navigation) {
         table: 'rooms',
         filter: `id=eq.${room.id}`
       }, (payload) => {
-        // Se lo status è cambiato a 'closed' -> avvisa e riporta a JoinRoom
-        if (payload?.new?.status === 'closed') {
-          // notify() è cross-platform (web + native); su web window.alert
-          // è bloccante e attende l'OK prima di proseguire, su native è
-          // non-bloccante ma il reset successivo è comunque l'azione corretta.
-          notify(
-            'Stanza chiusa',
-            'Il GM ha chiuso la stanza. La sessione di gioco è terminata.'
-          );
-          // reset dello stack — il player resta loggato ma torna
-          // alla schermata di ingresso stanza
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'JoinRoom' }],
-          });
-        }
+        if (payload?.new?.status === 'closed') kick();
       })
       .subscribe();
 
-    return () => supabase.removeChannel(channel);
+    // Canale 2 — broadcast esplicito GM → player.
+    // Belt-and-suspenders: se la publication regredisce o postgres_changes
+    // ritarda, il broadcast bypassa il DB e arriva subito.
+    const bcChannel = supabase
+      .channel(`room_close_${room.id}`)
+      .on('broadcast', { event: 'room_closed' }, () => kick())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(pgChannel);
+      supabase.removeChannel(bcChannel);
+    };
   }, [room?.id]);
 }
 

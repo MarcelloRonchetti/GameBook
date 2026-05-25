@@ -111,6 +111,15 @@ export default function RoomListScreen({ navigation }) {
         const { error } = await supabase.from('rooms').update({ status: 'closed' }).eq('id', room.id);
         setActionLoading(null);
         if (error) { notify('Errore', 'Impossibile chiudere la stanza'); return; }
+        // Broadcast esplicito: bypassa postgres_changes per kick immediato anche
+        // se la publication regredisce o il client ritarda. Doppio canale, idempotente lato player.
+        const bc = supabase.channel(`room_close_${room.id}`);
+        bc.subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            bc.send({ type: 'broadcast', event: 'room_closed', payload: { room_id: room.id } });
+            supabase.removeChannel(bc);
+          }
+        });
         setRooms(prev => prev.map(r => r.id === room.id ? { ...r, status: 'closed' } : r));
       },
       true

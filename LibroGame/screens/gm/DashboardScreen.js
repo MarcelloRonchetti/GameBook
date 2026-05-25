@@ -137,6 +137,17 @@ export default function DashboardScreen({ route, navigation }) {
           return;
         }
 
+        // Broadcast esplicito GM → player: bypassa postgres_changes per kick
+        // immediato. Doppio canale ridondante con il listener postgres_changes;
+        // il player ha logica idempotente (fired flag) per evitare doppi reset.
+        const bc = supabase.channel(`room_close_${room.id}`);
+        bc.subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            bc.send({ type: 'broadcast', event: 'room_closed', payload: { room_id: room.id } });
+            supabase.removeChannel(bc);
+          }
+        });
+
         setRoomStatus('closed');
         notify('Stanza chiusa', 'La stanza è stata chiusa con successo.');
       },

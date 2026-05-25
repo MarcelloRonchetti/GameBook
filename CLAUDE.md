@@ -80,7 +80,7 @@ Ignore node_modules folder when scanning the project files
   - `lib/resetRedirect.js`: `getResetRedirect()` — returns the URL Brevo embeds in recovery emails (`window.location.origin + '/reset-password'` on web; `librogame://reset-password` placeholder on native).
   - `lib/helpers.js`: `normalizeText` (strips accents/punctuation/case), `checkAnagram`, `generateRoomCode` (6 digits), `formatTime` (mm:ss), `notify(title, message)` (cross-platform: `window.alert` on web, `Alert.alert` on mobile).
   - `lib/session.js`: `logout`, `confirmLogout`, `confirm(title, message, onConfirm, destructive)` (cross-platform), `resolvePlayerResumeRoute(room, playerId)`.
-  - `lib/useRoomClosedListener.js`: `useRoomClosedListener` (subscribes to `UPDATE` on `rooms`; on `status='closed'` shows alert + redirects to `JoinRoom`) and `useDisableAndroidBack` (disables hardware back while a screen is mounted).
+  - `lib/useRoomClosedListener.js`: `useRoomClosedListener` (doppio canale di delivery, stesso pattern degli hint: `postgres_changes` UPDATE su `rooms` + Broadcast `room_close_<roomId>` evento `room_closed`. Flag `fired` interno rende il kick idempotente — gli eventi possono arrivare in qualsiasi ordine senza causare doppi reset). On close shows `notify()` + `navigation.reset` to `JoinRoom`. Montato in TUTTE le schermate del flusso player: `Intro`, `Map`, `CircoStanza`, `Direttrice` (più legacy `SceneScreen`/`AnagramScreen`). Il GM in `RoomListScreen.handleCloseRoom` e `DashboardScreen.handleCloseRoom` invia il broadcast subito dopo l'`UPDATE` riuscito (channel.subscribe → SUBSCRIBED → send → removeChannel). `useDisableAndroidBack` disables hardware back while a screen is mounted.
 
 ## Folder structure
 
@@ -401,14 +401,23 @@ CREATE INDEX hints_room_player_scene_idx ON hints (room_id, player_id, scene_id)
 
 | Table | Why |
 |---|---|
-| `rooms` | `useRoomClosedListener` listens for `UPDATE` to detect room close from GM |
+| `rooms` | `useRoomClosedListener` listens for `UPDATE` to detect room close from GM (+ fallback via Broadcast `room_close_<roomId>` lanciato dal GM dopo l'UPDATE) |
 | `room_players` | GM Dashboard updates player list in realtime |
 | `progress` | GM Dashboard + PlayerDetail update player position in realtime |
 | `hints` | `CircoStanzaScreen` receives GM hints in realtime (banner top scoped per scena) |
 
 Path: Supabase Dashboard → Database → Replication → enable per table, **oppure** via SQL: `ALTER PUBLICATION supabase_realtime ADD TABLE public.<tablename>;`.
 
-Verifica stato attuale: `SELECT tablename FROM pg_publication_tables WHERE pubname = 'supabase_realtime';` — devono comparire tutte e quattro le tabelle del progetto (`rooms`, `room_players`, `progress`, `hints`). Se la publication è vuota, `postgres_changes` non scatta mai e tutti i listener realtime falliscono in silenzio. Per il flusso hint c'è un fallback via Supabase Broadcast (vedi sezione "Manual GM hint").
+Verifica stato attuale: `SELECT tablename FROM pg_publication_tables WHERE pubname = 'supabase_realtime';` — devono comparire tutte e quattro le tabelle del progetto (`rooms`, `room_players`, `progress`, `hints`). Se la publication è vuota, `postgres_changes` non scatta mai e tutti i listener realtime falliscono in silenzio. Sia il flusso hint sia il flusso "chiusura stanza" hanno un fallback via Supabase Broadcast (vedi sezioni "Manual GM hint" e "Chiusura stanza realtime").
+
+### Chiusura stanza realtime
+
+Doppio canale di delivery (belt-and-suspenders, stesso pattern degli hint):
+
+1. **`postgres_changes` UPDATE su `rooms`** — canale `room_status_<roomId>`, filtro `id=eq.<roomId>`. Richiede `rooms` in `pg_publication supabase_realtime`.
+2. **Broadcast esplicito** — canale `room_close_<roomId>`, evento `room_closed`. Il GM in `RoomListScreen.handleCloseRoom` e `DashboardScreen.handleCloseRoom` apre il channel, attende `SUBSCRIBED`, manda `channel.send({type:'broadcast', event:'room_closed', payload:{room_id}})`, poi `removeChannel`. Il player ascolta lo stesso canale dentro `useRoomClosedListener`.
+
+Lato player, `useRoomClosedListener` ha un flag interno `fired` che rende il kick idempotente: il primo dei due canali a triggerare esegue `notify()` + `navigation.reset`, gli arrivi successivi vengono ignorati. **Il listener e' montato in TUTTE le schermate del flusso player** (`Intro`, `Map`, `CircoStanza`, `Direttrice`), inclusa `Map` — la mappa e' lo stato dominante del giocatore tra una scena e l'altra, prima la mancanza del listener li' lasciava il player bloccato sulla mappa anche dopo chiusura stanza.
 
 ### RLS
 
