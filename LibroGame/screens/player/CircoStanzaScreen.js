@@ -23,6 +23,7 @@ import { Image } from 'expo-image';
 
 import { supabase } from '../../lib/supabase';
 import { useRoomClosedListener, useDisableAndroidBack } from '../../lib/useRoomClosedListener';
+import { subscribeShared } from '../../lib/realtimeHub';
 
 import NarratorView from '../../components/NarratorView';
 import AnagramOverlay from '../../components/AnagramOverlay';
@@ -63,8 +64,9 @@ export default function CircoStanzaScreen({ route, navigation }) {
   const solvedRef = useRef(false);
 
   const [hints, setHints] = useState([]);
-  const hintsChannelRef = useRef(null);
-  const hintBroadcastChannelRef = useRef(null);
+  // Funzioni di disiscrizione dai canali hint condivisi (lib/realtimeHub).
+  const hintsUnsubRef = useRef(null);
+  const hintBroadcastUnsubRef = useRef(null);
 
   const [returnedFromAnagram, setReturnedFromAnagram] = useState(false);
 
@@ -78,8 +80,8 @@ export default function CircoStanzaScreen({ route, navigation }) {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
-      if (hintsChannelRef.current) supabase.removeChannel(hintsChannelRef.current);
-      if (hintBroadcastChannelRef.current) supabase.removeChannel(hintBroadcastChannelRef.current);
+      if (hintsUnsubRef.current) hintsUnsubRef.current();
+      if (hintBroadcastUnsubRef.current) hintBroadcastUnsubRef.current();
     };
   }, [sceneId]);
 
@@ -158,20 +160,24 @@ export default function CircoStanzaScreen({ route, navigation }) {
     //    postgres_changes ritarda o se la publication non è attiva.
     //
     // Entrambi i canali chiamano fetchHints, che filtra per scene_id corrente.
-    hintsChannelRef.current = supabase
-      .channel(`hints_${room.id}_${userId}`)
-      .on('postgres_changes', {
+    // Canali condivisi (lib/realtimeHub): restano aperti fra una scena e
+    // l'altra, ogni CircoStanzaScreen aggiunge/toglie solo il proprio listener.
+    hintsUnsubRef.current = subscribeShared(
+      `hints_${room.id}_${userId}`,
+      [['postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'hints',
         filter: `room_id=eq.${room.id}`,
-      }, () => fetchHints(userId))
-      .subscribe();
+      }]],
+      () => fetchHints(userId)
+    );
 
-    hintBroadcastChannelRef.current = supabase
-      .channel(`hint_push_${room.id}_${userId}`)
-      .on('broadcast', { event: 'new_hint' }, () => fetchHints(userId))
-      .subscribe();
+    hintBroadcastUnsubRef.current = subscribeShared(
+      `hint_push_${room.id}_${userId}`,
+      [['broadcast', { event: 'new_hint' }]],
+      () => fetchHints(userId)
+    );
   };
 
   const handleStartAnagram = () => setMode('anagram');

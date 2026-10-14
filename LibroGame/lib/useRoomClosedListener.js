@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { BackHandler } from 'react-native';
 // BackHandler — per disabilitare il tasto back hardware su Android
 
-import { supabase } from './supabase';
+import { subscribeShared } from './realtimeHub';
 import { notify } from './helpers';
 
 export function useRoomClosedListener(room, navigation) {
@@ -36,31 +36,36 @@ export function useRoomClosedListener(room, navigation) {
       });
     };
 
+    // Canali condivisi (lib/realtimeHub): la schermata che sta per montare
+    // e quella che sta per smontare usano lo stesso canale, senza crash.
+
     // Canale 1 — postgres_changes UPDATE su rooms.
     // Richiede che la tabella sia in pg_publication supabase_realtime.
-    const pgChannel = supabase
-      .channel(`room_status_${room.id}`)
-      .on('postgres_changes', {
+    const unsubscribePg = subscribeShared(
+      `room_status_${room.id}`,
+      [['postgres_changes', {
         event: 'UPDATE',
         schema: 'public',
         table: 'rooms',
         filter: `id=eq.${room.id}`
-      }, (payload) => {
+      }]],
+      (payload) => {
         if (payload?.new?.status === 'closed') kick();
-      })
-      .subscribe();
+      }
+    );
 
     // Canale 2 — broadcast esplicito GM → player.
     // Belt-and-suspenders: se la publication regredisce o postgres_changes
     // ritarda, il broadcast bypassa il DB e arriva subito.
-    const bcChannel = supabase
-      .channel(`room_close_${room.id}`)
-      .on('broadcast', { event: 'room_closed' }, () => kick())
-      .subscribe();
+    const unsubscribeBc = subscribeShared(
+      `room_close_${room.id}`,
+      [['broadcast', { event: 'room_closed' }]],
+      () => kick()
+    );
 
     return () => {
-      supabase.removeChannel(pgChannel);
-      supabase.removeChannel(bcChannel);
+      unsubscribePg();
+      unsubscribeBc();
     };
   }, [room?.id]);
 }

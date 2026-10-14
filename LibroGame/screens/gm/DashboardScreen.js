@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import { supabase } from '../../lib/supabase';
+import { subscribeShared } from '../../lib/realtimeHub';
 import { confirm } from '../../lib/session';
 import { notify } from '../../lib/helpers';
 import VelvetBackdrop from '../../components/VelvetBackdrop';
@@ -65,23 +66,28 @@ export default function DashboardScreen({ route, navigation }) {
   useEffect(() => {
     fetchPlayers();
 
-    const subscription = supabase
-      .channel(`room_changes_${room.id}`)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'room_players',
-        filter: `room_id=eq.${room.id}`
-      }, () => fetchPlayersRef.current?.())
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'progress',
-        filter: `room_id=eq.${room.id}`
-      }, () => fetchPlayersRef.current?.())
-      .subscribe();
+    // Canale condiviso (lib/realtimeHub): rientrare nella stessa stanza
+    // mentre il canale precedente si sta ancora chiudendo non crasha.
+    const unsubscribe = subscribeShared(
+      `room_changes_${room.id}`,
+      [
+        ['postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'room_players',
+          filter: `room_id=eq.${room.id}`
+        }],
+        ['postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'progress',
+          filter: `room_id=eq.${room.id}`
+        }],
+      ],
+      () => fetchPlayersRef.current?.()
+    );
 
-    return () => supabase.removeChannel(subscription);
+    return unsubscribe;
   }, []);
 
   const fetchPlayers = useCallback(async () => {

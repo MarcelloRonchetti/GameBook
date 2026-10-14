@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import { supabase } from '../../lib/supabase';
+import { subscribeShared, getSharedChannel } from '../../lib/realtimeHub';
 import { notify } from '../../lib/helpers';
 import VelvetBackdrop from '../../components/VelvetBackdrop';
 import { playerDetailStyles as styles } from '../../styles/gm';
@@ -60,25 +61,25 @@ export default function PlayerDetailScreen({ route, navigation }) {
     fetchProgress();
     fetchHints();
 
-    const subscription = supabase
-      .channel('player_progress')
-      .on('postgres_changes', {
+    // Canale condiviso (lib/realtimeHub), topic per giocatore: prima era
+    // 'player_progress' fisso per tutti e riaprire un dettaglio subito dopo
+    // averne chiuso un altro crashava ("after subscribe()").
+    const unsubscribe = subscribeShared(
+      `player_progress_${roomId}_${player.id}`,
+      [['postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'progress',
         filter: `player_id=eq.${player.id}`
-      }, () => fetchProgress())
-      .subscribe();
+      }]],
+      () => fetchProgress()
+    );
 
     // Channel broadcast per il push immediato del nuovo hint al player.
-    // Lo apriamo al mount così quando l'utente clicca "Invia" la chiamata `.send()` parte subito.
-    hintChannelRef.current = supabase.channel(`hint_push_${roomId}_${player.id}`);
-    hintChannelRef.current.subscribe();
+    // Condiviso e gia' sottoscritto: quando l'utente clicca "Invia" la `.send()` parte subito.
+    hintChannelRef.current = getSharedChannel(`hint_push_${roomId}_${player.id}`);
 
-    return () => {
-      supabase.removeChannel(subscription);
-      if (hintChannelRef.current) supabase.removeChannel(hintChannelRef.current);
-    };
+    return unsubscribe;
   }, []);
 
   const fetchProgress = async () => {
