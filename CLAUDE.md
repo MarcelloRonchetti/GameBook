@@ -496,6 +496,7 @@ The `gm elimina stanza` policy is required by `RoomListScreen` deletion. Without
 - `npm run web` launches the web target.
 - `npm run android` launches Android.
 - `npm run ios` launches iOS.
+- `npm run deploy-web` ricrea la versione web e la pubblica su Vercel (vedi Deployment → Web hosting).
 - `npm run clean-pngs` ripulisce metadata PNG (lanciare prima di ogni build APK).
 - `npm run resize-assets` ridimensiona i PNG di `assets/{map,characters,backgrounds,hints}` ai target di rendering (1024-2048 px lato lungo). Idempotente — salta i file gia' sotto soglia. Lanciare dopo aver aggiunto nuovi asset, prima di build APK e commit.
 
@@ -572,9 +573,15 @@ ADB via USB è il modo più affidabile:
 
 `App.js` ha un `ErrorBoundary` che cattura errori React e li mostra a schermo (non chiude l'app). Utile come fallback se ADB non è disponibile.
 
-### Web hosting (futuro)
+### Web hosting (Vercel) — attivo
 
-- **Web hosting:** Vercel or Netlify free tier. `npx expo export -p web` outputs static files; both providers give a free `*.vercel.app` / `*.netlify.app` subdomain with HTTPS, suitable as the production redirect URL for Brevo password-reset emails. Add the deployed URL to Supabase → Authentication → URL Configuration → Redirect URLs allowlist.
+- **URL produzione:** `https://circo-delle-circostanze.vercel.app` (progetto Vercel `librogame`, account `vamos21`). APK scaricabile da `https://circo-delle-circostanze.vercel.app/LibroGame.apk`. I QR code nella guida per la prof puntano a questi due URL: non cambiarli.
+- **Ripubblicare:** `npm run deploy-web` (da `LibroGame/`) = `expo export -p web` + `vercel link --project librogame --cwd dist` + `vercel deploy --prod --cwd dist`. Serve `npx vercel login` una volta sul PC.
+- **`public/`** viene copiata da Expo dentro `dist/` a ogni export:
+  - `vercel.json` — rewrite SPA verso `index.html` (serve per `/reset-password`).
+  - `.vercelignore` — `!assets/node_modules`: Vercel esclude di default ogni cartella `node_modules`, ma l'export web di Expo mette li' i font Google (`dist/assets/node_modules/@expo-google-fonts/...`). Senza questa eccezione i font rispondono con `index.html`, `useFonts` non termina mai e l'app resta sullo splash all'infinito.
+  - `LibroGame.apk` — l'ultimo APK EAS, copiato a mano dopo ogni build (`LibroGame/public/*.apk` e' in `.gitignore` ed escluso da `.easignore`). Se manca, il deploy cancella il link di download.
+- Supabase → Authentication → URL Configuration: Site URL e Redirect URLs contengono l'URL di produzione (+ `/reset-password`).
 - **Custom domain (later):** when a domain is acquired, verify it as a Brevo sender (DKIM/SPF setup) and switch the Supabase sender from a personal email to `noreply@<domain>`.
 
 ## Known gaps

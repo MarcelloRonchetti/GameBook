@@ -9,7 +9,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "clean-pngs": "powershell -ExecutionPolicy Bypass -File scripts/clean-pngs.ps1",
-    "resize-assets": "python3 scripts/resize-assets.py"
+    "resize-assets": "python3 scripts/resize-assets.py",
+    "deploy-web": "expo export -p web && npx vercel link --yes --project librogame --cwd dist && npx vercel deploy --prod --yes --cwd dist"
   },
   "dependencies": {
     "@expo-google-fonts/cormorant-garamond": "^0.4.1",

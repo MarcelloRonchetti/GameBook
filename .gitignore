@@ -119,3 +119,7 @@ build/
 .netlify
 
 .secret
+# Config Vercel copiata da Expo in dist/ (la regola 'public' sopra e' del template Gatsby)
+!LibroGame/public
+# APK pubblicato sul sito (troppo grande per git, va rigenerato con EAS)
+LibroGame/public/*.apk
