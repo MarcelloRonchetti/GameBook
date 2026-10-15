@@ -1,6 +1,6 @@
 // ForgotPasswordScreen.js
 // Schermata "Password dimenticata?" — l'utente inserisce la propria email
-// e Supabase (via Brevo SMTP) invia un link di recupero.
+// e Supabase (via Gmail SMTP) invia un link di recupero.
 // In caso di successo mostra un pannello di conferma invece del form.
 
 import React, { useState } from 'react';

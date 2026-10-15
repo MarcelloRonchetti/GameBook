@@ -51,7 +51,7 @@ Ignore node_modules folder when scanning the project files
   - `AuthLoadingScreen` restores Supabase sessions and redirects by role. Also subscribes to `onAuthStateChange` and handles the `PASSWORD_RECOVERY` event by routing to `ResetPassword` instead of the role home (a `recoveryFired` guard prevents the async `getSession()` branch from racing back to the home).
   - `LoginScreen` authenticates GM/player accounts and uses inline error banners. Includes a "Password dimenticata?" link to `ForgotPassword`. Redesign velluto teatrale: card bordeaux con bordo oro hairline, heading serif champagne, input con gold focus underline, CTA "Accedi" con glow ring pulsante.
   - `RegisterScreen` creates player accounts only (validations: username min 3, email regex, password min 6, confirm). GM accounts are created manually in Supabase. Stessa identita visiva di `LoginScreen` (card velluto + glow ring sul CTA).
-  - `ForgotPasswordScreen` requests a Supabase password-recovery email via Brevo SMTP. Inline error banner; success state replaces the form with "Controlla la tua email." + "Torna al login".
+  - `ForgotPasswordScreen` requests a Supabase password-recovery email via Gmail SMTP. Inline error banner; success state replaces the form with "Controlla la tua email." + "Torna al login".
   - `ResetPasswordScreen` is reached by clicking the recovery link. Direct-visit guard ("Link non valido o scaduto") fires when no recovery session is present (also subscribes to `onAuthStateChange` so it handles the async URL-fragment parse robustly with a 2 s safety timeout). On success, calls `supabase.auth.updateUser({ password })`, signs out, and resets to `Login`.
 
 - GM screens (visual style: "velluto teatrale" — stessa identita di Auth, palette `colors.velvet`, header bar bordeaux/oro via `navigation.setOptions` screen-local; `VelvetBackdrop` come strato di sfondo absolutely-positioned):
@@ -77,7 +77,7 @@ Ignore node_modules folder when scanning the project files
 
 - Libraries:
   - `lib/supabase.js`: Supabase client + session persistence via `AsyncStorage`. `detectSessionInUrl` is set to `Platform.OS === 'web'` so the client parses the `#access_token=…&type=recovery` fragment on web (required for password reset); mobile leaves it off.
-  - `lib/resetRedirect.js`: `getResetRedirect()` — returns the URL Brevo embeds in recovery emails (`window.location.origin + '/reset-password'` on web; `librogame://reset-password` placeholder on native).
+  - `lib/resetRedirect.js`: `getResetRedirect()` — returns the URL Supabase embeds in recovery emails (`window.location.origin + '/reset-password'` on web; `librogame://reset-password` placeholder on native).
   - `lib/helpers.js`: `normalizeText` (strips accents/punctuation/case), `checkAnagram`, `generateRoomCode` (6 digits), `formatTime` (mm:ss), `notify(title, message)` (cross-platform: `window.alert` on web, `Alert.alert` on mobile).
   - `lib/session.js`: `logout`, `confirmLogout`, `confirm(title, message, onConfirm, destructive)` (cross-platform), `resolvePlayerResumeRoute(room, playerId)`.
   - `lib/useRoomClosedListener.js`: `useRoomClosedListener` (doppio canale di delivery, stesso pattern degli hint: `postgres_changes` UPDATE su `rooms` + Broadcast `room_close_<roomId>` evento `room_closed`. Flag `fired` interno rende il kick idempotente — gli eventi possono arrivare in qualsiasi ordine senza causare doppi reset). On close shows `notify()` + `navigation.reset` to `JoinRoom`. Montato in TUTTE le schermate del flusso player: `Intro`, `Map`, `CircoStanza`, `Direttrice` (più legacy `SceneScreen`/`AnagramScreen`). Il GM in `RoomListScreen.handleCloseRoom` e `DashboardScreen.handleCloseRoom` invia il broadcast subito dopo l'`UPDATE` riuscito (channel.subscribe → SUBSCRIBED → send → removeChannel). `useDisableAndroidBack` disables hardware back while a screen is mounted.
@@ -314,7 +314,7 @@ Key (la volontà delle circostanze):
 ### Auth configuration
 
 - Confirm email: **DISABLED** (Authentication → Providers → Email → Confirm email → OFF). Reason: the app is GM-controlled; without disabling, the session is not active right after registration and the insert into `users` fails under RLS.
-- Custom SMTP via **Brevo** (free tier, 300 emails/day). Configure in Supabase → Authentication → Emails → SMTP Settings: host `smtp-relay.brevo.com`, port `587`, login = Brevo account email, password = generated SMTP key. Sender email must be a verified Brevo sender. Reset password template is translated to Italian (subject "Reimposta la tua password — LibroGame", `{{ .ConfirmationURL }}` placeholder kept). Redirect URLs allowlist must include `http://localhost:8081/reset-password` (dev) and the production URL once deployed.
+- Custom SMTP via **Gmail** (since 2026-10-15; Brevo was dropped). Configure in Supabase → Authentication → Emails → SMTP Settings: host `smtp.gmail.com`, port `587`, username = the Gmail address, password = a Google **app password** (needs 2-step verification on the account), sender email = the same Gmail address, sender name `LibroGame`. Do NOT go back to Brevo with a free-mail sender (`@gmail.com`/`@yahoo.com`): Brevo rejects it ("sender ... is not valid. Validate your sender or authenticate your domain") because of Gmail/Yahoo DMARC rules — Brevo only works with an authenticated own domain. SMTP failures show up in Supabase auth logs as `/recover` → 500 with the SMTP error text. Reset password template is translated to Italian (subject "Reimposta la tua password — LibroGame", `{{ .ConfirmationURL }}` placeholder kept). Redirect URLs allowlist must include `http://localhost:8081/reset-password` (dev) and the production URL once deployed.
 - Supabase Auth users with linked rows in `users` cannot be deleted; for tests reuse the same email or generate new ones.
 
 ### Tables
@@ -582,7 +582,7 @@ ADB via USB è il modo più affidabile:
   - `.vercelignore` — `!assets/node_modules`: Vercel esclude di default ogni cartella `node_modules`, ma l'export web di Expo mette li' i font Google (`dist/assets/node_modules/@expo-google-fonts/...`). Senza questa eccezione i font rispondono con `index.html`, `useFonts` non termina mai e l'app resta sullo splash all'infinito.
   - `LibroGame.apk` — l'ultimo APK EAS, copiato a mano dopo ogni build (`LibroGame/public/*.apk` e' in `.gitignore` ed escluso da `.easignore`). Se manca, il deploy cancella il link di download.
 - Supabase → Authentication → URL Configuration: Site URL e Redirect URLs contengono l'URL di produzione (+ `/reset-password`).
-- **Custom domain (later):** when a domain is acquired, verify it as a Brevo sender (DKIM/SPF setup) and switch the Supabase sender from a personal email to `noreply@<domain>`.
+- **Custom domain (later):** when a domain is acquired, authenticate it on an SMTP provider (DKIM/SPF/DMARC) and switch the Supabase sender from a personal email to `noreply@<domain>`.
 
 ## Known gaps
 
